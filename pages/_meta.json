@@ -1,0 +1,10 @@
+{
+  "docs": "欢迎",
+  "RWKV-Wiki": "RWKV 百科",
+  "RWKV-Prompts": "RWKV 提示词指南",
+  "RWKV-Fine-Tuning": "RWKV 微调教程",
+  "RWKV-Developer": "RWKV 开发者教程",
+  "RWKV-Runner": "RWKV Runner 教程",
+  "ai00": "Ai00 教程",
+  "llamacpp":"llama.cpp 推理方法"
+}

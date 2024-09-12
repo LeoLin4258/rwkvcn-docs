@@ -1,0 +1,89 @@
+---
+title: 下载RWKV模型 - RWKV百科
+description: RWKV百科介绍了RWKV原理架构、如何体验RWKV、基于RWKV的应用、微调RWKV等内容。RWKV是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
+keywords: RWKV相关链接,rwkv项目,RWKV工具,rwkv实现
+---
+
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+
+## RWKV-6-World 基底模型
+
+<Callout type="info" emoji="ℹ️">
+RWKV-6-World 系列模型均为基底模型（base model ，又称预训练模型）。基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
+
+但为了保持泛化能力和通用性，基底模型通常不会针对任何一类任务作优化。针对一些垂直的下游任务，可能需要[微调 RWKV 基底模型](https://rwkv.cn/RWKV-Fine-Tuning/Introduction)才能获得更好的任务效果。
+</Callout>
+
+- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-6-world/tree/main)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main)（国内可访问）
+- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-6-world/files)（国内可访问）
+- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/Rwkv-6-world/file)（国内可访问）
+- BT 种子下载：[1B6](https://rwkv.cn/files/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth.torrent) | [3B](https://rwkv.cn/files/RWKV-x060-World-3B-v2.1-20240417-ctx4096.pth.torrent) 
+| [7B](https://rwkv.cn/files/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth.torrent) | [14B](https://rwkv.cn/files/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth.torrent)
+
+## RWKV-6 中文小说模型
+
+<Callout type="info" emoji="ℹ️">
+RWKV-6-ChnNovel 系列中文小说模型基于 RWKV-6-World 模型微调而来，在小说续写、小说扩写、角色扮演方面有非常好的效果。
+
+小说模型的具体用法，请参考 [RWKV-6-ChnNovel 中文小说模型教程](https://rwkv.cn/news/read?id=4264)
+
+</Callout>
+
+- [Hugging Face 主站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)（国内可访问）
+- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-6-misc/files)（国内可访问）
+- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/RWKV-6-ChnNovel/file)（国内可访问）
+- BT 种子下载：[1B6 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-1B-20240807-ctx4096.pth.torrent) | [3B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-3B-20240807-ctx4096.pth.torrent) 
+| [7B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-7B-20240803-ctx4096.pth.torrent) | [14B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-14B-20240805-ctx4096.pth.torrent)
+
+## RWKV-6 日文模型
+
+<Callout type="info" emoji="ℹ️">
+RWKV-6-Jpn 系列日语模型基于 RWKV-6-World 模型微调而来，在日语任务和基准测试上表现良好。
+</Callout>
+
+- [Hugging Face 主站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)（国内可访问）
+
+## RWKV-6 State 文件
+
+<Callout type="info" emoji="ℹ️">
+作为 RNN 模型，RWKV 拥有固定大小的隐藏状态（State）。可通过加载 State 文件强化 RWKV 模型在特定任务的表现（类似于模型增强插件）。
+
+State 文件具体用法请查看： [RWKV state 介绍和用法](https://rwkv.cn/news/read?id=343)。RWKV 也支持[微调 State 文件](https://rwkv.cn/RWKV-Fine-Tuning/State-Tuning)。
+</Callout>
+
+可以从以下链接下载 RWKV State 文件：
+
+- [Hugging Face 主站](https://huggingface.co/BlinkDL/temp-latest-training-models)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/temp-latest-training-models/tree/main)（国内可访问）
+
+<Callout type="warning" emoji="⚠️">
+**注意**： State 文件需要搭配同尺寸的 RWKV 模型，方可正常使用。
+</Callout>
+
+HF 仓库中包含以下几种 State 文件：
+
+- chn-single-round：**中文**单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情
+- eng-single-round：**英文**单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情
+- chn-小说扩写-single-round：中文单轮对话，会根据用户输入进行小说扩写
+- chn-打油诗-single-round：中文单轮对话，会根据用户输入创作打油诗
+- chn-文言文-single-round：中文单轮对话，回答的风格会偏向文言文
+- chn-文言文和古典名著-single-round：中文单轮对话，回答的风格会偏向文言文和古典名著
+- OnlyForChnNovel_小说扩写 State：用于扩写中文小说，适用于同尺寸的 **RWKV-6-ChnNovel** 模型
+
+除了 `OnlyForChnNovel` 系列，其他 State 文件均适用于 **RWKV-6-World** 模型。
+
+## RWKV-5、RWKV-4 等过时模型
+
+<Callout type="warning" emoji="⚠️">
+由于老旧架构导致的性能问题， RWKV-5、RWKV-4 全系列（Raven / World / Pile ...）和更早的 RWKV 版本均已结束生命周期，现有模型仅作为存档。
+</Callout>
+
+可以在以下链接找到存档的 RWKV 模型：
+- [RWKV-5-World](https://hf-mirror.com/BlinkDL/rwkv-5-world)
+- [RWKV-4-World](https://hf-mirror.com/BlinkDL/rwkv-4-world)
+- [RWKV-4-Raven](https://hf-mirror.com/BlinkDL/rwkv-4-raven)
+- 其他 RWKV 系列请在[ HF 仓库](https://hf-mirror.com/BlinkDL)中查看。

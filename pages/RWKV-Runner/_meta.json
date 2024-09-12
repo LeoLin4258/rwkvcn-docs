@@ -1,0 +1,9 @@
+{
+    "Introduction": "RWKV Runner 简介",
+    "Simple-Usage": "快速使用",
+    "Advanced-Usage" : "进阶用法",
+    "API-Usage": "API 指南",
+    "LoRA": "LoRA 微调功能",
+    "Connect-MIDI": "连接 MIDI 硬件",
+    "FAQ":"常见问题"
+}

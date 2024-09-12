@@ -1,0 +1,181 @@
+---
+title: llama.cpp推理 - RWKV推理文档
+---
+
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+import { FileTree } from 'nextra/components'
+import { Cards, Card } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ️">
+Llama.cpp 是一个轻量化的大语言模型运行框架，专门优化了在 CPU 上运行模型的性能。
+</Callout>
+
+随着 RWKV 社区成员 [@MollySophia](https://github.com/MollySophia "@MollySophia") 的工作，llama.cpp 现已适配 `RWKV-6` 模型。
+
+本章节介绍如何在 llama.cpp 中使用 RWKV-6 模型进行推理。
+
+### 第一步：本地构建 llama.cpp 
+
+可以选择从 [llama.cpp 的 release 页面](https://github.com/ggerganov/llama.cpp/releases "llama.cpp 的 release 页面")下载已编译的 llama.cpp 程序。
+
+也可以参照 [llama.cpp 官方构建文档](https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md "llama.cpp 官方构建文档")，选择适合的方法本地编译构建。
+
+### 第二步：获取 gguf 格式模型
+
+llama.cpp 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` 格式模型。因此，我们需要使用以下两种方法获取 gguf 格式的 RWKV 模型。
+
+#### 方法 1：从 HF 下载现成 gguf 模型（推荐）
+ 
+可以从 [https://huggingface.co/latestissue](https://huggingface.co/latestissue) 下载已量化并转化成 gguf 格式的 RWKV 模型。
+
+<Callout type="warning" emoji="⚠️">
+建议使用 `Q5_1`、 `Q8_0` 两种量化精度的 gguf 模型，更低的量化可能会使模型的回答变得很差。
+</Callout>
+
+#### 方法 2：从 HF 格式转换成 `.gguf`  格式
+
+首先，从 [RWKV 官方 HF 仓库](https://huggingface.co/RWKV) 或镜像仓库（国内可访问）下载一个 Hugging Face 格式的 RWKV 模型，如 `RWKV/v6-Finch-1B6-HF`。
+
+然后在 llama.cpp 目录运行此命令，将 Hugging Face 模型转成 gguf 格式： 
+
+``` bash copy
+python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
+```
+
+请将上述命令中的 `./v6-Finch-1B6-HF` 改成你下载的 RWKV HF 模型目录。
+
+#### 附录：将 .pth 模型转化为 HF 格式
+
+以下代码可将 `.pth` 模型转化为 HF 格式模型（`.bin`）：
+
+``` python copy
+# Convert the model for the pytoch_model.bin
+import torch
+
+SOURCE_MODEL="./v6-FinchX-14B-pth/rwkv-14b-final.pth"
+TARGET_MODEL="./v6-Finch-14B-HF/pytorch_model.bin"
+
+# delete target model
+import os
+if os.path.exists(TARGET_MODEL):
+    os.remove(TARGET_MODEL)
+
+model = torch.load(SOURCE_MODEL, mmap=True, map_location='cpu')
+# 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
+# Rename all the keys, to include "rwkv."
+new_model = {}
+for key in model.keys():
+
+    # If the keys start with "blocks"
+    if key.startswith("blocks."):
+        new_key = "rwkv." + key
+        # Replace .att. with .attention.
+        new_key = new_key.replace(".att.", ".attention.")
+        # Replace .ffn. with .feed_forward.
+        new_key = new_key.replace(".ffn.", ".feed_forward.")
+        # Replace `0.ln0.` with `0.pre_ln.`
+        new_key = new_key.replace("0.ln0.", "0.pre_ln.")
+    else:
+        # No rename needed
+        new_key = key
+
+        # Rename `emb.weight` to `rwkv.embeddings.weight`
+        if key == "emb.weight":
+            new_key = "rwkv.embeddings.weight"
+
+        # Rename the `ln_out.x` to `rwkv.ln_out.x
+        if key.startswith("ln_out."):
+            new_key = "rwkv." + key
+
+    print("Renaming key:", key, "--to-->", new_key)
+    new_model[new_key] = model[key]
+
+# Save the new model
+print("Saving the new model to:", TARGET_MODEL)
+torch.save(new_model, TARGET_MODEL)
+```
+
+### 第三步：运行 RWKV 模型推理
+
+在 llama.cpp 目录运行以下命令，可驱动 RWKV 模型基于 prompt 生成文本：
+
+``` bash copy
+./build/bin/llama-cli -m ./v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf --no-warmup -p "User: Write me a poem\n\nAssistant:" -t 8 -ngl 25 -n 500
+```
+
+这条命令通过 llama-cli 运行 RWKV 模型，使用 8 个线程、跳过预热、并根据给定的 prompt 生成最多 500 个 token。
+
+![RWKV 模型推理](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-RWKV-inference-single-prompt.jpg)
+
+**参数解释：**
+
+- `./build/bin/llama-cli`：编译好的 llama-cli 程序，打开命令化界面
+- `-m ./v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf`：模型的路径参数
+- `--no-warmup`：跳过“预热”阶段，直接开始生成文本（以少量性能换取速度）
+- `-p "User: Write me a poem\n\nAssistant:"`： prompt 参数，模型根据该提示词生成文本。"User: Write me a poem\n\nAssistant:" 是符合 RWKV 模型格式的 prompt，更多 RWKV prompt 格式请在[RWKV文档-提示词指南](https://rwkv.cn/RWKV-Prompts/Chat-Prompts "RWKV文档-提示词指南")中查看。
+- `-t 8`：-t 指定线程数，建议根据可用的物理 CPU 核心数调整
+- `- ngl`：指定模型使用的 n-gpu-layers ，25 是在 GPU 上运行 25 层（1.6B 的 24层 + head 算一层）。可以无脑设定 `-ngl 99`，使 llama.cpp 加载 RWKV 模型所有层
+- `-n 500`：-n 参数表示生成的最大 token 数
+
+<Callout type="info" emoji="ℹ️">
+完整的参数列表可以在 [llama.cpp 参数文档](https://github.com/ggerganov/llama.cpp/blob/master/examples/main/README.md "llama.cpp 参数文档")中查看。
+</Callout>
+
+
+#### 批量推理生成
+
+使用以下命令，以进行批量推理：
+
+<Callout type="info" emoji="ℹ️">
+使用 `\n` 隔开不同的 prompt 
+</Callout>
+
+``` bash copy
+./build/bin/llama-parallel -ns 4 -np 4 -m v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf --no-warmup -ngl 25 -n 500 -p "Who are you?\nWhat do we have for dinner?\nWhat's the meaning of life\nHello\nWhat is the end of the universe?"
+```
+
+![批量推理生成](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-RWKV-inference-parallel.jpg)
+
+参数解释：
+
+- `-ns 4`: n_sequence，推理序列的数量
+- `-np 4`: n_parallel，并行推理的数量
+
+### gguf 模型量化方法（可选）
+
+运行以下命令，对 .gguf 模型进行量化：
+
+``` bash copy
+./build-cuda-rel/bin/llama-quantize v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf（量化前的 gguf 模型路径） ./v6-Finch-1B6-HF/v6-Finch-1.6B-HF-Q5_1.gguf（量化后的 gguf 模型路径） Q5_1（量化精度）
+```
+
+所有可选的量化精度：
+
+![可选的量化精度](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-quantization-type.jpg)
+
+<Callout type="info" emoji="ℹ️">
+建议使用 `Q5_1`、 `Q8_0` 两种量化精度。
+</Callout>
+
+### 启动 Web 服务（可选）
+
+使用以下命令，以启动 llama.cpp 的 Web 服务：
+
+``` bash copy
+./build/bin/llama-server -m v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf --no-warmup -ngl 25
+```
+![llama.cpp 的 Web 服务](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-start-webui.jpg)
+
+启动后，可以访问 `http://127.0.0.1:8080` 以检查 Web 页面：
+
+![WebUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-webui-old-version.jpg)
+
+![chatUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-chatui-old-version.jpg)
+
+
+点击右上方的 `New Ul`按钮，或者直接访问 `http://127.0.0.1:8080/index-new.html `，可以打开新版本的 WebUI
+
+![新版本的 WebUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-webui-new-version.jpg)
+
+![新版本的 chatUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-chatui-new-version.jpg)

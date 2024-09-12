@@ -1,0 +1,138 @@
+---
+title: 快速入门 - RWKV Runner 教程
+description: RWKV Runner 是 RWKV 模型的管理和启动工具，用户可使用 RWKV Runner 轻松运行本地 RWKV 模型，体验聊天、写作、作曲交互等 AI 功能。
+keywords: rwkv runner下载,RWKV Runner下载教程,RWKV runner下载方法
+---
+
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+
+这部分文档旨在为一些刚接触 RWKV 大模型的朋友们提供指引。
+
+遵循以下步骤，应该可以成功使用 RWKV Runner 驱动本地 RWKV 模型，体验 RWKV 模型的魅力。
+
+## 下载与安装
+
+RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
+
+- [Windows下载](https://github.com/josStorer/RWKV-Runner/releases/latest/download/RWKV-Runner_windows_x64.exe)
+- [MacOS 下载](https://github.com/josStorer/RWKV-Runner/releases/latest/download/RWKV-Runner_macos_universal.zip)
+- [Linux 下载](https://github.com/josStorer/RWKV-Runner/releases/latest/download/RWKV-Runner_linux_x64) 
+
+若 Github 下载链接无法打开或下载速度太慢，可以在[Baidu 网盘中下载](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)对应的安装包。
+
+<Callout type="warning" emoji="⚠️">
+无论下载哪个版本，请将 RWKV Runner 软件放在一个空目录（空白文件夹）内再执行，因为 RWKV Runner 会自动在当前目录存放所有依赖文件。
+</Callout>
+
+## 准备启动环境
+
+<Callout type="warming" emoji="💡">
+在体验 RWKV Runner 的 AI 功能之前，需要确保设备中安装了 Python 和 Pytorch 等依赖项，这是 RWKV Runner 正常运作的前提。
+</Callout>
+以下两种方法可为你的 RWKV Runner 软件提供完整的启动环境：
+
+### 方法 1：下载懒人包
+
+直接下载[ Baidu 网盘](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)中的懒人包，然后在一个空白的目录中解压懒人包。
+
+![](./runner-download-lazypackage.png)
+
+<Callout type="error" emoji="️🚫">
+只需下载约 11G 的懒人包即可，请勿下载网盘中所有文件
+</Callout>
+
+懒人包中预置了 RWKV Runner 软件本体和 Python 、Pytorch 等所有依赖项，以及一个 3B 的 RWKV 模型。将其下载至本地并在**空白目录**中解压，即可正常使用。
+
+### 方法 2 ：通过 RWKV Runner 自动下载
+
+首次打开 RWKV Runner 软件时，点击“运行”按钮，软件会提示你缺失 Python 等依赖项。
+
+跟随软件的引导逐步点击 “安装”，RWKV Runner 会为你自动下载并安装所需的文件。
+
+![](./download-ref.gif)
+
+![](./RWKVRunner-dl.png)
+
+耐心等待，直到所有依赖项完成下载。
+
+<Callout type="info" emoji="ℹ️">
+    下载完成后。命令行窗口会自动关闭
+</Callout>
+
+---
+
+一切依赖项下载完成后，放置 RWKV Runner的文件夹应该会有标准的离线环境目录结构，如下图：
+
+![runner-floder](./runner-floder.png)
+
+其中 `models` 文件夹用于存放 RWKV 模型，RWKV Runner 默认从此文件夹读取本地 RWKV 模型。
+
+<Callout emoji="✨">
+启动环境只需在首次启动 RWKV Runner 时配置一次。
+</Callout>
+
+对于 Mac 和 Linux 用户，请手动安装 Python3.10 (通常最新的系统已经内置了)。此外，你可以在设置中指定使用的 Python 解释器。
+
+
+## 模型配置与运行
+
+完成启动环境的配置后，我们可以开始下一步：选择预设模型配置、下载并运行 RWKV 模型。
+
+### RWKV Runner 预设模型配置
+
+为了照顾新手用户，RWKV Runner 内置了一系列预设模型配置，以降低使用难度。
+
+![alt text](./RWKV-Runner-preset.png)
+
+每个模型配置名称的规则，依次代表着：设备-所需显存-模型规模-模型语言。
+
+例如 GPU-8G-3B-CN，表示该配置用于 Nvidia 显卡，需要 8G 显存，模型规模为 30 亿（3B）参数，使用的是中文模型。
+
+模型的规模越大，理论上的任务效果会更好，但对设备的内存、显存等性能要求也会更高。
+
+**我该选择哪一项模型配置？**
+
+- 如果你使用 NVIDIA（英伟达）的显卡，可以选择“GPU” 前缀的预设模型配置。
+
+- 如果你使用的是 AMD 或 Intel 的显卡，请选择 “CPU” 或“AnyGPU” 前缀的预设模型配置。
+
+选择一项预设的模型配置后，点击右下角的 `运行` 按钮，即可运行对应的模型。
+
+如果你尚未拥有该预设配置所需的 RWKV 模型，请点击弹窗的“下载”按钮，系统将自动为你下载对应的模型文件。（如果模型下载失败或无响应，请看下一个章节：其他模型下载方法）
+
+等待模型下载完成，再度点击 `运行` 按钮，即可启动模型并运行各类 AI 功能。
+
+### RWKV 模型下载方法
+
+有几种方法可以下载 RWKV 模型：
+
+1. **在 RWKV runner 中下载（默认）**
+
+在 RWKV runner 的“模型”版块，可以筛选并下载 RWKV 模型。
+
+<Callout type="warning" emoji="⚠️">
+注意：如果你无法科学上网，请先勾选 `使用 Hugging Face 镜像源` 再下载模型。
+</Callout>
+
+![alt text](./runner-model-download.gif)
+
+2. **在网站下载**
+
+如果 RWKV runner 的下载任务迟迟未响应，你可以按以下步骤手动下载：
+
+- 在浏览器中下载 RWKV 模型
+- 将下载的 RWKV 模型放在 RWKV Runner 的 `models` 文件夹中
+
+RWKV 5 系列下载链接：
+
+- Hugging Face 主站：https://huggingface.co/BlinkDL/rwkv-5-world/tree/main
+- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-5-world/tree/main
+
+RWKV-6 系列下载链接：
+
+- Hugging Face 主站：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
+- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
+- modelscope（国内可访问）： https://modelscope.cn/models/Blink_DL/rwkv-6-world/files
+
+

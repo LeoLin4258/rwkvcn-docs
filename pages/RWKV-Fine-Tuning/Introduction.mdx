@@ -1,0 +1,56 @@
+---
+title: 微调简介 - RWKV微调
+description: RWKV微调文档提供RWKV的LoRA、State tuning、Pissa、Lisa等微调教程，通过微调RWKV模型，可以强化模型在特定任务上的表现，或者让模型扮演某个特定的角色。
+keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv方法
+---
+
+## 为什么要微调 RWKV 模型？
+
+目前开源发布的 RWKV 模型均为基底模型（base model ，又称预训练模型），基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
+
+但为了保持泛化能力和通用性，RWKV 基底模型并未针对某一类任务作优化。因此，RWKV 模型在某些特定任务上的表现可能不够理想。
+
+而对 RWKV 模型进行微调，通俗地说，指的是使用特定领域（如法律、文学、医学等）或任务（材料总结、小说续写等）的高质量数据集对 RWKV 模型进行再次训练。微调过的 RWKV 模型在对应任务的表现会更高质量且稳定。
+
+相比于从头训练一个全新的模型，微调只需要调整预训练模型的参数就能达到满意的任务效果，需要的训练周期和计算资源更少。
+
+综上所述，我们可以通过微调 RWKV 模型优化其在各种任务中的表现，从而快速构建基于 RWKV 模型的应用场景和落地应用。
+
+## 我需要为微调训练准备什么？
+
+要微调 RWKV 模型，你需要准备**一个 Linux 系统**和基础的 Linux 知识储备、一张**性能较强的 NVIDIA 显卡**。
+
+其次，你需要为 Linux 系统配置训练 RWKV 模型的**虚拟环境、软件包**。
+
+最后，你需要准备用于微调训练的**数据集**。
+
+## 消费级显卡可以微调什么模型？
+
+以下是消费级显卡（4090 或以下）的微调模型参考：
+
+|   模型尺寸         | 全参微调 | lora/pissa  | Qlora/Qpissa | State tuning |
+| --------- | ---- | ---- | ---- | ---- |
+| RWKV6-1.6B | 爆显存 | 7.4GB GPU | 5.6GB GPU | 6.4GB GPU |
+| RWKV6-3B | 爆显存  | 12.1GB GPU | 8.2GB GPU | 9.4GB GPU |
+| RWKV6-7B | 爆显存  | 23.7GB GPU(bsz 8 爆显存) | 14.9GB GPU(bsz 8 需要 19.5GB) | 18.1GB GPU |
+
+如你所见，消费级级显卡无法进行 RWKV-V6 的全参微调，即使是对最小尺寸的 RWKV6-1.6B 模型，全参微调也需要 A100 或更强大的 GPU 。
+
+但 24GB 显存可以尝试全参微调 [RWKV-V5 0.4B](https://huggingface.co/BlinkDL/rwkv-5-world/blob/main/RWKV-5-World-0.4B-v2-20231113-ctx4096.pth) ，本地跑通 RWKV 训练流程。
+
+## 下载基底 RWKV 模型
+
+在微调之前，你需要从以下链接下载官方 RWKV模型，并将其放在某个文件夹中（推荐下载最新的 RWKV-6 架构模型）：
+
+RWKV-5-World 模型下载链接：
+
+- Hugging Face ：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
+- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
+
+RWKV-6-World 模型下载链接：
+
+- Hugging Face ：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
+- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
+- modelscope（国内可访问）： https://modelscope.cn/models/Blink_DL/rwkv-6-world/files
+
+```

@@ -1,0 +1,5 @@
+{
+    "RWKV-Parameters": "RWKV 的解码参数",
+    "Chat-Prompts": "聊天模式 Prompts",
+    "Completion-Prompts" : "续写模式 Prompts"
+}

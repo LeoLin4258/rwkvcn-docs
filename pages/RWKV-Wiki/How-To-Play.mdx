@@ -1,0 +1,240 @@
+---
+title: 如何体验RWKV - RWKV百科
+description: RWKV百科介绍了RWKV原理架构、如何体验RWKV、基于RWKV的应用、微调RWKV等内容。RWKV是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
+keywords: rwkv-百科,RWKV介绍,RWKV模型用法,rwkv部署,rwkv推理
+---
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+import { Tabs } from 'nextra/components'
+
+以下内容可指引你体验 RWKV 模型（在线服务或本地部署）：
+
+## RWKV 模型在线 DEMO 
+
+如果你只是想简单尝试一下 RWKV 模型，可以尝试由 RWKV 官方部署在各大模型平台的演示 Demo：
+
+<Tabs items={['Hugging Face', 'ModelScope']}>
+  <Tabs.Tab>
+  - [RWKV-Gradio-2](https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2) ：基于 RWKV-6-World-7B 模型，搭载 7B 中文/英文/文言文单轮对话 State
+  - [RWKV-Gradio-1](https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1) ：基于 RWKV-6-World-3B 模型，搭载 3B 中文/英文单轮对话  State
+  </Tabs.Tab>
+  <Tabs.Tab>
+ - [ModelScope](https://modelscope.cn/studios/BlinkDL/RWKV-CHN) ：基于 RWKV-6-World-7B 模型，未加载 State 
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="warning" emoji="⚠️">
+💡上述公共 Demo 只能使用续写模式，不支持直接对话。
+
+如果你在公共 Demo 中体验 RWKV 模型，建议按以下两种格式输入 prompts :
+</Callout>
+
+``` text copy
+User: hi
+ 
+Assistant: Hi. I am your assistant and I will provide expert full response in full details. Please feel free to ask any question and I will always answer it.
+ 
+User: (你的问题，比如“请为我推荐三本适合五岁小孩阅读的世界名著” )
+ 
+Assistant:
+```
+或者：
+
+``` text copy
+Instruction: （你希望模型进行什么操作，比如“请将下列瑞典语翻译成中文”）
+ 
+Input:（你希望模型处理的内容，比如“hur l?ng tid tog det att bygga twin towers”）
+ 
+Response:
+```
+
+## 本地部署 RWKV 模型
+
+如果你希望在自己的设备上本地部署并使用 RWKV 模型，建议采用以下几种工具：
+
+### RWKV Runner
+
+RWKV Runner 是 RWKV 模型的管理和启动工具，由 RWKV 开源社区成员 josStorer 开发，它本身也是一个开源软件，且体积仅 10MB 左右（不含依赖项）。
+
+用户可使用 RWKV Runner 轻松运行本地 RWKV 模型，体验各类 AI 功能，包括但不限于聊天、写作、MIDI/ABC 作曲交互等。
+
+RWKV Runner 的具体用法可以参考 [RWKV Runner 使用教程](https://rwkv.cn/RWKV-Runner/Simple-Usage)。
+
+### AI00 RWKV Server
+
+Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 语言模型推理 API 服务器。它本身也是一个基于 MIT 协议的开源软件，由 RWKV 开源社区成员 @cryscan 和@顾真牛牵头成立的 Ai00-x 开发组开发。
+
+Ai00 Server 支持 Vulkan 作为推理后端，支持 Vulkan 并行和并发批量推理，可以在所有支持 Vulkan 的 GPU 上运行。事实上， Ai00 Server 支持大部分 NVIDIA、AMD、Intel 的显卡（包括集成显卡）。
+
+在高兼容性的同时，Ai00 Server 又不需要笨重的 pytorch 、 CUDA 和其他运行时环境。它结构紧凑，开箱即用，且支持 INT8/NF4 量化，可以在绝大部分的个人电脑上高速运行。
+
+AI00 的具体用法可以参考 [Ai00 使用教程](https://rwkv.cn/ai00/Simple-Usage)。
+
+### ChatRWKV
+
+ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你可能需要一定的命令行知识才能使用 ChatRWKV 。
+
+[ChatRWKV 仓库地址](https://github.com/BlinkDL/ChatRWKV)
+
+## 本地部署 RWKV 模型的性能需求[#VRAM-of-RWKV]
+
+我们推荐使用 **FP16** 精度在本地部署并推理 RWKV 模型。当你的显存和内存不足时，可以使用 INT8 / NF4 量化运行 RWKV 模型，降低显存和内存需求。
+
+从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 较明显地降低。
+
+使用 FP16、INT8、NF4 本地部署并运行 RWKV 模型**推理**，需要以下性能配置：
+
+<Tabs items={['FP16 性能需求', 'INT8 性能需求', 'NF4 性能需求']}>
+  <Tabs.Tab>
+| 模型尺寸 | FP16 推理显存 | FP16 内存峰值 |
+|--|--|--|
+| 14B | 28.8GB  | 32GB |
+| 7B | 15.5GB  | 16GB |
+| 3B | 7GB  | 12GB |
+| 1.6B | 4GB  | 8GB |
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+| 模型尺寸 | INT8 量化显存 | INT8 内存峰值 |
+|--|--|--|
+| 14B | 15GB  | 28GB |
+| 7B | 8.2GB  | 15GB |
+| 3B | 4GB | 8GB |
+| 1.6B | 2GB  | 6GB |
+  </Tabs.Tab>
+
+<Tabs.Tab>
+| 模型尺寸 | NF4 量化显存 | NF4 内存峰值 |
+|--|--|--|
+| 14B | 10.5GB  | 20GB |
+| 7B | 6GB  | 13GB |
+| 3B | 3GB  | 6GB |
+| 1.6B | 2GB  | 4GB |
+</Tabs.Tab>
+  
+</Tabs>
+
+以上参数仅作为 RWKV 端侧推理的入门性能参考，随着量化层数等配置项的变化和显卡架构的新旧程度，模型的性能表现可能会改变。
+
+## RWKV 的提示词怎么写？
+
+**与基于 Transformer 的模型相比，RWKV 对提示格式更敏感。**
+
+由于架构设计，RWKV 在“回顾”能力上较弱。因此，**不建议**使用下面这种格式：
+
+```
+Input: 输入给模型的上下文内容，比如 “hello，I love you.”
+ 
+Instruction: 你给模型的指令，比如“请将上面的英文翻译成中文”
+ 
+Response:
+```
+
+如果 RWKV 模型先接收了输入的上下文内容（Input）再接收指令（INSTRUCTION），它在执行指令时可能会漏掉内容中的重要信息。
+
+但如果你先告诉模型要执行什么指令，然后再给模型输入上下文。模型就会先理解指令，然后使用指令来处理上下文的内容。就像这样:
+
+```
+Instruction: 给模型的指令，比如“请将上面的英文翻译成中文”
+ 
+Input: 输入给模型的上下文内容，比如 “hello，I love you.”
+ 
+Response:
+```
+对于一些带上下文的问答任务，我们建议在 prompt 前后重复几个同类的问题，为模型作示范。
+
+如下所示：
+
+``` text copy
+User: 把“hello，I love you.”翻译成中文
+ 
+Assistant: 你好，我爱你。
+ 
+User: 把“how are you?”翻译成中文
+ 
+Assistant: 你好吗？
+ 
+User: 把“I am fine, thank you.”翻译成中文
+ 
+Assistant:
+```
+<Callout type="info" emoji="ℹ️">
+可以在 [RWKV 提示词指南板块](https://rwkv.cn/RWKV-Prompts/Chat-Prompts) 找到一些开箱即用的 RWKV prompt 示例。
+</Callout>
+
+## 如何调整模型的解码参数？[#RWKV-Parameters]
+
+<Callout type="warning" emoji="⚠️">
+如果你熟悉 Transfoemer 的相关解码参数，则无需阅读此章节。
+</Callout>
+
+你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 等 RWKV 模型解码参数。
+
+这些主要解码参数对应的效果如下：
+
+| 参数                | 效果                                                                                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Temperature`       | 采样温度，就像给模型喝酒，数值越大随机性越强，更具创造力，数值越小则越保守稳定。                                                                                |
+| `Top_P`             | 就像给模型喂镇静剂，优先考虑前 n% 概率质量的结果。如设置成 0.1 则考虑前 10% , 生成内容质量更高但更保守。如设置成 1 ，则考虑所有质量结果，内容质量降低但更多样。 |
+| `Presence penalty`  | 存在惩罚，根据**“新内容在现有的文本中是否出现过”**来对其进行惩罚，从而增加了模型涉及新话题的可能性                                                 |
+| `Frequency Penalty` | 频率惩罚，根据**“新内容在目前的文本中出现的频率/次数”**来对其进行惩罚，从而减少模型原封不动地重复相同短语/句子的可能性                                             |
+| `max_tokens`        | 模型生成文本时的最大 token 数，可以理解为“模型一次最多生成多少字”                        |
+
+其中 `Temperature` 和 `Top_P` 两个参数对生成效果的影响最大。
+
+### `Top_P` 参数
+
+降低 `Top_P` 就是给模型喂“镇静剂”，越低就越冷静、机械、准确、单调、无趣、重复。
+
+建议采用以下 `Top_P` 数值：
+
+- 创意回答和写作，建议 `Top_P` 0.5 ~ 0.7。
+- 机械的问答和摘要和翻译等等，建议 `Top_P` 0 ~ 0.5，甚至 0 ~ 0.3。
+- 很机械的回答，例如回答“是/否”、ABCD、1234 之类，建议 `Top_P` 0。
+
+### `Temperature` 参数
+
+增加 `Temperature` 就像给模型“喝酒”，它可以在 `Top_P` 低时增加文采和趣味，并减少重复内容。
+
+建议采用以下 `Temperature` 数值：
+
+- 若 `Top_P` >= 0.7，建议 `Temperature` 1。
+- 若 `Top_P` < 0.7，而且追求趣味，可以增加 `Temperature` 给模型喝酒（喝太多会胡言乱语）。如果追求准确，就保持 `Temperature` 1。
+- 如果 `Top_P` 0.5，建议 `Temperature` 1 ~ 1.5。
+- 如果 `Top_P` 0.3，建议 `Temperature` 1 ~ 1.7。
+- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
+
+### `Presence penalty` 参数
+
+增加 `Presence penalty` 可以让模型额外避免生成已经生成过的文字，建议先设为 0.2 ~ 0.4 。如果你认为生成的内容有重复，而且调 `Top_P` 和 `Temperature` 仍然不满意，可以调整 `Presence penalty`。
+
+- 如果 `Top_P` 0.7，建议 `Presence penalty` 0 ~ 0.3。
+- 如果 `Top_P` 0.5，建议 `Presence penalty` 0 ~ 0.5。
+- 如果 `Top_P` 0.3，建议 `Presence penalty` 0 ~ 0.7。
+- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
+
+**注意，如果 `Presence penalty` 数值过高，会让模型无法正常使用文字，例如无法使用正常的标点符号，或者直接乱码。**
+
+## 各类任务的推荐参数
+
+我们为不同的任务提供了一些推荐的参数：
+
+续写小说和对话这一类**需要创造性的任务**，需要高 `Temperature` + 低 `Top_P` 的参数组合，可以尝试以下四种参数搭配：
+
+- `Temperature` 1.2 ，`Top_P` 0.5
+- `Temperature` 1.4 ，`Top_P` 0.4 
+- `Temperature` 1.4 ，`Top_P` 0.3
+- `Temperature` 2 ，`Top_P` 0.2 
+
+举个例子，续写小说可以尝试将 `Temperature` 设为 2 （ `Temperature` 增加会提高文采，但逻辑会下降），然后将 `Top_P` 设为 0.1 ~ 0.2 （`Top_P` 越低，逻辑能力越强），这样生成的小说内容逻辑和文采都很好。
+
+完成**相对机械的任务**，例如材料问答、文章摘要等，则可将参数设为：
+
+- `Temperature` 1 ，`Top_P` 0.2
+- `Temperature` 1 ，`Top_P` 0.1
+- `Temperature` 1 ，`Top_P` 0 
+
+举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence penalty`、`Frequency Penalty` 都设为 0 。
+
+
+

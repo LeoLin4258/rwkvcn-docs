@@ -1,0 +1,145 @@
+---
+title: 如何为RWKV贡献 - RWKV百科
+description: RWKV百科介绍了RWKV原理架构、如何体验RWKV、基于RWKV的应用、微调RWKV等内容。RWKV是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
+keywords: RWKV贡献,加入rwkv,RWKV社区,帮助rwkv
+---
+
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
+
+我们期待你为 RWKV 作出贡献，无论是开展 RWKV 相关的研究、协助我们改进文档，或是提供 RWKV 的建议。
+
+<Callout  emoji="🎁">
+我们将不定期为 RWKV 生态的贡献者赠送礼品，或提供开发资源帮助。
+</Callout>
+
+
+## 帮助我们将 RWKV.cpp 库移植到 X 语言绑定
+
+在某种你最熟悉的编程语言中实现 RWKV.cpp 库，可帮助我们将 RWKV 集成到新的领域。详情请参阅 [RWKV.cpp](https://github.com/saharNooby/rwkv.cpp)项目。
+
+语言绑定的示例请参见 NodeJS 项目 [rwkv-cpp-node](https://www.npmjs.com/package/rwkv-cpp-node) 。
+
+## 帮助我们改进 RWKV.cpp / rwkv-cpp-cuda 库
+
+我们通常会推荐用户通过 RWKV.cpp / rwkv-cpp-cuda 来使用 RWKV 模型，请帮助我们提高 RWKV.cpp / rwkv-cpp-cuda 库的性能，或提升该库的易用性。
+
+## 帮助我们处理数据集
+
+RWKV 的长期目标是为每个人制作一个适用于每种语言的 AI 模型。请帮助我们构建多语言（非英语）数据集，使之成为可能。
+
+可以在 discord 的 [#dataset channel](https://discord.gg/uMpzuDwcu5) 频道或中参与此工作。
+
+## 帮助我们进行基准测试评估
+
+RWKV 可以通过更一致、更容易复制的基准测试得到改进，帮助我们构建并运行这样的基准测试，以便更好地将 RWKV 与现有的开源模型进行比较。
+
+一个示例是由 RWKV 社区成员 @Jellyfish042 构建的 [Uncheatable Eval](https://github.com/Jellyfish042/uncheatable_eval)，这是一项“无法作弊的 LLM 基准测试”，尝试使用新的 arXiv 论文和 BBC 新闻来评估语言模型的建模能力。
+
+## 只需使用 RWKV
+
+找到 RWKV 的用例并尝试它，以帮助我们找到并修复 RWKV 的错误。
+
+或帮助我们改进文档，使其他人更容易使用 RWKV。
+
+## 帮助我们开展多模型工作
+
+我们欢迎大家探究 RWKV 语言模型之外的多模态工作，比如图像、音乐、时序预测，或其他类型的工作。
+
+ RWKV 现有的多模态的工作可以在以下链接找到：
+
+- RWKV Music 
+    - [GitHub 仓库](https://github.com/BlinkDL/ChatRWKV/tree/main/music)
+    - [模型下载](https://huggingface.co/BlinkDL/rwkv-5-music/tree/main)
+
+- Vision-RWKV 
+    - 相关论文：Vision-RWKV: Efficient and Scalable Visual Perception with RWKV-Like Architectures
+    - [论文地址](https://arxiv.org/abs/2403.02308)
+    - [GitHub 仓库](https://github.com/OpenGVLab/Vision-RWKV)
+    - [模型下载](https://huggingface.co/OpenGVLab/Vision-RWKV/tree/main) 
+
+- VisualRWKV
+    - [GitHub 仓库](https://github.com/howard-hou/VisualRWKV)
+    - [模型下载](https://huggingface.co/howard-hou/visualrwkv-5)
+    - [在线 Demo](https://huggingface.co/spaces/howard-hou/VisualRWKV-Gradio-1) 
+
+- Diffusion-RWKV
+  
+    - 相关论文：Diffusion-RWKV: Scaling RWKV-Like Architectures for Diffusion Models
+    - [论文地址](https://arxiv.org/abs/2404.04478)
+    - [GitHub 仓库](https://github.com/feizc/Diffusion-RWKV)
+    - [模型下载](https://huggingface.co/feizhengcong/Diffusion-RWKV/tree/main )
+
+- RWKV-TS（时间序列）
+
+    - 相关论文： RWKV-TS: Beyond Traditional Recurrent Neural Network for Time Series Tasks
+    - [论文地址](https://arxiv.org/abs/2404.04478)
+    - [GitHub 仓库](https://github.com/howard-hou/RWKV-TS )
+
+- RWKV ASR（自动语音识别）
+
+    - 相关论文：Exploring RWKV for Memory Efficient and Low Latency Streaming ASR
+    - [论文地址](https://arxiv.org/abs/2309.14758 )
+
+- RWKV OAD（在线动作检测）
+
+    - 相关论文：TLS-RWKV: Real-Time Online Action Detection with Temporal Label Smoothing
+    - [论文地址](https://link.springer.com/article/10.1007/s11063-024-11540-0)
+
+- pointRWKV（基于 RWKV 的 3D 点云学习框架）
+
+    - 相关论文：PointRWKV: Efficient RWKV-Like Model for Hierarchical Point Cloud Learning 
+    - [论文地址](https://arxiv.org/pdf/2405.15214)
+    - [GitHub 仓库](https://github.com/hithqd/PointRWKV)
+
+
+## RWKV 贡献者公约
+
+### 我们的承诺
+
+身为社区成员、贡献者和领袖，我们承诺使社区参与者不受骚扰，无论其年龄、体型、可见或不可见的缺陷、族裔、性征、性别认同和表达、经验水平、教育程度、社会与经济地位、国籍、相貌、种族、种姓、肤色、宗教信仰、性倾向或性取向如何。
+
+我们承诺以有助于建立开放、友善、多样化、包容、健康社区的方式行事和互动。
+
+### 我们的准则
+
+有助于为我们的社区创造积极环境的行为例子包括但不限于：
+
+* 表现出对他人的同情和善意
+* 尊重不同的主张、观点和感受
+* 提出和大方接受建设性意见
+* 承担责任并向受我们错误影响的人道歉
+* 注重社区共同诉求，而非个人得失
+
+不当行为例子包括：
+
+* 使用情色化的语言或图像，及性引诱或挑逗
+* 嘲弄、侮辱或诋毁性评论，以及人身或政治攻击
+* 公开或私下的骚扰行为
+* 未经他人明确许可，公布他人的私人信息，如物理或电子邮件地址
+* 其他有理由认定为违反职业操守的不当行为
+
+### 责任和权力
+
+社区领袖有责任解释和落实我们所认可的行为准则，并妥善公正地对他们认为不当、威胁、冒犯或有害的任何行为采取纠正措施。
+
+社区领导有权力和责任删除、编辑或拒绝或拒绝与本行为准则不相符的评论（comment）、提交（commits）、代码、维基（wiki）编辑、议题（issues）或其他贡献，并暂时或永久地封禁他们认为不适当、威胁、冒犯或有害行为的贡献者。
+
+### 适用范围
+
+本行为准则适用于所有社区场合，也适用于在公共场所代表社区时的个人。
+
+代表社区的情形包括使用官方电子邮件地址、通过官方社交媒体帐户发帖或在线上或线下活动中担任指定代表。
+
+### 监督
+
+辱骂、骚扰或其他不可接受的行为可通过 QQ 群或其他渠道向负责监督的社区成员报告。
+
+所有投诉都将得到及时和公平的审查和调查，所有社区领袖都有义务尊重任何报告者的隐私和安全。
+
+### 参见
+
+本行为准则改编自 [Contributor Covenant](https://www.contributor-covenant.org) 2.1 版, 详情参见 [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][v2.1]。
+
+
+
