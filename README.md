@@ -79,7 +79,7 @@ npm run dev
 
 - 提交 PR 后，维护者将进行审查，请及时响应审查意见。
 - 审查通过后，PR 会合并到主分支。
-- 主分支的更新将会自动同步至 [RWKV.CN/Docs](https://rwkv.cn/Docs)。
+- 主分支的更新将会自动同步至 [RWKV.CN/Docs](https://rwkv.cn/docs)。
 
 ## 常见问题
 
