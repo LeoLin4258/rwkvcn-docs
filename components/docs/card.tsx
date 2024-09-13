@@ -1,4 +1,3 @@
-import '/styles/globals.css';
 export const CustomCard = () => {
     const cardData = [
         { imgUrl: '/images/doc-cover-1.png', title: 'RWKV 百科', description: '了解 RWKV 的发展历史、版本信息、架构原理等基础知识', link: '/RWKV-Wiki/Introduction' },
