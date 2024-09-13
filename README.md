@@ -13,7 +13,7 @@
 ### 1. 克隆仓库
 
 ```bash
-git@github.com:LeoLin4258/rwkvcn-docs.git
+git clone git@github.com:LeoLin4258/rwkvcn-docs.git
 cd rwkvcn-docs
 ```
 
