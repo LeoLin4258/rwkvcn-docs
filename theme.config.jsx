@@ -7,22 +7,19 @@ export default {
   },
   // ... other theme options
   sidebar: {
-    defaultMenuCollapseLevel: 1, // here
+    defaultMenuCollapseLevel: 1,
     autoCollapse: true,
   },
   search: {
     placeholder: "搜索文档...",
   },
-  // toc:{
-  //   title:"本页内容"
-  // },
   darkMode: false,
   nextTheme: {
     defaultTheme: "dark",
     forcedTheme: "dark",
   },
   feedback: {
-    content: null, // 设置为 null 可以隐藏反馈部分
+    content: null,
   },
   docsRepositoryBase:"https://github.com/LeoLin4258/rwkvcn-docs/blob/main",
   
@@ -99,11 +96,6 @@ export default {
     return (
       <>
         <meta property="og:url" content={url} />
-        {/* <meta property="og:title" content={frontMatter.title || 'RWKV中文文档'} />
-        <meta
-          property="og:description"
-          content={frontMatter.description || 'RWKV官方中文文档'}
-        /> */}
         <meta
           property="keywords"
           content={frontMatter.keywords || "RWKV,文档"}
@@ -112,8 +104,6 @@ export default {
           property="og:keywords"
           content={frontMatter.keywords || "RWKV,文档"}
         />
-        {/* <script defer src="https://rwkv-site-analytics.vercel.app/script.js" data-website-id="2690d44c-c25e-4921-b463-89064e8f2f55"></script> */}
-        {/* <script></script> */}
       </>
     );
   },
