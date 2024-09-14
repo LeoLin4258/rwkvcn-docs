@@ -6,13 +6,14 @@ keywords: RWKV Runner,RWKV Runner教程,RWKV Runner API,rwkv runner切换模型
 
 import { Callout } from 'nextra/components'
 import { Tabs } from 'nextra/components'
+import { Steps } from 'nextra/components'
 
 ## 什么是 Strategy 和量化
 
 
- `Strategy` 参数决定了模型的加载方式，它会影响模型的生成速度、准确性等用户体验。
+RWKV Runner 支持很多种 `Strategy` 参数，`Strategy` 决定了模型的加载方式，会影响模型的生成速度、准确性等用户体验。
 
- `Strategy` 参数需要根据你的显卡类型调整，总体可以分为以下几类：
+`Strategy` 参数需要根据你的显卡类型调整，总体可以分为以下几类：
 
 - 如果你是 NVIDIA 显卡，建议选择 CUDA 。
 - 如果你是**性能适中**的 AMD / Intel 或其他显卡（包括核显），建议选择 WebGPU / WebGPU(python)。
@@ -97,21 +98,21 @@ import { Tabs } from 'nextra/components'
 | WebGPU(python) | 所有显卡 | 所有版本 | Safetensor( `.st` ) | World/MIDI/ABC | ⭐⭐⭐⭐⭐ |
 
 
-## 自定义模型配置
+## RWKV Runner 配置参数对照表
 
 在 RWKV Runner 的配置页面，可修改预设模型配置的参数，或点击 + 号添加**自定义的模型配置**。
 
 ![runner-config-landscape](./runner-config-landscape.gif)
 
-如果说预设模型配置像餐厅提前准备好的食物套餐，那么自定义模型配置就像是自助餐，你可以随意调整与 RWKV 模型相关的各类参数。
+如果说预设模型配置像餐厅提前准备好的食物套餐，那么自定义模型配置就像是自助餐，你可以随意调整与 RWKV 模型推理相关的各类参数。
 
 <Callout type="warning" emoji="⚠️">
 **请记住：针对每项参数的调整，都将影响 RWKV 模型最终的生成效果。**
 </Callout>
 
-**以下是每项参数的作用和推荐的值，请认真阅读：**
+**以下是 RWKV Runner  每项参数的作用和推荐的值，请认真阅读：**
 
-### 自定义模型配置的参数对照表
+### 解码 / api 参数
 
 **自定义模型配置的模型解码 / api 参数说明，及其调整效果：**
 
@@ -125,6 +126,8 @@ import { Tabs } from 'nextra/components'
 | Frequency Penalty| 频率惩罚，正值根据“新 token 在至今的文本中出现的频率/次数”来对其进行惩罚，从而减少模型原封不动地重复相同句子的可能性。|
 | 惩罚衰减（建议默认）| 惩罚衰减系数越高，会减轻对重复内容的惩罚。模型在生成新 token 时，对先前出现的词或短语的“惩罚”更轻，可能导致内容重复、创造性降低，但会提高连贯性。|
 |全局惩罚| 生成响应时，是否将提交的 prompt 也纳入到惩罚项。如果你发现生成结果出现重复，开启此项有助于避免生成重复内容。|
+
+### 模型加载参数
 
 下为自定义模型配置的**模型参数**说明，及其调整效果。
 
@@ -140,33 +143,38 @@ import { Tabs } from 'nextra/components'
 | 量化层数 | 神经网络以当前精度量化的层数。量化层数越多，占用的显存越低，但质量会相应下降。                             |
 
 
-### 自定义模型配置示例
+## 自定义模型配置示例
 
 下面以使用 RWKV-6 1.6B 模型执行翻译任务为例，演示自定义模型配置的过程：
 
-1. **点击 + 号，新建一项配置，调整 API 参数**
+<Steps>
+### 选择或新建一项配置
+ 
+点击 + 号，新建一项配置，并参考对照表调整各项 API 参数：
 
 ![](./runner-config-1.gif)
 
 由于是不需要创造力的翻译任务，我们稍微调低了 Temperature 和 Top_P 两项参数，使翻译的结果更准确。
-
-2. **调整模型参数**
-
-![](./runner-config-2.gif)
-
+ 
+### 调整模型参数
+ 
 在这一步，我们选择了一个 RWKV-6 1.6B 参数的 World 模型。
 
 由于当前设备是 AMD 的核显，无法使用 CUDA 驱动模型。因此我们在 Strategy 选项中选择了 “WebGPU(python)”。
 
 由于 WebGPU(python)模式只支持 Safetensors 格式。因此，我们需要点击 Runner 的“转换”弹框，将 `.pth` 后缀的官方 RWKV 模型转换为 `.st` 后缀的模型格式。
 
-3. **运行转换后的模型**
+![](./runner-config-2.gif)
 
-![](./runner-config-3.gif)
+### 运行转换后的模型
 
 耐心等待模型转换完成后，我们再次点击“模型”选项，选择转换完成后的 `.st` 模型，并点击运行。
 
+![](./runner-config-3.gif)
+
 等待模型加载完毕，即可开始聊天！
+
+</Steps>
 
 <Callout emoji="✨">
  Tips: 如果选择了 CPU（rwkv.cpp），则转换过后的模型会带有类似 fp16.bin 的后缀。
@@ -340,22 +348,64 @@ def run_conversation():
 print(run_conversation())
 ```
 
-## 🌐 服务器部署
+## 🌐 服务器部署[#server-dev]
 
-以下是一份简易的服务器部署示例：
+<Callout type="error" emoji="️🚫">
+在Linux系统下, RWKV Runner 无法调用终端自动安装依赖, 你必须遵循以下步骤进行安装, 之后方可正常使用。
+</Callout>
+
+以下是一份简易的 Linux 服务器部署示例：
+
+### 下载与安装
 
 1. 在你的服务器中选择一个空的目录，然后执行以下语句，将 RWKV Runner 克隆到服务器中：
 ``` bash copy
 git clone https://github.com/josStorer/RWKV-Runner
 ```
-2. 如需启动后端推理服务，请执行以下命令:
+
+2. 进入 RWKV-Runner 目录，执行以下命令，安装项目所需的依赖：
+
+```bash copy
+cd RWKV-Runner 
+sudo apt install python3-dev # 以 root 权限安装 python3-dev
+chmod +x ./RWKV-Runner # 更改文件模式（权限）为可执行文件
+./RWKV-Runner # 运行 RWKV Runner 
+cd backend-python 
+pip3 install -r requirements.txt # 也可以运行 pip3 install -r requirements_without_cyac.txt
+```
+
+3. 下载 RWKV-6 模型
+
+在 RWKV Runner  目录运行以下命令下载 RWKV-6 系列模型，并将模型文件放置在 `RWKV-Runner/models` 目录下：
+
 ``` bash copy
-cd RWKV-Runner
+mkdir models # 创建 models 文件夹
+wget -N https://huggingface.co/BlinkDL/rwkv-6-world/resolve/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth -P models/
+```
+
+请在 [RWKV 模型下载](https://rwkv.cn/RWKV-Wiki/Model-Download)页面，查看所有可用的 RWKV 模型下载链接。
+
+### 启动推理和 Web 服务
+
+1. 启动后端推理服务
+
+如需启动后端推理服务，请执行以下命令:
+``` bash copy
 python ./backend-python/main.py
 ```
-此时可调用 `/switch-model` 载入模型，参考 API 文档：http://127.0.0.1:8000/docs
 
-3. 如需启动前端服务，请执行以下命令：
+注意，main.py 默认使用 RWKV pip 库，支持 `CUDA` 和 `CPU` 两种推理 Strategy 。
+
+如需以 rwkv.cpp 或 webgpu 两种 Strategy 进行推理，请带上对应的参数：
+
+``` bash copy
+python ./backend-python/main.py --rwkv.cpp # 以 rwkv.cpp 模式推理
+python ./backend-python/main.py --webgpu 
+```
+
+服务启动后，可调用 `/switch-model` API 载入模型，参考 RWKV Runner [API 指南](https://rwkv.cn/RWKV-Runner/API-Usage#switch-model)或 API 文档：http://127.0.0.1:8000/docs 。
+
+2. 如需启动前端服务，请执行以下命令：
 ``` bash copy
 cd RWKV-Runner/frontend
 npm ci
@@ -363,14 +413,19 @@ npm run build #编译前端
 cd ..
 python ./backend-python/webui_server.py #单独启动前端服务
 ```
-4. 如需同时启动前后端服务，请执行以下语句：
+
+3. 如需同时启动前后端服务，请执行以下语句：
 ``` bash copy
 python ./backend-python/main.py --webui #同时启动前后端服务
 ```
-5. 如需查看帮助参数，请执行：
+
+4. 如需查看帮助参数，请执行：
 ``` bash copy
 python ./backend-python/main.py -h
 ```
+
+所有可用的 Web API 请参考：[RWKV Runner API 指南](https://rwkv.cn/RWKV-Runner/API-Usage)。
+
 
 更详细的服务器部署案例请在此查看：https://github.com/josStorer/RWKV-Runner/tree/master/deploy-examples
 
