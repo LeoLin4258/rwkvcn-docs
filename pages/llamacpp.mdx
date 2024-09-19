@@ -67,7 +67,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 
 这条命令通过 llama-cli 运行 RWKV 模型，使用 8 个线程、跳过预热、并根据给定的 prompt 生成最多 500 个 token。
 
-![RWKV 模型推理](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-RWKV-inference-single-prompt.jpg)
+![RWKV 模型推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.jpg)
 
 **参数解释：**
 
@@ -98,7 +98,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 ./build/bin/llama-parallel -ns 4 -np 4 -m v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf --no-warmup -ngl 25 -n 500 -p "Who are you?\nWhat do we have for dinner?\nWhat's the meaning of life\nHello\nWhat is the end of the universe?"
 ```
 
-![批量推理生成](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-RWKV-inference-parallel.jpg)
+![批量推理生成](./images/llamacpp/llama.cpp-RWKV-inference-parallel.jpg)
 
 参数解释：
 
@@ -116,7 +116,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 
 所有可选的量化精度：
 
-![可选的量化精度](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-quantization-type.jpg)
+![可选的量化精度](./images/llamacpp/llama.cpp-quantization-type.jpg)
 
 <Callout type="info" emoji="ℹ️">
 建议使用 `Q5_1`、 `Q8_0` 两种量化精度。
@@ -129,20 +129,20 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 ``` bash copy
 ./build/bin/llama-server -m v6-Finch-1B6-HF/v6-Finch-1.6B-HF-F16.gguf --no-warmup -ngl 25
 ```
-![llama.cpp 的 Web 服务](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-start-webui.jpg)
+![llama.cpp 的 Web 服务](./images/llamacpp/llama.cpp-start-webui.jpg)
 
 启动后，可以访问 `http://127.0.0.1:8080` 以检查 Web 页面：
 
-![WebUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-webui-old-version.jpg)
+![WebUI](./images/llamacpp/llama.cpp-webui-old-version.jpg)
 
-![chatUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-chatui-old-version.jpg)
+![chatUI](./images/llamacpp/llama.cpp-chatui-old-version.jpg)
 
 
 点击右上方的 `New Ul`按钮，或者直接访问 `http://127.0.0.1:8080/index-new.html `，可以打开新版本的 WebUI
 
-![新版本的 WebUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-webui-new-version.jpg)
+![新版本的 WebUI](./images/llamacpp/llama.cpp-webui-new-version.jpg)
 
-![新版本的 chatUI](https://api.rwkv.cn/storage/v1/object/public/cnImg/images/llama.cpp-chatui-new-version.jpg)
+![新版本的 chatUI](./images/llamacpp/llama.cpp-chatui-new-version.jpg)
 
 ## 搭载 RWKV State 文件
 
