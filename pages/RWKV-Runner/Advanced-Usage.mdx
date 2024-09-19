@@ -10,25 +10,53 @@ import { Steps } from 'nextra/components'
 
 ## 什么是 Strategy 和量化
 
+`Strategy` 决定了模型的加载方式，会影响模型的生成速度、准确性等用户体验。
 
-RWKV Runner 支持很多种 `Strategy` 参数，`Strategy` 决定了模型的加载方式，会影响模型的生成速度、准确性等用户体验。
+RWKV Runner 支持 5 种 `Strategy` 参数，分别源自不同的 RWKV 推理框架：
 
-`Strategy` 参数需要根据你的显卡类型调整，总体可以分为以下几类：
+<Callout type="info" emoji="ℹ️">
+- CUDA、CPU 来自 [RWKV 官方 pip 包](https://pypi.org/project/rwkv/)
+- rwkv.cpp 来自 [rwkv.cpp](https://github.com/RWKV/rwkv.cpp) 项目
+- webgpu 来自 [web-rwkv](https://github.com/cryscan/web-rwkv) 项目，一个基于 webgpu 的 rust 推理框架
+- webgpu(python) 来自 [web-rwkv-py](https://github.com/cryscan/web-rwkv-py)，即 web-rwkv 项目的 Python 绑定项目
+</Callout>
 
-- 如果你是 NVIDIA 显卡，建议选择 CUDA 。
-- 如果你是**性能适中**的 AMD / Intel 或其他显卡（包括核显），建议选择 WebGPU / WebGPU(python)。
-- 如果你是**老掉牙**的核显，但 CPU 还算给力，建议选择 CPU（rwkv.cpp）。
-- 如果你的设备年龄和你差不多，建议放弃本地部署，移步 [HF 在线 DEMO](https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2)。
+```mermaid
+graph TD
+    A[RWKV Runner] -->| 来自 rwkv pip 包 | PIP-CPU[CPU（不推荐）]
+    A -->| 来自 rwkv.cpp  项目 | B[RWKV.cpp]
+    A -->| 来自 rwkv pip 包 | PIP-CUDA[CUDA]
+    A -->| 来自 web-rwkv 项目 | C[webgpu]
+    A -->| 来自 web-rwkv-py 项目 | D[webgpu-python]
+
+        
+        PIP-CUDA-->|量化| PIP-CUDA-1[FP16]
+        PIP-CUDA-->|量化| PIP-CUDA-2[INT8]
+        
+        PIP-CPU -->|量化| PIP-CPU1[FP32（不推荐）]
+        PIP-CPU -->|量化| PIP-CPU2[INT8]
+  
+        B -->|量化| B1[FP16]
+        B -->|量化| B2[Q5_1]
+
+        C -->|量化| C1[FP16]
+        C -->|量化| C2[INT8]
+        C -->|量化| C3[NF4]
+   
+        D -->|量化| D1[FP16]
+        D -->|量化| D2[INT8]
+        D -->|量化| D3[NF4]
+```
+
 
 量化则是使用不同的数据精度进行推理，RWKV 的默认训练精度是 BF16，推理精度是 FP16。
 
 当你的显存和内存不足时，可以使用 INT8 / NF4 量化运行 RWKV 模型推理，以降低显存和内存需求。
 
-<Callout type="info" emoji="ℹ️">
-从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 较明显地降低。
-</Callout>
+**从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 较明显地降低。**
 
-### 不同 `Strategy` 的显存需求和生成速度
+
+### 不同 `Strategy` 的显存需求和生成速度[#vram-and-tps]
 
 <Callout type="info" emoji="ℹ️">
 测试环境：
@@ -47,12 +75,12 @@ RWKV Runner 支持很多种 `Strategy` 参数，`Strategy` 决定了模型的加
 | CPU-FP32 | 6.6G内存 | 12GB内存 | 21G内存 | OOM（不建议使用） |
 | rwkv.cpp-FP16 | 3.5G内存 | 7.6GB内存 | 15.7G内存 | 30GB（内存） |
 | rwkv.cpp-Q5_1 | 2GB内存 | 3.7GB内存 | 7.2GB内存 | 12.4GB（内存） |
-| CUDA-FP16 | 3.2GB | 6.2GB | 14.3GB | 约31G |
+| CUDA-FP16 | 3.2GB | 6.2GB | 14.3GB | 约28.5G |
 | CUDA-INT8 | 1.9G | 3.4GB | 7.7GB | 15GB |
-| webgpu-FP16 | 3.2GB | 6.5GB | 14.4GB | 约31G |
+| webgpu-FP16 | 3.2GB | 6.5GB | 14.4GB | 约29G |
 | webgpu-INT8 | 2GB | 4.4GB | 8.2GB | 16G（量化41层，60层约14.8GB） |
 | webgpu-NF4 | 1.3GB | 2.6GB | 5.2GB | 15.1G（量化41层，60层约10.4GB） |
-| webgpu(python)-FP16 | 3GB | 6.3GB | 14GB | 约30G  |
+| webgpu(python)-FP16 | 3GB | 6.3GB | 14GB | 约28G  |
 | webgpu(python)-INT8 | 1.9GB | 4.2GB | 7.7GB | 15GB（量化41层） |
 | webgpu(python)-NF4  | 1.2GB | 2.5GB | 4.8GB | 14.3GB（量化41层） |
   
@@ -92,7 +120,7 @@ RWKV Runner 支持很多种 `Strategy` 参数，`Strategy` 决定了模型的加
 | Strategy 类型 | 显卡类型 | 支持的 RWKV 版本 | 使用的模型格式 | 支持的模型类型 | 速度参考 |
 | --- | --- | --- | --- | --- | --- |
 | CPU | 所有显卡 | 所有版本| PyTorch（`.pth`） | World/MIDI/ABC | ⭐⭐ |
-| CPU（RWKV.cpp） | 所有显卡 | 暂不支持RWKV-6 | GGML（ `.bin` ） | World | ⭐⭐⭐ |
+| CPU（RWKV.cpp） | 所有显卡 | 所有版本 | GGML（ `.bin` ） | World | ⭐⭐⭐ |
 | CUDA | 仅支持NVIDIA显卡 | 所有版本 | PyTorch( `.pth` ) | World/MIDI/ABC | ⭐⭐⭐⭐ |
 | WebGPU | 所有显卡 | 所有版本 | Safetensor( `.st` ) | World | ⭐⭐⭐⭐⭐ |
 | WebGPU(python) | 所有显卡 | 所有版本 | Safetensor( `.st` ) | World/MIDI/ABC | ⭐⭐⭐⭐⭐ |
