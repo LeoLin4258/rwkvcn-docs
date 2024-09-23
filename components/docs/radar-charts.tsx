@@ -4,9 +4,9 @@ import * as echarts from 'echarts';
 import { chartData } from './chart-data';
 
 
-export const RadarChartComponent = (chartDataIndex: number) => {
-    const [originalData, setOriginalData] = useState(chartData[chartDataIndex]);
-    console.log(originalData);
+export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number }) => {
+    console.log(1111, chartDataIndex);
+    const originalData = chartData[chartDataIndex];
 
     // 计算每个维度的最小值
     const minValues = originalData.labels.map((_, i) => {
@@ -34,8 +34,7 @@ export const RadarChartComponent = (chartDataIndex: number) => {
     });
 
     useEffect(() => {
-        setOriginalData(chartData[chartDataIndex]);
-        
+
         const chartDom = document.getElementById('radar-chart');
         const myChart = echarts.init(chartDom);
 
