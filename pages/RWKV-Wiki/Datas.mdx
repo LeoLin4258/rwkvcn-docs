@@ -6,8 +6,9 @@ keywords: RWKV评测,rwkv跑分,RWKV基准测试,RWKV的benchmark
 
 import { Callout } from 'nextra/components'
 import { Steps } from 'nextra/components'
+import { Tabs } from 'nextra/components'
 import { Cards, Card } from 'nextra/components'
-
+import {RadarChartComponent} from '/components/docs/radar-charts.tsx'
 
 
 ## Uncheatable Eval 测试
@@ -17,8 +18,11 @@ import { Cards, Card } from 'nextra/components'
 </Callout>
 
 以下是 RWKV 和其他模型的 Uncheatable Eval 评分对比：
-
 ### 14B 参数模型
+
+<Tabs items={[' 雷达图 ', ' 原始数据 ']}>
+  <Tabs.Tab> <RadarChartComponent chartDataIndex={0}/> </Tabs.Tab>
+  <Tabs.Tab> 
 
 | Name                                     | Params (B)  | Average (lower=better) | ao3 ​english | bbc ​news | wikipedia ​english | arxiv ​computer ​science | arxiv ​physics | github ​cpp | github ​python |
 |------------------------------------------|-------------|------------------------|--------------|----------|--------------------|--------------------------|----------------|-------------|----------------|
@@ -26,6 +30,11 @@ import { Cards, Card } from 'nextra/components'
 | **RWKV-x060-World-14B-v2.1-20240719-ctx4096** | 14.069      | 7.609                  | 10.188       | 8.518    | 8.343              | 7.916                    | 8.040          | 4.930       | 5.330          |
 | Llama-2-13b-hf                           | 13.016      | 7.676                  | 10.524       | 8.279    | 8.187              | 8.075                    | 8.311          | 4.929       | 5.426          |
 | Qwen1.5-14B                              | 14.167      | 7.697                  | 10.880       | 8.884    | 9.102              | 7.752                    | 7.862          | 4.665       | 4.736          |
+
+
+   </Tabs.Tab>
+
+</Tabs>
 
 
 ### 7B 参数模型
