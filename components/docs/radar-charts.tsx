@@ -5,9 +5,9 @@ import { chartData } from './chart-data';
 
 
 export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number }) => {
-    console.log(1111, chartDataIndex);
-    const originalData = chartData[chartDataIndex];
 
+    const originalData = chartData[chartDataIndex];
+    console.log(1111, originalData);
     // 计算每个维度的最小值
     const minValues = originalData.labels.map((_, i) => {
         return Math.min(...originalData.datasets.map(dataset => dataset.data[i]));
@@ -35,7 +35,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
 
     useEffect(() => {
 
-        const chartDom = document.getElementById('radar-chart');
+        const chartDom = document.getElementById(`radar-chart${chartDataIndex}`);
         const myChart = echarts.init(chartDom);
 
         const option = {
@@ -46,6 +46,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
             },
             // 顶部的模型分类标签
             legend: {
+                margin: 70,
                 data: normalizedDatasetsByMin.map(dataset => dataset.label),
                 textStyle: {
                     color: '#a3a3a3' // 设置标签文字颜色
@@ -53,18 +54,20 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
             },
             //控制雷达图的属性和样式
             radar: {
+                // radius: 240,
                 // 设置雷达图的最大值与分割数
                 indicator: originalData.labels.map(label => ({
                     name: label,
                     max: 1,
-                    min: 0.8,
-                    //控制测试类型的文本样式
+                    min: 0.6,
+                    //控制测试类型的标签文本样式
                     nameTextStyle: {
                         color: '#a3a3a3', // 设置标签的字体颜色
                         // fontSize: 12, // 设置字体大小（可选）
                         // fontWeight: 'bold' // 设置字体加粗（可选）
                     }
                 })),
+
                 axisLine: {
                     lineStyle: {
                         color: '#222' // 设置轴线的颜色
@@ -82,7 +85,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
                 //     }
                 // },
                 // 将原点设定在 0.5，划分成5个部分，意味着从 0.5 开始到 1 分为5段
-                splitNumber: 3, // 分割线数量，决定半径分为几段
+                splitNumber: 2, // 分割线数量，决定半径分为几段
                 axisLabel: {
                     show: false, // 显示轴上的数值
                     formatter: (value: number) => (value).toFixed(1),  // 格式化为从0.5起步
@@ -107,13 +110,24 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
 
         myChart.setOption(option);
 
+        // 监听窗口大小变化，调整图表大小
+        const resizeChart = () => {
+            myChart.resize();
+        };
+
+        window.addEventListener('resize', resizeChart);
+
         return () => {
             myChart.dispose();
+            window.removeEventListener('resize', resizeChart);
         };
     }, [chartDataByMin]);
 
     return (
-        <div id="radar-chart" style={{ width: '100%', height: '400px', margin: '20px 0' }}></div>
+        //border
+        <div className='h-[600px] md:h-[700px] lg:h-[800px] '>
+            <div id={`radar-chart${chartDataIndex}`} style={{ width: '100%', height: '100%' }}></div>
+        </div>
     );
 
 }
