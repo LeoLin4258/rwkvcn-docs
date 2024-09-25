@@ -1,24 +1,20 @@
 export const MyHeatMap = () => {
 
     const Model = [
-        'pythia-12b-v0',
-        'Qwen1.5-14B',
+        'Mistral-Nemo-Base-2407',
+        'RWKV-x060-World-14B-v2.1',
         'Llama-2-13b-hf',
-        'RWKV-x060-World-14B-v2.1-20240719-ctx4096',
-        'Mistral-Nemo-Base-2407'
+        'Qwen1.5-14B',
+        'pythia-12b-v0'
     ];
     const data = [
 
         [4, 0, 7.107], [4, 1, 10.07], [4, 2, 8.081], [4, 3, 7.954], [4, 4, 7.419], [4, 5, 7.656], [4, 6, 4.203], [4, 7, 4.368],
-        
         [3, 0, 7.609], [3, 1, 10.188], [3, 2, 8.518], [3, 3, 8.343], [3, 4, 7.916], [3, 5, 8.04], [3, 6, 4.93], [3, 7, 5.33],
-
         [2, 0, 7.676], [2, 1, 10.524], [2, 2, 8.279], [2, 3, 8.187], [2, 4, 8.075], [2, 5, 8.311], [2, 6, 4.929], [2, 7, 5.426],
-
         [1, 0, 7.697], [1, 1, 10.88], [1, 2, 8.884], [1, 3, 9.102], [1, 4, 7.752], [1, 5, 7.862], [1, 6, 4.665], [1, 7, 4.736],
-
         [0, 0, 8.356], [0, 1, 11.285], [0, 2, 9.19], [0, 3, 9.527], [0, 4, 8.535], [0, 5, 8.398], [0, 6, 5.43], [0, 7, 6.125]
-        
+
     ];
 
     const EvalType = [
@@ -38,28 +34,19 @@ export const MyHeatMap = () => {
     const columnMinValues = columnData.map(column => Math.min(...column));
 
     return (
-        <div className="w-full p-4">
-            <div className="flex flex-col">
-                <div className="flex mb-2">
-                    <div className="w-40"></div>
-                    <div className="flex-1">
-                        <div className="grid grid-cols-8">
-                            {EvalType.map((type, index) => (
-                                <div key={index} className="text-xs text-center whitespace-pre-line">
-                                    {type}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+        <div className="w-full p-4 overflow-x-auto">
+            <div className="min-w-[700px]"> {/* 调整最小宽度以适应内容 */}
                 <div className="flex">
-                    <div className="w-40 flex flex-col justify-around pr-2">
+                    {/* 左侧标签 - 现在在滚动区域内，但固定位置 */}
+                    <div className="w-40 flex-shrink-0 ">
                         {Model.map((model, index) => (
-                            <div key={index} className="h-20 flex items-center">{model}</div>
+                            <div key={index} className="h-20 flex items-center text-zinc-400 text-sm">{model}</div>
                         ))}
                     </div>
+                    {/* 右侧内容（热力图和底部标签） */}
                     <div className="flex-1">
                         <div className="grid grid-cols-8">
+                            {/* 热力图部分 */}
                             {data.map((item, index) => {
                                 const [y, x, value] = item;
                                 const columnMax = columnMaxValues[x];
@@ -83,7 +70,7 @@ export const MyHeatMap = () => {
                                 return (
                                     <div
                                         key={index}
-                                        className="h-20 flex items-center justify-center text-xs"
+                                        className="h-20 flex items-center justify-center text-xs "
                                         style={{
                                             backgroundColor: `rgb(${red}, ${green}, ${blue})`,
                                             color: percentage > 0.25 && percentage < 0.75 ? '#333' : '#fff'
@@ -93,6 +80,14 @@ export const MyHeatMap = () => {
                                     </div>
                                 );
                             })}
+                        </div>
+                        {/* 底部标签 */}
+                        <div className="grid grid-cols-8 mt-2">
+                            {EvalType.map((type, index) => (
+                                <div key={index} className="text-xs text-center whitespace-pre-line text-zinc-400">
+                                    {type}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
