@@ -9,7 +9,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
     const originalData = chartData[chartDataIndex];
     console.log(1111, originalData);
     // 计算每个维度的最小值
-    const minValues = originalData.labels.map((_, i) => {
+    const minValues = originalData.labels?.map((_, i) => {
         return Math.min(...originalData.datasets.map(dataset => dataset.data[i]));
     });
 
@@ -18,16 +18,16 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
         return data.map((value, i) => minValues[i] / value); // 按最小值归一化
     };
 
-    // 对每个数据集进行归一化
-    const normalizedDatasetsByMin = originalData.datasets.map(dataset => ({
+    // 对每个数据集进行归一化，并截取前七条数据
+    const normalizedDatasetsByMin = originalData.datasets?.slice(0, 7).map(dataset => ({
         ...dataset,
-        data: normalizeDataByMin(dataset.data, minValues)
+        data: normalizeDataByMin(dataset.data, minValues ? minValues : [])
     }));
 
     // 构建 chartData
-    const chartDataByMin = originalData.labels.map((label, index) => {
+    const chartDataByMin = originalData.labels?.map((label, index) => {
         const dataPoint: { [key: string]: any } = {}; // 定义 dataPoint 对象
-        normalizedDatasetsByMin.forEach(dataset => {
+        normalizedDatasetsByMin?.forEach(dataset => {
             dataPoint[dataset.label] = dataset.data[index]; // 记录每个模型归一化后的数据
         });
         return dataPoint; // 返回这个维度的数据点
@@ -47,24 +47,26 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
             // 顶部的模型分类标签
             legend: {
                 margin: 70,
-                data: normalizedDatasetsByMin.map(dataset => dataset.label),
+                data: normalizedDatasetsByMin?.map(dataset => dataset.label),
                 textStyle: {
                     color: '#a3a3a3' // 设置标签文字颜色
-                }
+                },
+                // type: 'scroll', // 设置图例为可滚动
+                pageIconColor: '#a3a3a3', // 设置翻页图标颜色
+                pageTextStyle: {
+                    color: '#a3a3a3' // 设置翻页文字颜色
+                },
             },
             //控制雷达图的属性和样式
             radar: {
-                // radius: 240,
                 // 设置雷达图的最大值与分割数
-                indicator: originalData.labels.map(label => ({
+                indicator: originalData.labels?.map(label => ({
                     name: label,
                     max: 1,
-                    min: 0.6,
+                    min: 0.7,
                     //控制测试类型的标签文本样式
                     nameTextStyle: {
                         color: '#a3a3a3', // 设置标签的字体颜色
-                        // fontSize: 12, // 设置字体大小（可选）
-                        // fontWeight: 'bold' // 设置字体加粗（可选）
                     }
                 })),
 
@@ -78,12 +80,6 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
                         color: '#111' // 设置分割线的颜色
                     }
                 },
-                // splitArea: {
-                //     areaStyle: {
-                //         color: ['#fff', '#f5f5f5'], // 设置分割区域的交替颜色
-                //         shadowBlur: 10
-                //     }
-                // },
                 // 将原点设定在 0.5，划分成5个部分，意味着从 0.5 开始到 1 分为5段
                 splitNumber: 2, // 分割线数量，决定半径分为几段
                 axisLabel: {
@@ -94,7 +90,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
             series: [{
                 name: 'Radar Chart',
                 type: 'radar',
-                data: normalizedDatasetsByMin.map(dataset => ({
+                data: normalizedDatasetsByMin?.map(dataset => ({
                     value: dataset.data,
                     name: dataset.label,
                     areaStyle: {
@@ -125,7 +121,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
 
     return (
         //border
-        <div className='h-[600px] md:h-[700px] lg:h-[800px] '>
+        <div className='h-[500px] md:h-[600px] lg:h-[650px] mt-10'>
             <div id={`radar-chart${chartDataIndex}`} style={{ width: '100%', height: '100%' }}></div>
         </div>
     );

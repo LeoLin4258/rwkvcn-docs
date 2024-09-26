@@ -11,24 +11,13 @@ export const chartData = [
             'github cpp',
             'github python'
         ],
-        datasets: [
-            {
-                label: 'Mistral-Nemo-Base-2407',
-                data: [7.107, 10.070, 8.081, 7.954, 7.419, 7.656, 4.203, 4.368]
-            },
-            {
-                label: 'RWKV-x060-World-14B-v2.1',
-                data: [7.609, 10.188, 8.518, 8.343, 7.916, 8.040, 4.930, 5.330]
-            },
-            {
-                label: 'Llama-2-13b-hf',
-                data: [7.676, 10.524, 8.279, 8.187, 8.075, 8.311, 4.929, 5.426]
-            },
-            {
-                label: 'Qwen1.5-14B',
-                data: [7.697, 10.880, 8.884, 9.102, 7.752, 7.862, 4.665, 4.736]
-            }
-        ]
+        datasets:[
+            { label: 'Mistral-Nemo-Base-2407', data: [7.107, 10.07, 8.081, 7.954, 7.419, 7.656, 4.203, 4.368] },
+            { label: 'RWKV-6-14B-v2.1', data: [7.609, 10.188, 8.518, 8.343, 7.916, 8.04, 4.93, 5.33] },
+            { label: 'Llama-2-13b-hf', data: [7.676, 10.524, 8.279, 8.187, 8.075, 8.311, 4.929, 5.426] },
+            { label: 'Qwen1.5-14B', data: [7.697, 10.88, 8.884, 9.102, 7.752, 7.862, 4.665, 4.736] },
+            { label: 'pythia-12b-v0', data: [8.356, 11.285, 9.19, 9.527, 8.535, 8.398, 5.43, 6.125] }
+          ]             
     },
     {
         name: '7B',
@@ -42,76 +31,28 @@ export const chartData = [
             'github cpp',
             'github python'
         ],
-        datasets: [
-            {
-                label: 'Meta-Llama-3.1-8B',
-                data: [7.227, 10.529, 8.201, 7.932, 7.549, 7.686, 4.204, 4.487]
-            },
-            {
-                label: 'Qwen2.5-7B',
-                data: [7.453, 10.931, 8.742, 8.815, 7.683, 7.991, 3.920, 4.091]
-            },
-            {
-                label: 'Qwen2-7B',
-                data: [7.528, 10.814, 8.582, 8.709, 7.822, 8.249, 4.204, 4.317]
-            },
-            {
-                label: 'Mistral-7B-v0.1',
-                data: [7.580, 10.546, 8.282, 8.435, 7.852, 8.092, 4.800, 5.051]
-            },
-            {
-                label: 'RWKV-x060-World-7B-v2.1-20240507-ctx4096',
-                data: [7.817, 10.410, 8.740, 8.577, 8.107, 8.248, 5.122, 5.516]
-            },
-            {
-                label: 'Yi-1.5-6B',
-                data: [7.830, 10.926, 8.789, 8.948, 8.098, 8.410, 4.746, 4.890]
-            },
-            {
-                label: 'OLMo-1.7-7B-hf',
-                data: [7.881, 11.012, 8.647, 8.987, 8.004, 8.200, 4.966, 5.354]
-            },
-            {
-                label: 'RWKV-5-World-7B-v2-20240128-ctx4096',
-                data: [7.905, 10.495, 8.878, 8.694, 8.184, 8.311, 5.187, 5.587]
-            },
-            {
-                label: 'Qwen1.5-7B',
-                data: [7.916, 11.100, 9.126, 9.357, 7.953, 8.107, 4.845, 4.924]
-            },
-            {
-                label: 'mpt-7b',
-                data: [7.950, 11.185, 8.682, 8.771, 8.157, 8.438, 4.954, 5.466]
-            },
-            {
-                label: 'Llama-2-7b-hf',
-                data: [7.967, 10.842, 8.511, 8.521, 8.330, 8.630, 5.235, 5.703]
-            },
-            {
-                label: 'Zamba-7B-v1',
-                data: [8.089, 10.846, 8.520, 8.639, 8.060, 8.290, 5.938, 6.328]
-            },
-            {
-                label: 'open_llama_7b_v2',
-                data: [8.103, 11.086, 8.839, 9.053, 8.404, 8.757, 4.887, 5.698]
-            },
-            {
-                label: 'falcon-7b',
-                data: [8.302, 10.756, 8.691, 9.147, 8.549, 9.060, 5.763, 6.149]
-            },
-            {
-                label: 'pythia-6.9b-v0',
-                data: [8.545, 11.495, 9.375, 9.757, 8.683, 8.572, 5.611, 6.321]
-            },
-            {
-                label: 'mamba-7b-rw',
-                data: [9.782, 10.808, 8.548, 8.990, 8.613, 9.142, 11.107, 11.268]
-            }
-        ]
+        datasets:[
+            { label: 'Meta-Llama-3.1-8B', data: [7.227, 10.529, 8.201, 7.932, 7.549, 7.686, 4.204, 4.487] },
+            { label: 'Qwen2.5-7B', data: [7.453, 10.931, 8.742, 8.815, 7.683, 7.991, 3.92, 4.091] },
+            { label: 'Qwen2-7B', data: [7.528, 10.814, 8.582, 8.709, 7.822, 8.249, 4.204, 4.317] },
+            { label: 'Mistral-7B-v0.1', data: [7.58, 10.546, 8.282, 8.435, 7.852, 8.092, 4.8, 5.051] },
+            { label: 'RWKV-6-World-7B-v2.1', data: [7.817, 10.41, 8.74, 8.577, 8.107, 8.248, 5.122, 5.516] },
+            { label: 'Yi-1.5-6B', data: [7.83, 10.926, 8.789, 8.948, 8.098, 8.41, 4.746, 4.89] },
+            { label: 'OLMo-1.7-7B-hf', data: [7.881, 11.012, 8.647, 8.987, 8.004, 8.2, 4.966, 5.354] },
+            { label: 'RWKV-5-World-7B-v2', data: [7.905, 10.495, 8.878, 8.694, 8.184, 8.311, 5.187, 5.587] },
+            { label: 'Qwen1.5-7B', data: [7.916, 11.1, 9.126, 9.357, 7.953, 8.107, 4.845, 4.924] },
+            { label: 'mpt-7b', data: [7.95, 11.185, 8.682, 8.771, 8.157, 8.438, 4.954, 5.466] },
+            { label: 'Llama-2-7b-hf', data: [7.967, 10.842, 8.511, 8.521, 8.33, 8.63, 5.235, 5.703] },
+            { label: 'Zamba-7B-v1', data: [8.089, 10.846, 8.52, 8.639, 8.06, 8.29, 5.938, 6.328] },
+            { label: 'open_llama_7b_v2', data: [8.103, 11.086, 8.839, 9.053, 8.404, 8.757, 4.887, 5.698] },
+            { label: 'falcon-7b', data: [8.302, 10.756, 8.691, 9.147, 8.549, 9.06, 5.763, 6.149] },
+            { label: 'pythia-6.9b-v0', data: [8.545, 11.495, 9.375, 9.757, 8.683, 8.572, 5.611, 6.321] },
+            { label: 'mamba-7b-rw', data: [9.782, 10.808, 8.548, 8.99, 8.613, 9.142, 11.107, 11.268] }
+          ]
     },
     {
         name: 'Single-Document-QA-test',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'NarrativeQA',
@@ -137,7 +78,7 @@ export const chartData = [
     },
     {
         name: 'Multi-Task-QA-test',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'HotpotQA',
@@ -163,7 +104,7 @@ export const chartData = [
     },
     {
         name: 'Summarization-test',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'GovReport',
@@ -189,7 +130,7 @@ export const chartData = [
     },
     {
         name: 'Few-shot-Learning-test',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'TREC',
@@ -215,7 +156,7 @@ export const chartData = [
     },
     {
         name: 'Synthetic Tasks（合成任务）',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'Passage Count',
@@ -236,7 +177,7 @@ export const chartData = [
     },
     {
         name: 'Code Completion（代码续写）',
-        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k'],
+        model: ['GPT-3.5-Turbo-16k', 'Llama2-7B-chat-4k', 'LongChat-v1.5-7B-32k', 'XGen-7B-8k', 'InternLM-7B-8k', 'ChatGLM2-6B-32k', 'Vicuna-v1.5-7B-16k', 'ChatGLM3-6B-32k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B', 'RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k'],
         series: [
             {
                 name: 'LCC',
@@ -252,7 +193,7 @@ export const chartData = [
     },
     {
         name: 'RWKV、Mamba 和 Llma2 的综合评分对比',
-        model: ['RWKV-6-v2.1-1B6', 'RWKV-6-v2.1-3B', 'RWKV-6-v2.1-7b-4k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B'],
+        model: ['RWKV-6-World-1B6-v2.1', 'RWKV-6-World-3B-v2.1', 'RWKV-6-World-7b-v2.1-4k', 'Mamba_1B4', 'Mamba_2B8', 'Llma2_7B', 'mistral_7B'],
         series: [
             {
                 name: 'Single DocQ',
@@ -310,94 +251,31 @@ export const chartData = [
             'github python'
         ],
         datasets: [
-            {
-                label: 'Qwen1.5-4B',
-                data: [8.250, 11.612, 9.335, 9.781, 8.233, 8.449, 5.143, 5.197]
-            },
-            {
-                label: 'Llama-3.1-Minitron-4B-Depth-Base',
-                data: [8.257, 11.404, 9.261, 9.399, 8.456, 9.068, 4.912, 5.298]
-            },
-            {
-                label: 'RWKV-x060-World-3B-v2.1-20240417-ctx4096',
-                data: [8.263, 10.835, 9.156, 9.103, 8.492, 8.721, 5.573, 5.961]
-            },
-            {
-                label: 'Phi-3-mini-4k-instruct',
-                data: [8.333, 11.978, 9.190, 9.301, 8.386, 9.015, 5.443, 5.021]
-            },
-            {
-                label: 'mamba2attn-2.7b',
-                data: [8.359, 11.285, 9.227, 9.593, 8.520, 8.399, 5.405, 6.084]
-            },
-            {
-                label: 'gemma-2b',
-                data: [8.385, 11.741, 9.137, 9.391, 8.686, 8.878, 5.190, 5.675]
-            },
-            {
-                label: 'RWKV-5-World-3B-v2-20231113-ctx4096',
-                data: [8.409, 10.987, 9.343, 9.297, 8.620, 8.836, 5.699, 6.080]
-            },
-            {
-                label: 'open_llama_3b_v2',
-                data: [8.459, 11.466, 9.149, 9.470, 8.744, 9.156, 5.205, 6.023]
-            },
-            {
-                label: 'mamba2-2.7b',
-                data: [8.469, 11.377, 9.316, 9.717, 8.617, 8.489, 5.524, 6.243]
-            },
-            {
-                label: 'Phi-3.5-mini-instruct',
-                data: [8.476, 12.163, 9.313, 9.431, 8.567, 9.147, 5.513, 5.197]
-            },
-            {
-                label: 'Zamba2-2.7B',
-                data: [8.571, 11.166, 8.934, 9.143, 8.424, 8.877, 6.776, 6.675]
-            },
-            {
-                label: 'mamba-2.8b-hf',
-                data: [8.593, 11.462, 9.428, 9.872, 8.760, 8.636, 5.638, 6.352]
-            },
-            {
-                label: 'RWKV-4-World-3B-v1-20230619-ctx4096',
-                data: [8.705, 11.042, 9.512, 9.588, 9.129, 9.425, 5.854, 6.383]
-            },
-            {
-                label: 'pythia-2.8b-v0',
-                data: [8.845, 11.815, 9.684, 10.155, 8.923, 8.855, 5.887, 6.597]
-            },
-            {
-                label: 'RedPajama-INCITE-Base-3B-v1',
-                data: [8.869, 11.661, 9.128, 9.290, 8.882, 9.208, 6.617, 7.294]
-            },
-            {
-                label: 'phi-2',
-                data: [8.911, 12.280, 9.283, 9.582, 8.815, 9.858, 6.771, 5.789]
-            },
-            {
-                label: 'btlm-3b-8k-base',
-                data: [8.959, 11.807, 9.082, 9.097, 8.571, 8.880, 7.464, 7.812]
-            },
-            {
-                label: 'RWKV-4-Pile-3B-20221110-ctx4096',
-                data: [9.020, 11.790, 9.758, 10.397, 9.204, 9.059, 6.085, 6.850]
-            },
-            {
-                label: 'Sheared-LLaMA-2.7B',
-                data: [9.099, 11.580, 9.146, 9.613, 9.107, 9.647, 7.066, 7.535]
-            },
-            {
-                label: 'MiniCPM3-4B',
-                data: [9.119, 13.229, 10.711, 10.719, 8.754, 9.034, 5.545, 5.839]
-            },
-            {
-                label: 'mamba-2.8b-slimpj',
-                data: [9.247, 13.811, 9.660, 9.151, 8.711, 8.922, 7.043, 7.428]
-            },
-            {
-                label: 'OpenELM-3B',
-                data: [9.679, 14.051, 10.080, 9.974, 9.159, 9.517, 7.402, 7.572]
-            }
+            { label: 'stablelm-3b-4e1t', data: [8.032, 11.049, 8.795, 8.826, 8.355, 8.64, 4.974, 5.585] },
+            { label: 'Minitron-4B-Base', data: [8.142, 11.219, 9.045, 9.202, 8.3, 8.857, 4.954, 5.416] },
+            { label: 'recurrentgemma-2b', data: [8.167, 11.454, 8.922, 9.164, 8.445, 8.664, 5.006, 5.512] },
+            { label: 'Qwen1.5-4B', data: [8.25, 11.612, 9.335, 9.781, 8.233, 8.449, 5.143, 5.197] },
+            { label: 'Llama-3.1-Minitron-4B', data: [8.257, 11.404, 9.261, 9.399, 8.456, 9.068, 4.912, 5.298] },
+            { label: 'RWKV-6-World-3B-v2.1', data: [8.263, 10.835, 9.156, 9.103, 8.492, 8.721, 5.573, 5.961] },
+            { label: 'Phi-3-mini-4k-instruct', data: [8.333, 11.978, 9.19, 9.301, 8.386, 9.015, 5.443, 5.021] },
+            { label: 'mamba2attn-2.7b', data: [8.359, 11.285, 9.227, 9.593, 8.52, 8.399, 5.405, 6.084] },
+            { label: 'gemma-2b', data: [8.385, 11.741, 9.137, 9.391, 8.686, 8.878, 5.19, 5.675] },
+            { label: 'RWKV-5-World-3B-v2', data: [8.409, 10.987, 9.343, 9.297, 8.62, 8.836, 5.699, 6.08] },
+            { label: 'open_llama_3b_v2', data: [8.459, 11.466, 9.149, 9.47, 8.744, 9.156, 5.205, 6.023] },
+            { label: 'mamba2-2.7b', data: [8.469, 11.377, 9.316, 9.717, 8.617, 8.489, 5.524, 6.243] },
+            { label: 'Phi-3.5-mini-instruct', data: [8.476, 12.163, 9.313, 9.431, 8.567, 9.147, 5.513, 5.197] },
+            { label: 'Zamba2-2.7B', data: [8.571, 11.166, 8.934, 9.143, 8.424, 8.877, 6.776, 6.675] },
+            { label: 'mamba-2.8b-hf', data: [8.593, 11.462, 9.428, 9.872, 8.76, 8.636, 5.638, 6.352] },
+            { label: 'RWKV-4-World-3B-v1', data: [8.705, 11.042, 9.512, 9.588, 9.129, 9.425, 5.854, 6.383] },
+            { label: 'pythia-2.8b-v0', data: [8.845, 11.815, 9.684, 10.155, 8.923, 8.855, 5.887, 6.597] },
+            { label: 'RedPajama-INCITE-Base-3B-v1', data: [8.869, 11.661, 9.128, 9.29, 8.882, 9.208, 6.617, 7.294] },
+            { label: 'phi-2', data: [8.911, 12.28, 9.283, 9.582, 8.815, 9.858, 6.771, 5.789] },
+            { label: 'btlm-3b-8k-base', data: [8.959, 11.807, 9.082, 9.097, 8.571, 8.88, 7.464, 7.812] },
+            { label: 'RWKV-4-Pile-3B', data: [9.02, 11.79, 9.758, 10.397, 9.204, 9.059, 6.085, 6.85] },
+            { label: 'Sheared-LLaMA-2.7B', data: [9.099, 11.58, 9.146, 9.613, 9.107, 9.647, 7.066, 7.535] },
+            { label: 'MiniCPM3-4B', data: [9.119, 13.229, 10.711, 10.719, 8.754, 9.034, 5.545, 5.839] },
+            { label: 'mamba-2.8b-slimpj', data: [9.247, 13.811, 9.66, 9.151, 8.711, 8.922, 7.043, 7.428] },
+            { label: 'OpenELM-3B', data: [9.679, 14.051, 10.08, 9.974, 9.159, 9.517, 7.402, 7.572] },
         ]
     },
     {
@@ -430,11 +308,11 @@ export const chartData = [
                 data: [8.559, 11.621, 9.199, 9.839, 8.653, 9.086, 5.542, 5.973]
             },
             {
-                label: 'RWKV-x060-World-1B6-v2.1-20240328-ctx4096',
+                label: 'RWKV-6-World-1B6-v2.1',
                 data: [8.676, 11.240, 9.546, 9.595, 8.842, 9.145, 6.002, 6.364]
             },
             {
-                label: 'RWKV-5-World-1B5-v2-20231025-ctx4096',
+                label: 'RWKV-5-World-1B5-v2',
                 data: [8.826, 11.391, 9.741, 9.795, 8.972, 9.256, 6.127, 6.500]
             },
             {
@@ -454,7 +332,7 @@ export const chartData = [
                 data: [9.143, 12.452, 9.894, 10.609, 9.138, 9.717, 5.930, 6.261]
             },
             {
-                label: 'RWKV-4-World-1.5B-v1-fixed-20230612-ctx4096',
+                label: 'RWKV-4-World-1.5B-v1',
                 data: [9.188, 11.465, 9.943, 10.109, 9.573, 9.964, 6.393, 6.869]
             },
             {
@@ -470,7 +348,7 @@ export const chartData = [
                 data: [9.333, 12.323, 10.129, 10.780, 9.320, 9.333, 6.342, 7.105]
             },
             {
-                label: 'RWKV-4-Pile-1B5-20220903-8040',
+                label: 'RWKV-4-Pile-1B5',
                 data: [9.460, 12.214, 10.162, 10.884, 9.594, 9.484, 6.556, 7.328]
             },
             {
