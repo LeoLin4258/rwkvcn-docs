@@ -94,8 +94,12 @@ export const DownArrowSvg = () => {
 
 export const DownLoadSvg = () => {
     return (
-        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" 
-        p-id="961" width="48" height="48">
-            <path d="M512 0a51.2 51.2 0 0 1 51.2 51.2v554.3936L656.7936 512a51.2 51.2 0 1 1 72.448 72.3968l-172.032 171.9808a64 64 0 0 1-90.4704 0l-171.9808-171.9808A51.2 51.2 0 0 1 367.2064 512L460.8 605.5936V51.2a51.2 51.2 0 0 1 51.2-51.2z" fill="#758EAA" p-id="962"></path><path d="M51.2 256a102.4 102.4 0 0 1 102.4-102.4h153.6v102.4H153.6v665.6h716.8V256h-153.6V153.6h153.6a102.4 102.4 0 0 1 102.4 102.4v665.6a102.4 102.4 0 0 1-102.4 102.4H153.6a102.4 102.4 0 0 1-102.4-102.4V256z" fill="#758EAA" p-id="963"></path></svg>
+        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1002" width="48" height="48"><path d="M832 768v64H192v-64h-64v128h768V768z m-9.376-329.376l-45.248-45.248L544 626.752V128h-64v498.752L246.624 393.376l-45.248 45.248L512 749.248z" fill="#BFDBFE" p-id="1003"></path></svg>
+    )
+}
+
+export const LinkToSvg = () => {
+    return (
+        <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1409" width="48" height="48"><path d="M832 128H640v64h146.752L521.376 457.376l45.248 45.248L832 237.248V384h64V128z" fill="#BFDBFE" p-id="1410"></path><path d="M768 832H192V256h352v-64H160a32 32 0 0 0-32 32v640a32 32 0 0 0 32 32h640a32 32 0 0 0 32-32V480h-64v352z" fill="#BFDBFE" p-id="1411"></path></svg>
     )
 }

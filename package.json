@@ -20,6 +20,7 @@
 		"@types/react-dom": "18.2.7",
 		"autoprefixer": "10.4.19",
 		"clsx": "^2.0.0",
+		"echarts": "^5.5.1",
 		"embla-carousel-react": "^8.1.6",
 		"eslint": "8.48.0",
 		"eslint-config-next": "14.2.1",
