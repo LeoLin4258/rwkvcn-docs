@@ -24,18 +24,27 @@ export const HeatMap = ({ index }: { index: number }) => {
         <div className="w-full p-4 overflow-x-auto" id={`heat-chart${index}`}>
             <div className="min-w-[700px]"> {/* 调整最小宽度以适应内容 */}
                 <div className="flex">
-                    {/* 左侧标签 - 现在在滚动区域内，但固定位置 */}
-                    <div className="w-40 flex-shrink-0 ">
+                    {/* 左侧标签 */}
+                    <div className="w-40 flex-shrink-0">
+                        <div className="h-12"></div> {/* 占位符 */}
                         {Model.map((model, index) => (
                             <div key={index} className={`h-10 flex items-center text-xs ${model.includes('RWKV') ? 'text-white font-bold' : 'text-zinc-400'}`}>
                                 {model}
                             </div>
                         ))}
                     </div>
-                    {/* 右侧内容（热力图和底部标签） */}
+                    {/* 右侧内容（顶部标签和热力图） */}
                     <div className="flex-1">
+                        {/* 顶部标签 */}
+                        <div className="grid grid-cols-8 mb-1">
+                            {EvalType?.map((type, index) => (
+                                <div key={index} className={`text-xs text-center whitespace-pre-line`}>
+                                    {type}
+                                </div>
+                            ))}
+                        </div>
+                        {/* 热力图部分 */}
                         <div className="grid grid-cols-8">
-                            {/* 热力图部分 */}
                             {heatmapData.map((item, index) => {
                                 const [y, x, value] = item;
                                 const columnMax = columnMaxValues[x];
@@ -69,14 +78,6 @@ export const HeatMap = ({ index }: { index: number }) => {
                                     </div>
                                 );
                             })}
-                        </div>
-                        {/* 底部标签 */}
-                        <div className="grid grid-cols-8 mt-2">
-                            {EvalType?.map((type, index) => (
-                                <div key={index} className={`text-xs text-center whitespace-pre-line ${type.includes('RWKV') ? 'text-white font-bold' : 'text-zinc-400'}`}>
-                                    {type}
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </div>
