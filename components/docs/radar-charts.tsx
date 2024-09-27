@@ -7,7 +7,6 @@ import { chartData } from './chart-data';
 export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number }) => {
 
     const originalData = chartData[chartDataIndex];
-    console.log(1111, originalData);
     // 计算每个维度的最小值
     const minValues = originalData.labels?.map((_, i) => {
         return Math.min(...originalData.datasets.map(dataset => dataset.data[i]));
