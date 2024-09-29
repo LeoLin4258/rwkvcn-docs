@@ -2,16 +2,36 @@ import React, { useEffect, useState } from 'react';
 import * as echarts from 'echarts';
 import { chartData } from './chart-data';
 
-export const LineChart = ({ index, seriesFilter }: { index: number, seriesFilter?: (series: any[]) => any[] }) => {
-    
+export const LineChart = ({ name, seriesFilter }: { name: string, seriesFilter?: (series: any[]) => any[] }) => {
+
     useEffect(() => {
-        const chartDom = document.getElementById(`line-chart-${index}-${seriesFilter}`);
+        const chartDom = document.getElementById(`line-chart-${name}-${seriesFilter}`);
         const myChart = echarts.init(chartDom);
 
-        // 确保 chartData[index] 和 chartData[index].series 存在
-        if (!chartData[index] || !chartData[index].series) {
-            console.error(`chartData[${index}] 或 chartData[${index}].series 不存在`);
+        // Find the correct data based on the name
+        const chartDataItem = chartData.find(item => item.name === name);
+
+        // Check if chartDataItem and chartDataItem.series exist
+        if (!chartDataItem || !chartDataItem.series) {
+            console.error(`Data for ${name} not found or series is missing`);
             return;
+        }
+
+        const series = chartDataItem.series;
+        let sortedModels = chartDataItem.model;
+
+        // 只有当有多个测试项（系列）时才进行排序
+        if (series && series.length > 0 && sortedModels) {
+            // 应用seriesFilter（如果提供）
+            const filteredSeries = seriesFilter ? seriesFilter(series) : series;
+
+            // 使用过滤后的series计算每个模型的总分并排序
+            const modelScores = sortedModels.map((model: string, idx: number) => {
+                const totalScore = filteredSeries.reduce((sum: number, s: any) => sum + s.data[idx], 0);
+                return { model, totalScore };
+            });
+            modelScores.sort((a, b) => a.totalScore - b.totalScore); // 改为升序排列
+            sortedModels = modelScores.map(item => item.model);
         }
 
         const option = {
@@ -48,7 +68,7 @@ export const LineChart = ({ index, seriesFilter }: { index: number, seriesFilter
             },
             yAxis: {
                 type: 'category',
-                data: chartData[index].model,
+                data: sortedModels,
                 axisLabel: {
                     color: (value: string) => value.includes('RWKV') ? '#ffffff' : '#A3A3A3', // 高亮带 RWKV 的标签
                     fontWeight: (value: string) => value.includes('RWKV') ? 'bold' : 'normal', // 设置带 RWKV 标签为粗体
@@ -61,9 +81,12 @@ export const LineChart = ({ index, seriesFilter }: { index: number, seriesFilter
                     }
                 }
             },
-            series: seriesFilter 
-              ? seriesFilter(chartData[index].series || []) 
-              : (chartData[index].series || [])
+            series: seriesFilter
+                ? seriesFilter(series?.map((s: any) => ({
+                    ...s,
+                    data: sortedModels?.map(model => s.data?.[chartDataItem.model?.indexOf(model) ?? -1] ?? 0) ?? []
+                })) ?? [])
+                : series
         };
         myChart.setOption(option);
 
@@ -76,9 +99,9 @@ export const LineChart = ({ index, seriesFilter }: { index: number, seriesFilter
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [index, seriesFilter]);
+    }, [name, seriesFilter]);
 
     return (
-        <div id={`line-chart-${index}-${seriesFilter}`} className='w-full h-[800px]'></div>
+        <div id={`line-chart-${name}-${seriesFilter}`} className='w-full h-[800px]'></div>
     );
 }

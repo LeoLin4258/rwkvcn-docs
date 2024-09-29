@@ -32,7 +32,7 @@ Single NIAH 的测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={4} seriesFilter={(series) => series.slice(0, 3)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(0, 3)} />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | NIAH_single_1 | NIAH_single_2 | NIAH_single_3 |
@@ -50,7 +50,7 @@ Single NIAH 的测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={4} seriesFilter={(series) => series.slice(3, 6)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(3, 6)} />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | NIAH_multikey_1 | NIAH_multikey_2 | NIAH_multikey_3 |
@@ -68,7 +68,7 @@ Multi-values 和 Multi-queries 的 NIAH 测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={4} seriesFilter={(series) => series.slice(6, 8)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(6, 8)} />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | NIAH_multivalue | NIAH_multiquery |
@@ -88,7 +88,7 @@ Multi-values 和 Multi-queries 的 NIAH 测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab>
-    <LineChart index={4} seriesFilter={(series) => series.slice(8, 9)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(8, 9)} />
   </Tabs.Tab>
   <Tabs.Tab>
     | 模型 | 多跳跟踪 |
@@ -108,7 +108,7 @@ Multi-values 和 Multi-queries 的 NIAH 测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={4} seriesFilter={(series) => series.slice(9, 11)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(9, 11)} />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | 常用词提取 （CWE） | 高频词提取 （FWE） |
@@ -128,7 +128,7 @@ Multi-values 和 Multi-queries 的 NIAH 测试结果如下：
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={4} seriesFilter={(series) => series.slice(11, 13)} />
+    <LineChart name="RULER-Datas" seriesFilter={(series) => series.slice(11, 13)} />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | qa_1 | qa_2 |
@@ -171,7 +171,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-      <LineChart index={5} seriesFilter={(series) => series.slice(0, 4)} />
+      <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(0, 4)} />
   </Tabs.Tab>
   <Tabs.Tab> 
   | 模型 | NarrativeQA | Qasper | MultiFieldQA-en | MultiFieldQA-zh |
@@ -209,7 +209,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={5} seriesFilter={(series) => series.slice(4, 8)} />
+    <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(4, 8)} />
   </Tabs.Tab>
   <Tabs.Tab> 
   | 模型 | HotpotQA | 2WikiMQA | Musique | DuReader (zh) |
@@ -248,7 +248,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={5} seriesFilter={(series) => series.slice(8, 12)} />
+    <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(8, 12)} />
   </Tabs.Tab>
   <Tabs.Tab> 
   | 模型 | GovReport | QMSum | MultiNews | VCSUM (zh) |
@@ -286,7 +286,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={5} seriesFilter={(series) => series.slice(12, 16)} />
+    <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(12, 16)} />
   </Tabs.Tab>
   <Tabs.Tab> 
   | 模型 | TREC | TriviaQA | SAMSum | LSHT (zh) |
@@ -323,7 +323,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={5} seriesFilter={(series) => series.slice(16, 19)} />
+    <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(16, 19)} />
   </Tabs.Tab>
   <Tabs.Tab> 
   | 模型 | Passage Count | PassageRetrieval-en | PassageRetrieval-zh |
@@ -359,7 +359,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-    <LineChart index={5} seriesFilter={(series) => series.slice(19, 21)} />
+    <LineChart name="LongBench-Datas" seriesFilter={(series) => series.slice(19, 21)} />
   </Tabs.Tab>
   <Tabs.Tab> 
 | 模型 | LCC | RepoBench-P |
@@ -386,7 +386,7 @@ LongBench 共有六大类、二十一个不同的中英双语任务，覆盖了�
 
 <Tabs items={[' 条形图 ', ' 原始数据 ']}>
   <Tabs.Tab> 
-      <LineChart index={6} />
+      <LineChart name="LongBench-RWKV-Mamba-Llama2-综合评分对比" />
   </Tabs.Tab>
   <Tabs.Tab> 
     | 模型 | Single DocQ | Few-shc | Summarization | Multi Doc QA | Code Completion | Syntetic |

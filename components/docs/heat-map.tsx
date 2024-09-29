@@ -1,7 +1,12 @@
 import { chartData } from './chart-data';
 
-export const HeatMap = ({ index }: { index: number }) => {
-    const data = chartData[index];
+export const HeatMap = ({ name }: { name: string }) => {
+    const data = chartData.find(item => item.name === name);
+    if (!data) {
+        console.error(`Data for ${name} not found`);
+        return null;
+    }
+
     const Model = data.datasets?.map(dataset => dataset.label) ?? [];
     const EvalType = data.labels;
 
@@ -21,7 +26,7 @@ export const HeatMap = ({ index }: { index: number }) => {
     const columnMinValues = columnData.map(column => Math.min(...column));
 
     return (
-        <div className="w-full p-4 overflow-x-auto" id={`heat-chart${index}`}>
+        <div className="w-full p-4 overflow-x-auto" id={`heat-chart-${name}`}>
             <div className="min-w-[700px]"> {/* 调整最小宽度以适应内容 */}
                 <div className="flex">
                     {/* 左侧标签 */}
