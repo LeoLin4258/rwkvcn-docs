@@ -22,7 +22,7 @@ A：AI00 暂时不支持多显卡推理。
 
 ## 报错： ERROR [ai00 server::middleware] reload model failed: failed to request adaptor
 
-![alt text](./Ai00-qa.png)
+![alt text](./imgs/Ai00-qa.png)
 
 A：这是因为设备缺少 vulkan 驱动，请安装最新版本驱动。
 
@@ -32,7 +32,7 @@ A：不支持。AI00 支持 Vulkan 作为推理后端，曾经支持 Dx12/openGL
 
 ## 为什么我使用共享显存后感觉速度变慢了
 
-![alt text](./ai00-qa1.png)
+![alt text](./imgs/ai00-qa1.png)
 
 A：一旦用了共享显存，运行速度会慢 20 倍。这是计算机硬件的工作原理，并非 bug。
 

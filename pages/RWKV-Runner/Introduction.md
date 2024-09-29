@@ -24,16 +24,16 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 软件提供了开箱即用的聊天功能，你可以与 AI 畅聊、提出问题并获取建议。
 
-![](./RWKV-Runner-chat.png)
+![](./imgs/RWKV-Runner-chat.png)
 
-![](./RWKV-Runner-chat2.png)
+![](./imgs/RWKV-Runner-chat2.png)
 
 ### 写作功能
 
 写作功能可根据你提供的文本内容作进一步的续写、翻译等任务。
 
 
-![](./RWKV-Runner-writer.png)
+![](./imgs/RWKV-Runner-writer.png)
 
 ### 作曲功能
 
@@ -41,8 +41,8 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 MIDI（Musical Instrument Digital Interface）是一种音乐数字化协议，它不传输录制的声音，而是使用标准化的数据格式来描述各种音乐元素，例如音符音调信息、旋律、节奏、声音效果等等。
 
-![](./RWKV-Runner-musician.png)
+![](./imgs/RWKV-Runner-musician.png)
 
-![](./RWKV-Runner-musician2.png)
+![](./imgs/RWKV-Runner-musician2.png)
 
 

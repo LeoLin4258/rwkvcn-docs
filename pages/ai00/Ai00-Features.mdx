@@ -17,11 +17,11 @@ import { Steps } from 'nextra/components'
 
 **不挂载 State 文件：**
 
-![state-file-usage](./ai00-answer-without-state.png)
+![state-file-usage](./imgs/ai00-answer-without-state.png)
 
 **挂载“强化单轮中文对话 + Emoji ”的 State 文件后：**
 
-![state-file-usage](./ai00-answer-with-state.png)
+![state-file-usage](./imgs/ai00-answer-with-state.png)
 
 ### 下载 State 文件
 
@@ -56,13 +56,13 @@ path = "rwkv-x060-chn_single_round_qa-7B-20240516-ctx2048.state" # state 文件�
 
 举个例子：这个 State 文件是基于 `RWKV-6-World-7B` 模型微调而来，那么你在 Ai00 中必须启动 `RWKV-6-World-7B` 模型，挂载的 State 文件才会生效。
 
-![state-file-usage](./ai00-state-file-usage.png)
+![state-file-usage](./imgs/ai00-state-file-usage.png)
 
 <Callout type="info" emoji="ℹ️">
 截至 Ai00 0.5.0 版本，支持在 WebUI-聊天模式右上方动态切换 State，但不支持同时挂载多个 State 。
 </Callout>
 
-![ai00-change-state](./ai00-change-state.png)
+![ai00-change-state](./imgs/ai00-change-state.png)
 
 ---
 ## 挂载 LoRA 模型 [版本 0.4.9]
@@ -93,7 +93,7 @@ path = "assets/models/rwkv-x060-3b.lora" # LoRA 文件的路径
 
 举个例子：这个 LoRA 文件是基于 `RWKV-6-World-3B` 模型微调而来，那么你在 Ai00 中必须启动 `RWKV-6-World-3B` 模型，挂载的 LoRA 文件才会生效。
 
-![ai00-LoRA-file-usage](./ai00-LoRA-file-usage.png)
+![ai00-LoRA-file-usage](./imgs/ai00-LoRA-file-usage.png)
 
 <Callout type="info" emoji="ℹ️">
 截至 Ai00 0.5.0 版本，支持在 WebUI 中同时加载多个 LoRA ，但不支持在 WebUI 中动态切换 LoRA。
@@ -124,7 +124,7 @@ BNF 可以强制模型以您想要的格式输出（例如，JSON、带有指定
 <positive_digit>::="1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 ```
 
-![ai00-bnf](./ai00-bnf.png)
+![ai00-bnf](./imgs/ai00-bnf.png)
 
 ---
 ## 以 prefab 格式导出量化模型[版本 0.4.9]
@@ -139,6 +139,6 @@ Prefab（预制件）通常是指在游戏开发中使用的一种资源格式�
 
 在 Ai00 的 WebUI - Setting 界面，可以以 prefab 格式导出量化后的 RWKV 模型。
 
-![ai00-prefab-export](./ai00-prefab-export.png)
+![ai00-prefab-export](./imgs/ai00-prefab-export.png)
 
 

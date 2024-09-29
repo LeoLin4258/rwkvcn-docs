@@ -57,7 +57,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 使用任意文本编辑器（如 vscode）打开 RWKV-PEFT/demo 目录下的 `demo-lora.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
 
-![lora-sh-config](./lora-sh-config.png)
+![lora-sh-config](./imgs/lora-sh-config.png)
 
 以下是一次 LoRA 微调的调参过程：
 
@@ -149,11 +149,11 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 正常开始训练后，应当是如下画面：
 
-![lora-tuning-running](./lora-tuning-running.png)
+![lora-tuning-running](./imgs/lora-tuning-running.png)
 
 训练完毕后，应当可以在输出文件夹中找到训练好的 LoRA 文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
-![lora-tuning-get-model](./lora-finetune-output.gif)
+![lora-tuning-get-model](./imgs/lora-finetune-output.gif)
 
 ## 合并 LoRA 文件
 
@@ -182,11 +182,11 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 修改完成后保存文件，在 RWKV-PEFT 目录打开终端，并运行 `sh demo/demo-lora-merge.sh` 命令，进行 LoRA 模型合并。
  
-![lora-merge.png](./lora-merge.png)
+![lora-merge.png](./imgs/lora-merge.png)
 
 合并结束后，在输出路径中可以找到合并后的 LoRA 模型文件（`.pth` 格式）:
 
-![lora-merged-model](./lora-merged-model.png)
+![lora-merged-model](./imgs/lora-merged-model.png)
 
 合并后的 LoRA 模型可以在 RWKV Runner 或者 Ai00 中正常使用。
 

@@ -23,13 +23,13 @@ Ai00 Server 仓库地址：<https://github.com/Ai00-X/ai00_server>
 
 与模型对话，聊天或提出问题让模型回答。
 
-![chat_en](./chat_en.gif)
+![chat_en](./imgs/chat_en.gif)
 
 **续写功能**
 
 使 RWKV 模型根据你给定的内容进行续写。
 
-![continuation_en](./continuation_en.gif)
+![continuation_en](./imgs/continuation_en.gif)
 
 也可以使用特定格式的 prompt ,让模型遵循某种指令执行任务。具体的 prompt 实现请参阅：https://shoumenchougou.github.io/Awesome-RWKV-Prompts/#/Writer-Prompts 
 
@@ -37,4 +37,4 @@ Ai00 Server 仓库地址：<https://github.com/Ai00-X/ai00_server>
 
 从给定的论文标题生成论文提纲，再根据提纲生成论文内容。
 
-![paper_en](./paper_en.gif)
+![paper_en](./imgs/paper_en.gif)

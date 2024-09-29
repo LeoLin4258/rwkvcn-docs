@@ -32,7 +32,7 @@ import { Steps } from 'nextra/components'
 ```
 整理完成的 jsonl 文件应该是这样的：
 
-![ft-dataset-jsonl-landscape](./ft-dataset-jsonl-landscape.png)
+![ft-dataset-jsonl-landscape](./imgs/ft-dataset-jsonl-landscape.png)
 
 ## 将 jsonl 文件转化为 binidx 文件
 
@@ -47,7 +47,7 @@ import { Steps } from 'nextra/components'
 git clone https://github.com/Abel2076/json2binidx_tool.git
 ```
 
-![gitclone-json2binidx](./ft-dataset-gitclone-json2binidx.png)
+![gitclone-json2binidx](./imgs/ft-dataset-gitclone-json2binidx.png)
 
 或直接[下载压缩包](https://github.com/Abel2076/json2binidx_tool/archive/refs/heads/main.zip)并解压。
 
@@ -74,10 +74,10 @@ python3 tools/preprocess_data.py --input ./data/sample.jsonl --output-prefix ./d
 
 出现以下提示，意味着转换已经完成：
 
-![json2binidx-trans-data](./ft-dataset-json2binidx-trans-data.png)
+![json2binidx-trans-data](./imgs/ft-dataset-json2binidx-trans-data.png)
 
 你应该能在 `data `文件夹中找到转换完成的 bin / idx 文件：
 
-![binidx-dataset](./ft-dataset-binidx-dataset.png)
+![binidx-dataset](./imgs/ft-dataset-binidx-dataset.png)
 
 此时我们的准备工作已经结束了，接下来需要**选择一种微调方法**，并阅读对应的文档。

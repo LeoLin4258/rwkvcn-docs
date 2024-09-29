@@ -81,7 +81,7 @@ import torch # 导入 torch 包
 
 torch.cuda.is_available() # 检查 CUDA 是否可用
 ```
-![state-tuning-check-cuda](./state-tuning-check-cuda.png)
+![state-tuning-check-cuda](./imgs/state-tuning-check-cuda.png)
 
 如果返回值为 True ，证明 CUDA 环境可用。如果返回 False ，请重新安装 CUDA 环境（cuda 12.3+）。
 
@@ -103,7 +103,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 使用任意文本编辑器（如 vscode）打开 `demo-state-tuning.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
 
-![state-tuning-configs](./state-tuning-configs.png)
+![state-tuning-configs](./imgs/state-tuning-configs.png)
 
 以下是一次 state tuning 调参过程：
 
@@ -190,11 +190,11 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 正常开始训练后，应当是如下画面：
 
-![state-tuning-running](./state-tuning-running.png)
+![state-tuning-running](./imgs/state-tuning-running.png)
 
 训练完毕后，应当可以在输出文件夹中找到训练好的 state 文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
-![state-tuning-get-model](./state-tuning-get-model.gif)
+![state-tuning-get-model](./imgs/state-tuning-get-model.gif)
 
 ## 如何使用 state 文件
 
@@ -210,7 +210,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 举个例子：这个 state 文件是基于 `RWKV-6-World-1.6B-v2.1` 模型微调而来，那么你在 RWKV Runner 或 Ai00 等工具中必须启动 `RWKV-6-World-1.6B-v2.1` 模型，挂载的 state 文件才会生效。
 
-![state-file-usage](./state-file-usage.png)
+![state-file-usage](./imgs/state-file-usage.png)
 
 <Callout emoji="ℹ✨ ">
 由于 state 文件支持单独挂载，其他用户也可以通过挂载你训练出来的的 state 文件，增强 RWKV 模型的使用体验。 
