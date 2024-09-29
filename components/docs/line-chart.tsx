@@ -1,11 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as echarts from 'echarts';
 import { chartData } from './chart-data';
 
-export const LineChart = ({ index }: { index: number }) => {
+export const LineChart = ({ index, seriesFilter }: { index: number, seriesFilter?: (series: any[]) => any[] }) => {
+    
     useEffect(() => {
-        const chartDom = document.getElementById(`line-chart${index}`);
+        const chartDom = document.getElementById(`line-chart-${index}-${seriesFilter}`);
         const myChart = echarts.init(chartDom);
+
+        // 确保 chartData[index] 和 chartData[index].series 存在
+        if (!chartData[index] || !chartData[index].series) {
+            console.error(`chartData[${index}] 或 chartData[${index}].series 不存在`);
+            return;
+        }
+
         const option = {
             tooltip: {
                 trigger: 'axis',
@@ -53,7 +61,9 @@ export const LineChart = ({ index }: { index: number }) => {
                     }
                 }
             },
-            series: chartData[index].series
+            series: seriesFilter 
+              ? seriesFilter(chartData[index].series || []) 
+              : (chartData[index].series || [])
         };
         myChart.setOption(option);
 
@@ -66,9 +76,9 @@ export const LineChart = ({ index }: { index: number }) => {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, [index]);
+    }, [index, seriesFilter]);
 
     return (
-        <div id={`line-chart${index}`} className='w-full h-[800px]'></div>
+        <div id={`line-chart-${index}-${seriesFilter}`} className='w-full h-[800px]'></div>
     );
 }
