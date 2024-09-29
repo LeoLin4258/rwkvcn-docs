@@ -36,7 +36,7 @@ RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目�
 
 再次点击训练，RWKV Runner 将会尝试开启 Windows WSL 功能，激活 Linux 环境。
 
-![runner-lora-open-WSL](./runner-lora-open-WSL.png)
+![runner-lora-open-WSL](./imgs/runner-lora-open-WSL.png)
 
 此操作会要求管理员权限，你需要点击确认，并在弹出的窗口完成激活。
 
@@ -50,7 +50,7 @@ RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目�
 
 对于一般使用 Windows 家庭版或专业版的用户，点击弹框的安装按钮后，Microsoft Store 将会自动打开并跳转至 Ubuntu 的安装界面。
 
-![alt text](./runner-lora-install-ubuntu.png)
+![alt text](./imgs/runner-lora-install-ubuntu.png)
 
 ### 更新 WSL 版本
    
@@ -60,7 +60,7 @@ RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目�
 
 成功安装 ubuntu 后，点击打开按钮，让 Ubuntu 执行初始化配置。
 
-![runner-lora-install-ubuntu2](./runner-lora-install-ubuntu2.png)
+![runner-lora-install-ubuntu2](./imgs/runner-lora-install-ubuntu2.png)
 
 如果你使用的是服务器版 Windows 系统，通常该系统没有微软商店组件，请使用命令行自行安装 Ubuntu 系统。
 
@@ -70,7 +70,7 @@ RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目�
 
 此阶段请保证你的网络畅通：
 
-![runner-lora-install-ev](./runner-lora-ev.webp)
+![runner-lora-install-ev](./imgs/runner-lora-ev.webp)
 
 <Callout emoji="✨">
 Ubuntu 训练环境只需要配置一次。
@@ -80,7 +80,7 @@ Ubuntu 训练环境只需要配置一次。
 
 在环境配置完毕后，RWKV Runner 将自动开始训练，当你见到这个图形化Loss曲线时，意味着训练已正式开始。
 
-![alt text](./runner-lora-loss.png)
+![alt text](./imgs/runner-lora-loss.png)
 
 ### 合并训练权重
 
@@ -90,7 +90,7 @@ Ubuntu 训练环境只需要配置一次。
 
 此时可在 **RWKV Runner** 的配置页面选择新的微调模型并正常启动。
 
-![runner-lora-model](./runner-lora-model.webp)
+![runner-lora-model](./imgs/runner-lora-model.webp)
 
 </Steps>
 
@@ -135,14 +135,14 @@ Ubuntu 训练环境只需要配置一次。
 
 以下是 RWKV 开源社区开发者 @Seikaijyu 基于 RWKV-6-World 3B v2 模型进行 Lora 微调的 roleplay （角色扮演）模型：
 
-![runner-lora-example](./runner-lora-example.png)
+![runner-lora-example](./imgs/runner-lora-example.png)
 ---
-![runner-lora-example1](./runner-lora-example1.png)
+![runner-lora-example1](./imgs/runner-lora-example1.png)
 
 此次 LoRA 微调使用全新的 180M 全中文数据集：
 
-![runner-lora-example-data](./runner-lora-example-data.png)
+![runner-lora-example-data](./imgs/runner-lora-example-data.png)
 
 使用如下参数，在 RWKV-Runner 中进行 21 个epoch 的 LoRA 微调：
 
-![runner-lora-example](./runner-lora-example-parameters.png)
+![runner-lora-example](./imgs/runner-lora-example-parameters.png)

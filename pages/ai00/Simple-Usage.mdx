@@ -14,7 +14,7 @@ import { Steps } from 'nextra/components'
 
 在每个版本发布的 Assets 版块可以找到已经打包好的 Ai00 Server 压缩包，下载并解压即可使用。
 
-![ai00-download](./ai00-download.png)
+![ai00-download](./imgs/ai00-download.png)
 
 ## 下载/转换 RWKV 模型
 
@@ -49,7 +49,7 @@ Ai00 Server 目前仅支持 `.st` 后缀的 Safetensors 模型，有两种方法
 
 > 下载完成后，应该可以在文件夹中找到 `.pth` 模型:
 > 
->![ai00-model-list](./ai00-model-list.png)
+>![ai00-model-list](./imgs/ai00-model-list.png)
 
 在 Ai00 Server 解压的文件夹中，可以找到名为 “`converter.exe`” 的模型转换工具。在命令行中执行以下命令，可以将指定路径的 `.pth` 模型转化成 `.st` 模型：
 ```
@@ -132,7 +132,7 @@ path = "assets/www/index.zip" # Path to the WebUI.
 
 当命令行中出现 `INFO  [ai00_server::middleware] model reloaded` 提示时，意味着模型已经加载完成：
 
-![ai00-model-reloaded](./ai00-model-reloaded.png)
+![ai00-model-reloaded](./imgs/ai00-model-reloaded.png)
 
 此时我们打开任意浏览器，并访问 `http://localhost:65530`，即可打开 Ai00 的 Web 界面。
 
@@ -140,7 +140,7 @@ path = "assets/www/index.zip" # Path to the WebUI.
 如果你在 config 文件中设置了 `tls = true` , 请访问 `https://localhost:65530` 
 </Callout>
 
-![Ai00-homepage](./Ai00-homepage.png)
+![Ai00-homepage](./imgs/Ai00-homepage.png)
 
 
 ## 调整右侧解码参数

@@ -20,7 +20,7 @@ RWKV Runner “作曲” 功能支持使用 MIDI 硬件创建旋律，这个章�
 
 USB 接口的 MIDI 设备是即插即用的，你能够在 RWKV Runner 作曲界面选择已插入的 USB MIDI 输入设备：
 
-![midi-usb-midi](./runner-midi-usb-midi.png)
+![midi-usb-midi](./imgs/runner-midi-usb-midi.png)
 
 ## MacOS 的 MIDI 蓝牙连接
 
@@ -28,7 +28,7 @@ USB 接口的 MIDI 设备是即插即用的，你能够在 RWKV Runner 作曲界
 
 启动 Bluetooth MIDI Connect 后，点击托盘连接，之后可以在作曲界面选择你的输入设备。
 
-![midi-mac-midi-bt-connect](./runner-midi-mac-midi-bt-connect.png)
+![midi-mac-midi-bt-connect](./imgs/runner-midi-mac-midi-bt-connect.png)
 
 ## Windows 系统的 MIDI 蓝牙连接
 
@@ -48,7 +48,7 @@ Windows 系统只为 UWP 实现了蓝牙 MIDI 支持，因此我们需要创建�
 
 下载完成后，打开 loopMIDI 并点击左下角的加号，创建一个虚拟的 MIDI 设备（如下图中的 loopMIDI Port ）：
 
-![runner-midi-lopmidi](./runner-midi-lopmidi.png)
+![runner-midi-lopmidi](./imgs/runner-midi-lopmidi.png)
 
 ### Step 2: 使用 Bluetooth LE Explorer 连接实体 MIDI 设备的蓝牙
 
@@ -58,7 +58,7 @@ Windows 系统只为 UWP 实现了蓝牙 MIDI 支持，因此我们需要创建�
 
 打开 Bluetooth LE Explorer，点击 “Start” 搜索设备， 然后点击 “Pair” 绑定实体 MIDI 设备（下图中的 Vboard 49 为实体 MIDI 键盘的蓝牙名称）。
 
-![runner-midi-blee](./runner-midi-blee.png)
+![runner-midi-blee](./imgs/runner-midi-blee.png)
 
 ### Step 3: 将实体 MIDI 设备的蓝牙输入重定向到虚拟的 MIDI 设备
  
@@ -66,13 +66,13 @@ Windows 系统只为 UWP 实现了蓝牙 MIDI 支持，因此我们需要创建�
 
 启动 MIDIberry 后， 在输入栏双击你实际的蓝牙MIDI 设备名称（ Vboard 49 ），并在输出栏双击此前使用 loopMIDI 创建的虚拟 MIDI设备名称（loopMIDI Port）：
 
-![runner-midi-midiberry](./runner-midi-midiberry.png)
+![runner-midi-midiberry](./imgs/runner-midi-midiberry.png)
 
 ### Step 4: 使用 RWKV Runner 监听虚拟 MIDI 设备的输入
 
 完成以上步骤后，实体 MIDI 设备的蓝牙已被映射到虚拟的 MIDI 设备上，此时可以在 RWKV Runner 的作曲界面选择虚拟 MIDI 设备（loopMIDI Port）作为输入。
 
-![runner-midi-bt-midi](./runner-midi-bt-midi.png)
+![runner-midi-bt-midi](./imgs/runner-midi-bt-midi.png)
 
 连接完毕即可使用 RWKV Runner 创作.
 

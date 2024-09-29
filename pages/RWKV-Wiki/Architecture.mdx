@@ -23,9 +23,9 @@ import { Steps } from 'nextra/components'
 
 RWKV-V1 使用长卷积代替 Attention 机制，其架构由交替的 Time-mix 和 Channel-mix 组成。**Channel-mix 是 Transformer 的 GeGLU 层的变种。Time-mix 则是对于 AFT 的显著改进**：
 
-$$\text { Time-mix }: \mathbf{T M}_{t, c}=\operatorname{sigmoid}\left(R_{t, c}\right) \cdot \sum_{u} W_{t, u, c} \cdot \operatorname{softmax}_{t}\left(K_{u, c}\right) \cdot V_{u, c}$$
+$$\text { Time-mix }: \mathbf{TM}_{t, c}=\operatorname{sigmoid}\left(R_{t, c}\right) \cdot \sum_{u} W_{t, u, c} \cdot \operatorname{softmax}_{t}\left(K_{u, c}\right) \cdot V_{u, c}$$
 
-$$\text { Channel-mix } \mathbf{C M}_{t, c}=\operatorname{sigmoid}\left(R_{t, c}\right) \cdot \sum_{d} W_{c, d} \cdot \operatorname{gelu}\left(K_{t, d}\right) \cdot V_{t, d}$$
+$$\text { Channel-mix } \mathbf{CM}_{t, c}=\operatorname{sigmoid}\left(R_{t, c}\right) \cdot \sum_{d} W_{c, d} \cdot \operatorname{gelu}\left(K_{t, d}\right) \cdot V_{t, d}$$
 
 其中 $R$ 、 $K$ 、 $V$ 由输入线性变换生成，$W$ 则是长卷积中的卷积核。
 
@@ -41,7 +41,7 @@ RWKV-V1 更接近 Linear Transformer 而非 RNN ，因为其每一个时间步�
 
 RWKV-V2 版本首次为 RWKV 实现了 RNN 模式，伪代码图如下：
 
-![RWKV-v2-RNN-Architecture](./RWKV-v2-RNN-Architecture.png)
+![RWKV-v2-RNN-Architecture](./imgs/RWKV-v2-RNN-Architecture.png)
 
 **代码图的补充说明：**
 
@@ -124,7 +124,7 @@ x = x + self.ffn(self.ln2(x))
 
 RNN 即循环神经网络，是一种人工智能领域的神经网络模型。它在运行时使用一个隐藏状态（state），这一隐藏状态由特定函数持续更新。RNN 网络依次处理每一个输入的 token ，并在此基础上预测可能接续的下一个token（如果需要的话）。
 
-![经典 RNN 图解](./classic-RNN.png)
+![经典 RNN 图解](./imgs/classic-RNN.png)
 
 每个 token 的处理又会被反馈到 RNN 网络中，进而更新其状态，并预测下一个 token。如此循环，直到达到“完成目标”的状态。这个隐藏的状态可以被视为 AI 模型的“心理状态”。
 
@@ -134,7 +134,7 @@ RWKV 可以被视为 RNN 的一个修改变种。RWKV 支持**微调这个隐藏
 
 由于它们的顺序性质，传统的 RNN 需要完全处理一个 token 及其隐藏状态才能处理下一个，这使得它们很难并行化地用 GPUs 训练，训练大规模 RNN 语言模型变得非常困难。
 
-![显示隐藏状态流动的图解](./rwkv-hidden-state-flow.png)
+![显示隐藏状态流动的图解](./imgs/rwkv-hidden-state-flow.png)
 
 RWKV 的并行化是 head-wise 和 channel-wise 的，也就是“逐头”和“逐通道”的。在 time mixing 每一层中，不同的头可以独立计算，在 channel mixing 中，不同的通道也可以独立计算，因此 RWKV 模型架构具有较好的并行性。
 

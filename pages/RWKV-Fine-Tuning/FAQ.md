@@ -6,7 +6,7 @@ keywords: RWKV微调常见问题, rwkv微调报错, rwkv运行错误
 
 ## jsonl 转 binidx 时出现 ModuleNotFoundError: No module named 'xxx' 错误
 
-![ft-faq-No-module](./ft-faq-No-module.png)
+![ft-faq-No-module](./imgs/ft-faq-No-module.png)
 
 解决方法：这是因为缺少了对应的软件包，请运行命令 pip install xxx 进行安装。
 
@@ -16,11 +16,11 @@ keywords: RWKV微调常见问题, rwkv微调报错, rwkv运行错误
 报错信息：JSONDecodeError:Unmatched '"' when decoding 'string'! 
 ```
 
-![ft-faq-Unmatched](./ft-faq-Unmatched.png)
+![ft-faq-Unmatched](./imgs/ft-faq-Unmatched.png)
 
 解决方法：这是因为你的 jsonl 文件缺少引号，导致转换工具出现解析错误，请检查 jsonl 文件的所有行是否都符合以下引号格式：
 
-![ft-faq-Unmatched-answer](./ft-faq-Unmatched-answer.png)
+![ft-faq-Unmatched-answer](./imgs/ft-faq-Unmatched-answer.png)
 
 ## 克隆 GitHub 仓库时 “unable to access”
 
@@ -40,8 +40,8 @@ keywords: RWKV微调常见问题, rwkv微调报错, rwkv运行错误
 
 ## 合并 LoRA 文件时，出现：merge.py: error: argument 报错
 
-![merge.py: error](./ft-faq-merge-lora-error.png)
+![merge.py: error](./imgs/ft-faq-merge-lora-error.png)
 
 解决方法：这可能是你的路径变量出现了一些空格，导致无法正常解析基底模型、输出文件夹等路径的参数，请认真检查空格问题！
 
-![fix-merge.py: error](./ft-faq-fix-merge-lora-error.png)
+![fix-merge.py: error](./imgs/ft-faq-fix-merge-lora-error.png)

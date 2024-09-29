@@ -130,7 +130,7 @@ graph TD
 
 在 RWKV Runner 的配置页面，可修改预设模型配置的参数，或点击 + 号添加**自定义的模型配置**。
 
-![runner-config-landscape](./runner-config-landscape.gif)
+![runner-config-landscape](./imgs/runner-config-landscape.gif)
 
 如果说预设模型配置像餐厅提前准备好的食物套餐，那么自定义模型配置就像是自助餐，你可以随意调整与 RWKV 模型推理相关的各类参数。
 
@@ -180,7 +180,7 @@ graph TD
  
 点击 + 号，新建一项配置，并参考对照表调整各项 API 参数：
 
-![](./runner-config-1.gif)
+![](./imgs/runner-config-1.gif)
 
 由于是不需要创造力的翻译任务，我们稍微调低了 Temperature 和 Top_P 两项参数，使翻译的结果更准确。
  
@@ -192,13 +192,13 @@ graph TD
 
 由于 WebGPU(python)模式只支持 Safetensors 格式。因此，我们需要点击 Runner 的“转换”弹框，将 `.pth` 后缀的官方 RWKV 模型转换为 `.st` 后缀的模型格式。
 
-![](./runner-config-2.gif)
+![](./imgs/runner-config-2.gif)
 
 ### 运行转换后的模型
 
 耐心等待模型转换完成后，我们再次点击“模型”选项，选择转换完成后的 `.st` 模型，并点击运行。
 
-![](./runner-config-3.gif)
+![](./imgs/runner-config-3.gif)
 
 等待模型加载完毕，即可开始聊天！
 
@@ -224,7 +224,7 @@ state 文件需要配合基底 RWKV 模型，才能发挥其效果。在 RWKV Ru
 
 在下图的示例中，我们已经启动了 RWKV-6-7B-World 模型。那么我们只需在 RWKV Runner  的配置页面，选择基于 RWKV-6 7B 的 state 文件（名称中带有 `x060 | 7B` 字段），然后点击 `保存配置` 按钮。
 
-![RWKV-Runner-State-Usage](./RWKV-Runner-State-Usage.gif)
+![RWKV-Runner-State-Usage](./imgs/RWKV-Runner-State-Usage.gif)
 
 
 ### Function Call 功能
@@ -243,7 +243,7 @@ RWKV 基底模型无法使用 Function Call 功能，请使用社区微调的 [M
 
 要使用 RWKV Runner 的 Function Call 功能，请先打开图中的开关：
 
-![函数调用开关](./RWKV-Runner-function-call-button.png)
+![函数调用开关](./imgs/RWKV-Runner-function-call-button.png)
 
 打开函数调用开关后，你需要在 `工具定义` 框中定义一些可用的函数。定义的函数必须满足 [OpenAI tool](https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools) 格式，参考：
 
@@ -272,7 +272,7 @@ RWKV 基底模型无法使用 Function Call 功能，请使用社区微调的 [M
 
 填写完毕后，即可正常与 RWKV 模型对话。如果对话过程涉及可调用的工具，模型会自动调用合适的工具，并将调用结果整合到回答中：
 
-![函数调用功能](./RWKV-Runner-function-call.png)
+![函数调用功能](./imgs/RWKV-Runner-function-call.png)
 
 ### Function Call 的 Python 示例
 

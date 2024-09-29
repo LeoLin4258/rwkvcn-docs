@@ -4,10 +4,14 @@ import * as echarts from 'echarts';
 import { chartData } from './chart-data';
 
 
-export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number }) => {
+export const RadarChartComponent = ({ name }: { name: string }) => {
 
-    const originalData = chartData[chartDataIndex];
-    console.log(1111, originalData);
+    const originalData = chartData.find(data => data.name === name);
+
+    if (!originalData) {
+        return <div>No data found for {name}</div>;
+    }
+
     // 计算每个维度的最小值
     const minValues = originalData.labels?.map((_, i) => {
         return Math.min(...originalData.datasets.map(dataset => dataset.data[i]));
@@ -35,7 +39,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
 
     useEffect(() => {
 
-        const chartDom = document.getElementById(`radar-chart${chartDataIndex}`);
+        const chartDom = document.getElementById(`radar-chart-${name}`);
         const myChart = echarts.init(chartDom);
 
         const option = {
@@ -122,7 +126,7 @@ export const RadarChartComponent = ({ chartDataIndex }: { chartDataIndex: number
     return (
         //border
         <div className='h-[500px] md:h-[600px] lg:h-[650px] mt-10'>
-            <div id={`radar-chart${chartDataIndex}`} style={{ width: '100%', height: '100%' }}></div>
+            <div id={`radar-chart-${name}`} style={{ width: '100%', height: '100%' }}></div>
         </div>
     );
 

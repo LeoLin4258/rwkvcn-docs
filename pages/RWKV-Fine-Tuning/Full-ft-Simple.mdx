@@ -51,7 +51,7 @@ import torch # 导入 torch 包
 
 torch.cuda.is_available() # 检查 CUDA 是否可用
 ```
-![state-tuning-check-cuda](./state-tuning-check-cuda.png)
+![state-tuning-check-cuda](./imgs/state-tuning-check-cuda.png)
 
 如果返回值为 True ，证明 CUDA 环境可用。如果返回 False ，请重新安装 CUDA 环境（cuda 12.3+）。
 
@@ -66,7 +66,7 @@ git clone https://github.com/shoumenchougou/RWKV-LM.git
 
 克隆完成后，使用 `cd RWKV-LM/RWKV-v5` 命令进入 RWKV-v5 文件夹。
 
-![full-ft-simple-cd-rwkv5](./full-ft-simple-cd-rwkv5.png)
+![full-ft-simple-cd-rwkv5](./imgs/full-ft-simple-cd-rwkv5.png)
 
 ## 下载基底 RWKV 模型
 
@@ -106,7 +106,7 @@ git clone https://github.com/shoumenchougou/RWKV-LM.git
 ```
 整理完成的 jsonl 文件应该是这样的：
 
-![ft-dataset-jsonl-landscape](./ft-dataset-jsonl-landscape.png)
+![ft-dataset-jsonl-landscape](./imgs/ft-dataset-jsonl-landscape.png)
 
 ### 将 jsonl 文件转化为 binidx 文件
 
@@ -115,7 +115,7 @@ git clone https://github.com/shoumenchougou/RWKV-LM.git
 ``` bash copy
 python3 tools/preprocess_data.py --input ./data/sample.jsonl --output-prefix ./data/sample --vocab ./rwkv_vocab_v20230424.txt --dataset-impl mmap --tokenizer-type RWKVTokenizer --append-eod
 ```
-![full-ft-simple-jsonl-to-binidx](./full-ft-simple-jsonl-to-binidx.png)
+![full-ft-simple-jsonl-to-binidx](./imgs/full-ft-simple-jsonl-to-binidx.png)
 
 如果你在使用自己的 jsonl 数据集，这条命令有两个需要修改的参数：
 
@@ -130,13 +130,13 @@ python3 tools/preprocess_data.py --input ./data/sample.jsonl --output-prefix ./d
 
 出现以下提示，意味着转换已经完成：
 
-![full-ft-simple-jsonl-to-binidx-2](./full-ft-simple-jsonl-to-binidx-2.png)
+![full-ft-simple-jsonl-to-binidx-2](./imgs/full-ft-simple-jsonl-to-binidx-2.png)
 
 ## 修改训练参数 
 
 使用任意文本编辑器（如 vscode）打开 `demo-training-run.sh` 文件，可以调整训练参数，进而控制微调的训练过程和训练效果。：
 
-![full-ft-simple-modify-parameters](./full-ft-simple-modify-parameters.png)
+![full-ft-simple-modify-parameters](./imgs/full-ft-simple-modify-parameters.png)
 
 以下是一次调参过程的记录：
 
@@ -216,6 +216,6 @@ sh demo-training-run.sh
 ```
 成功运行后，应该可以看到类似于这样的效果：
 
-![full-ft-simple-training-successful](./full-ft-simple-training-successful.png)
+![full-ft-simple-training-successful](./imgs/full-ft-simple-training-successful.png)
 
 
