@@ -70,7 +70,7 @@ export const LineChart = ({ name, seriesFilter }: { name: string, seriesFilter?:
                 type: 'category',
                 data: sortedModels,
                 axisLabel: {
-                    color: (value: string) => value.includes('RWKV') ? '#ffffff' : '#A3A3A3', // 高亮带 RWKV 的标签
+                    color: (value: string) => value.includes('RWKV') ? '#008AE6' : '#A3A3A3', // 高亮带 RWKV 的标签
                     fontWeight: (value: string) => value.includes('RWKV') ? 'bold' : 'normal', // 设置带 RWKV 标签为粗体
                     fontSize: 14, // 调大所有 Y 轴标签的字体
                     formatter: (value: string) => `{value|${value}}`,

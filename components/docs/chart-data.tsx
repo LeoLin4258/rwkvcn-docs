@@ -93,7 +93,7 @@ export const chartData = [
     },
     {
         name: 'RULER-Datas',
-        model: ['RWKV-6-7B-v2.1-4k', 'RWKV-6-3B-v2.1-4k', 'RWKV-6-1.6B-v2.1-4k', 'Llama2-7B-4k', 'Manba-2.8B-4k', 'Manba-1.4B-4k'],
+        model: ['RWKV-6-7B-v2.1-4k', 'RWKV-6-3B-v2.1-4k', 'RWKV-6-1.6B-v2.1-4k', 'Llama2-7B-4k', 'Mamba-2.8B-4k', 'Mamba-1.4B-4k'],
         series: [
             { name: 'niah_single_1', type: 'bar', data: [100, 100, 98, 97.6, 100, 94] },
             { name: 'niah_single_2', type: 'bar', data: [98.67, 88, 53, 100, 19, 21] },

@@ -31,19 +31,33 @@ State tuning 的显存需求可参考下表：
 - strategy=deepspeed_stage_1
 
 
-## 收集训练数据
+## 整理训练数据
 
-你需要使用收集更适合训练 RWKV 的 binidx 数据，具体方法可参考[准备微调数据集](https://rwkv.cn/RWKV-Fine-Tuning/FT-Dataset)。
+### 收集 jsonl 格式训练数据
 
-需要注意的是，训练 state 的 JSONL 数据集需要先用 [`make_data.py`](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/make_data.py) 脚本重复生成 10 遍，再转成 binidx 数据：
+要 state tuning 微调 RWKV 模型，需要使用收集适合训练 RWKV 的数据（jsonl 格式），具体方法可参考[准备微调数据集](https://rwkv.cn/RWKV-Fine-Tuning/FT-Dataset)。
+
+为了突出 state tuning 的特性，我们选取了大量 emoji 数据作为训练数据：
+
+![state-tuning-dataset-demo](./imgs/state-tuning-dataset-demo.png)
+
+### 转化成 binidx 数据
+
+使用 [`make_data.py`](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/make_data.py) 脚本，将 jsonl 训练数据乱序重复生成 10 遍，同时转化成可供 RWKV 训练的 binidx 数据。
+
+在 Linux 工作区依次运行以下命令，以使用 `RWKV-LM` 仓库中的 `make_data.py` 脚本生成 binidx 数据：
 
 ``` bash copy
-python make_data.py novel.jsonl 10 512
+git clone https://github.com/BlinkDL/RWKV-LM.git # 克隆 RWKV-LM 仓库
+cd RWKV-LM/RWKV-v5 # 进入 RWKV-v5 目录
+python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复制数据并生成 binidx 数据
 ```
-在这条命令中，`novel.jsonl` 需要改成你的 JSONL 数据文件路径，10 则是数据重复的次数，512 则是你训练的 ctx 长度。
+![state-tuning-make-data](./imgs/state-tuning-make-data.gif)
+
+`/home/rwkv/RWKV-PEFT/data/qaemoji.jsonl` 需要改成你自己的 jsonl 文件路径，10 是数据重复的次数，512 则是训练数据的 ctx_len（上下文长度）。
 
 <Callout type="info" emoji="ℹ️">
-在社区的实验中，State tuning 的 ctx_len 应当尽可能小，建议从 512 开始尝试。
+在社区的实验中，state tuning 的 ctx_len 应当尽可能小，建议从 512 开始尝试。
 </Callout>
 
 ## 配置训练环境
@@ -101,7 +115,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 ## 修改训练参数 
 
-使用任意文本编辑器（如 vscode）打开 `demo-state-tuning.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
+使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录的 `demo-state-tuning.sh` 文件，修改训练参数，进而控制微调的训练过程和训练效果：
 
 ![state-tuning-configs](./imgs/state-tuning-configs.png)
 
@@ -139,20 +153,17 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 | 参数 | 描述 |
 | --- | --- |
-| `micro_bsz=1` | 根据显存大小调整，微调时从 1 开始逐渐增大 |
-| `epoch_save=5` | 每隔多少个训练轮次保存一次模型，注意存储空间 |
+| `micro_bsz=1` | 微批次大小，根据显存大小调整，微调时从 1 开始逐渐增大 |
+| `epoch_save=1` | 每隔多少个训练轮次保存一次 State 文件 |
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个epoch的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，state tuning 建议从短开始尝试，如 512 |
-| `QUANT='nf4'` | 支持的量化训练类型："Int8" 和 "nf4"，推荐使用精度损失较小的 "Int8"  |
-
-量化训练可以降低显存需求，但会导致模型精度损失。如果不需要量化训练，可以删除所有 `QUANT` 相关的参数。
 
 ### 调整其他训练参数
 
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
 
 <Callout type="warning" emoji="⚠️">
-注意：微调 state 时，建议 `--warmup_steps 10` 、`--lr_init 1` 、`--lr_final 0.01` ，以及尽可能短的 ctxlen 。（是的，state 微调需要使用非常高的学习率。）
+注意：微调 state 时，建议 `--warmup_steps 10` 、`--lr_init 1` 、`--lr_final 0.01` ，以及尽可能短的 ctxlen 。（是的，state tuning 需要使用非常高的学习率。）
 </Callout>
 
 | 参数 | 描述 |
@@ -176,17 +187,54 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 | `--grad_cp 1` | 梯度累积步数，0 训练更快但需更多显存，1 训练较慢但节省显存 |
 | `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
 | `--dataload pad` | 数据加载选项，pad 支持 bsz>1，only 限制 bsz=1 |
-| `--train_type "state"` | 训练类型 |
+| `--train_type "state"` | 训练类型 state tuning ，保持默认|
 | `--fla` | 是否启用 fla，bsz < 8 时建议开启以减小显存需求 |
+| `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
+| `--wandb PEFT-State-tuning` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 
+量化训练可以降低显存需求，但会导致模型精度损失。如果不需要量化训练，可以删除 `quant` 相关的参数。
 
+<Callout type="warning" emoji="⚠️">
 参数调整完成后，请记得保存 `demo-state-tuning.sh` 文件。
+</Callout>
+
+### 附录：state tuning 配置参考
+
+``` bash copy filename="demo-state-tuning.sh"
+load_model='/home/rwkv/models/basemodel/3b.pth'
+proj_dir='/home/rwkv/RWKV-PEFT/output_state'
+data_file='/home/rwkv/RWKV-PEFT/data/qaemoji'
+
+
+n_layer=32
+n_embd=2560
+
+micro_bsz=2
+epoch_save=1
+epoch_steps=500
+ctx_len=512
+
+python train.py --load_model $load_model \
+--proj_dir $proj_dir --data_file $data_file \
+--data_type binidx --vocab_size 65536 \
+--ctx_len $ctx_len --epoch_steps $epoch_steps --epoch_count 1 --epoch_begin 0 --epoch_save $epoch_save --micro_bsz $micro_bsz \
+--n_layer $n_layer --n_embd $n_embd \
+--pre_ffn 0 --head_qk 0 --lr_init 1 --lr_final 1e-2 --warmup_steps 10 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
+--accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
+--my_testing "x060" \
+--train_type "state"  --dataload pad --wandb PEFT-State-tuning
+
+# 以下为可选项
+# --fla 
+# --quant int8/nf4 （是否量化训练）
+# --wandb PEFT-State-tuning （是否使用 wandb 监控训练过程）
+```
 
 </Steps>
 
 ## 开始训练
 
-在 RWKV-PEFT 文件夹，运行 `sh demo/demo-state-tuning.sh` 命令，开启 state tuning 。
+在 RWKV-PEFT 目录，运行 `sh scripts/demo-state-tuning.sh` 命令，开启 state tuning 。
 
 正常开始训练后，应当是如下画面：
 
@@ -194,7 +242,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 训练完毕后，应当可以在输出文件夹中找到训练好的 state 文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
-![state-tuning-get-model](./imgs/state-tuning-get-model.gif)
+![state-tuning-get-model](./imgs/state-tuning-get-model.png)
 
 ## 如何使用 state 文件
 
@@ -208,9 +256,13 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 注意：挂载 state 文件时，必须使用训练此 state 文件的同款 RWKV 模型。
 </Callout>
 
-举个例子：这个 state 文件是基于 `RWKV-6-World-1.6B-v2.1` 模型微调而来，那么你在 RWKV Runner 或 Ai00 等工具中必须启动 `RWKV-6-World-1.6B-v2.1` 模型，挂载的 state 文件才会生效。
+举个例子：这个 state 文件是基于 `RWKV-6-World-3B-v2.1` 模型微调而来，那么你在 RWKV Runner 或 Ai00 等工具中必须启动 `RWKV-6-World-3B-v2.1` 模型，挂载的 state 文件才会生效。
 
 ![state-file-usage](./imgs/state-file-usage.png)
+
+由于我们的示例数据基于大量 emoji 且 ctx 非常短，训练出来的 State 文件效果如下：
+
+![state-tuning-examples](./imgs/state-tuning-examples.png)
 
 <Callout emoji="ℹ✨ ">
 由于 state 文件支持单独挂载，其他用户也可以通过挂载你训练出来的的 state 文件，增强 RWKV 模型的使用体验。 
