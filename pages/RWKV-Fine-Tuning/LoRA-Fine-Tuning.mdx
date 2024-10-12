@@ -22,7 +22,7 @@ LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术
 
 RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 
-|   模型参数 | fp16  | int8 | nf4 |
+|   模型参数 | bf16  | int8 | nf4 |
 | --------- | ---- | ---- | ---- |
 | RWKV-6-1.6B | 7.3GB  | 5.9GB  | 5.4GB  |
 | RWKV-6-3B  | 11.8GB  | 9.4GB  | 8.1GB  |
@@ -43,21 +43,27 @@ RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 
 ## 配置训练环境
 
-要训练 RWKV 模型，首先要配置训练环境。具体过程请参考[RWKV 微调环境配置](https://rwkv.cn/RWKV-Fine-Tuning/FT-Environment)板块。
+要训练 RWKV 模型，首先要配置 conda 等训练环境。具体过程请参考[RWKV 微调环境配置](https://rwkv.cn/RWKV-Fine-Tuning/FT-Environment)板块。
 
-## 克隆 RWKV-PEFT 仓库 
+## 克隆仓库并安装依赖
 
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
+
 ```  bash copy
 git clone https://github.com/JL-er/RWKV-PEFT.git
 ```
-克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。
+
+克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。并运行以下命令，安装项目所需依赖：
+
+```  bash copy
+pip install -r requirements.txt
+```
 
 ## 修改训练参数 
 
-使用任意文本编辑器（如 vscode）打开 RWKV-PEFT/demo 目录下的 `demo-lora.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
+使用任意文本编辑器（如 vscode）打开 RWKV-PEFT/demo 目录下的 `run_lora.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
 
-![lora-sh-config](./imgs/lora-sh-config.png)
+![lora-sh-config](./imgs/lora-sh-config-20241011.png)
 
 以下是一次 LoRA 微调的调参过程：
 
@@ -71,19 +77,13 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 - proj_dir：训练日志和训练得到的 LoRA 文件输出路径
 - data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
 
-### 调整 LoRA 相关参数
-
-| 参数 | 描述 |
-| --- | --- |
-| `lora_r=64` | LoRA 微调的 rank 参数，越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
-| `lora_alpha=128` | LoRA 微调的 alpha 参数（缩放因子），建议保持 lora_r 的两倍 |
-| `--lora_dropout 0.01` | LoRA 微调的丢弃率，建议保持默认值 0.01 |
-| `--lora_parts=att,ffn,time,ln` | LoRA 微调影响的范围，建议保持默认值 |
-
-
 ### 调整 n_layer 和 n_embd 参数
 
-基底 RWKV 模型的参数大小不同，训练时使用的 n_layer 和 n_embd 数值也不一样。以下是不同参数的 RWKV 模型和 n_layer 和 n_embd 数值的对照列表：
+<Callout type="warning" emoji="⚠️">
+不同参数的 RWKV 模型，训练时使用的 n_layer 和 n_embd 数值不一样
+</Callout>
+
+以下 RWKV 模型参数对应的 n_layer/n_embd 值：
 
 | 模型参数 | n_layer | n_embd |
 |------------|---------|--------|
@@ -102,13 +102,23 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 
 | 参数 | 描述 |
 | --- | --- |
-| `micro_bsz=1` | 根据显存大小调整，微调时从 1 开始逐渐增大 |
-| `epoch_save=5` | 每隔多少个训练轮次保存一次模型，注意存储空间 |
-| `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个epoch的训练时间 |
+| `micro_bsz=1` | 微批次大小，根据显存大小调整，微调时从 1 开始逐渐增大 |
+| `epoch_save=5` | 每隔多少个训练轮次保存一次 LoRA 文件，注意存储空间是否充足 |
+| `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个 epoch 的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，建议根据语料长度修改 |
-| `QUANT='nf4'` | 支持的量化训练类型："Int8" 和 "nf4"，推荐使用精度损失较小的 "Int8"  |
 
-量化训练可以降低显存需求，但会导致模型精度损失。如果不需要量化训练，可以删除所有 `QUANT` 相关的参数。
+### 调整 LoRA 相关参数
+
+<Callout type="info" emoji="ℹ️">
+`lora_config` 包含 LoRA 微调的参数，效果参考下表：
+</Callout>
+
+| 参数 | 描述 |
+| --- | --- |
+| "lora_load":"" |LoRA 文件路径，代表从哪个 LoRA checkpoint 开始微调。若从头训练 LoRA 可不填 |
+| "lora_r":32 | LoRA 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
+| "lora_alpha":32 | LoRA 微调的 alpha 参数（缩放因子），建议保持 lora_r 的两倍 |
+| "lora_dropout":0.01 | LoRA 微调的丢弃率，建议使用 0.01 |
 
 ### 调整其他训练参数
 
@@ -125,62 +135,115 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 | `--lr_init 5e-5` | 初始学习率，LoRA 建议 5e-5 ，最大不超过 1e-4 |
 | `--lr_final 5e-5` | 最终学习率，建议和初始学习率保持一致 |
 | `--warmup_steps 0` | 预热步骤数，默认 0，加载模型时可尝试改成 50 |
-| `--beta1 0.9` | Adam 优化器的 beta1 参数 |
-| `--beta2 0.99` | Adam 优化器的 beta2 参数 |
-| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数 |
+| `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
+| `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
+| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 gpu， cpu 基本不支持训练 |
-| `--devices 1` | 单显卡填 1，多卡按实际数量填写 |
-| `--precision bf16` | 训练精度，默认为 bf16，支持："fp32", "tf32", "fp16", "bf16" |
+| `--devices 1` | 显卡数量，单显卡填 1，多卡按实际数量填写 |
+| `--precision bf16` | 训练精度，建议保持默认值 bf16，支持："fp32", "tf32", "fp16", "bf16" |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 deepspeed_stage_1，设备显存太小可将 1 改成 2 |
 | `--grad_cp 1` | 梯度累积步数，0 训练更快但需更多显存，1 训练较慢但节省显存 |
 | `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
-| `--lora_load rwkv-0` | LoRA 文件路径，代表从哪个 LoRA 模型开始微调|
-| `--lora_dropout 0.01` | LoRA 微调的丢弃率，建议保持默认值 0.01 |
-| `--lora_parts=att,ffn,time,ln` | LoRA 微调影响的范围，建议保持默认值 |
+| `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
+| `--loss_mask pad` | 在数据末尾进行 padding，可改成 "qa" 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
 | `--fla` | 是否启用 fla 以减小显存需求，bsz 小于 8 时建议开启 |
+| `--peft lora` | 训练类型，LoRA 微调填 lora，支持："lora", "state", "pissa", "bone"， |
+| `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
+| `--train_parts` | 指定微调的模型区域，如“emb”、“head”、“time”、“ln”。训练时建议移除此参数，以使用默认值 ["time", "ln"]|
+| `--wandb RWKV-PEFT-LORA` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 
-参数调整完成后，请记得保存 `demo-lora.sh` 文件。
+<Callout type="warning" emoji="⚠️">
+参数调整完成后，请记得保存 `run_lora.sh` 文件。
+</Callout>
 
 </Steps>
 
+### 附录：run_lora.sh 配置参考
+
+``` bash copy filename="run_lora.sh"
+load_model='/home/rwkv/models/basemodel/3b.pth'
+proj_dir='/home/rwkv/RWKV-PEFT/output_lora'
+data_file='/home/rwkv/RWKV-PEFT/data/lora-test'
+
+n_layer=32
+n_embd=2560
+
+micro_bsz=1
+epoch_save=1
+epoch_steps=500
+ctx_len=1024
+
+lora_config='{"lora_load":"","lora_r":32,"lora_alpha":64,"lora_dropout":0.01}'
+
+python train.py --load_model $load_model \
+--proj_dir $proj_dir --data_file $data_file \
+--data_type binidx --vocab_size 65536 \
+--ctx_len $ctx_len --epoch_steps $epoch_steps --epoch_count 5 --epoch_begin 0 --epoch_save $epoch_save --micro_bsz $micro_bsz \
+--n_layer $n_layer --n_embd $n_embd \
+--pre_ffn 0 --head_qk 0 --lr_init 5e-5 --lr_final 5e-5 --warmup_steps 0 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
+--accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
+--my_testing "x060" \
+--dataload pad --loss_mask pad \
+--peft lora --lora_config $lora_config \
+--wandb RWKV-PEFT-LORA
+
+# 以下是可选项
+# --fla 
+# --quant int8/nf4 （是否量化训练）
+# --train_parts ["time", "ln"]（是否指定训练范围，不建议添加此参数）
+```
+
 ## 开始训练
 
-在 RWKV-PEFT 目录，运行 `sh demo/demo-lora.sh` 命令，开启 LoRA 微调 。
+在 RWKV-PEFT 目录，运行 `sh scripts/run_lora.sh` 命令，开启 LoRA 微调 。
 
 正常开始训练后，应当是如下画面：
 
-![lora-tuning-running](./imgs/lora-tuning-running.png)
+![lora-tuning-running](./imgs/lora-tuning-successfully.png)
 
 训练完毕后，应当可以在输出文件夹中找到训练好的 LoRA 文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
-![lora-tuning-get-model](./imgs/lora-finetune-output.gif)
+![lora-tuning-get-model](./imgs/lora-finetune-output.png)
 
 ## 合并 LoRA 文件
 
 得到 LoRA 文件后，你需要将它合并到基底 RWKV 模型中，获得一个完整的 LoRA 微调模型。
 
-这个过程可以使用 demo 目录的 `demo-lora-merge.sh` 脚本来完成。
+这个过程可以使用 `scripts` 目录的 `merge_lora.sh` 脚本文件来完成。
 
 ### 修改合并参数
 
-使用文本编辑器打开 demo 目录的 `demo-lora-merge.sh` 文件，修改合并参数：
+使用文本编辑器打开 `scripts` 目录下的 `merge_lora.sh` 脚本文件，并修改脚本中的合并参数：
 
 | 参数 | 描述 |
 | ---| --- |
-| base_model | 基底 RWKV 模型的路径 |
-| lora_checkpoint | 训练得到的某个 LoRA 文件路径 |
+| base_model | LoRA 微调的基底 RWKV 模型路径，参考 run_lora.sh  |
+| lora_checkpoint | 训练得到的某个 LoRA 检查点文件路径 |
 | output | 合并后的 LoRA 模型输出路径（包含模型命名） |
-| QUANT | 跟随训练时的量化参数，"nf4"或者"Int8" |
 | TYPE='lora' | 合并类型：LoRA，无需修改 |
 | Lora_alpha | 跟随训练时的 Lora_alpha 参数 |
+| --quant | 跟随训练时的量化参数，"nf4"或者"int8"。如果训练时未使用量化，则无需添加此参数 |
 
-<Callout type="warning" emoji="⚠️">
-请删除 `--lora_init` 相关的参数，它是 Pissa 微调的特有参数。
-</Callout>
+合并参数参考：
+
+``` bash copy filename="merge_lora.sh"
+base_model='/home/rwkv/models/basemodel/3b.pth'
+lora_checkpoint='/home/rwkv/RWKV-PEFT/output_lora/rwkv-2.pth'
+output='/home/rwkv/RWKV-PEFT/output_lora/peft-demo.pth'
+TYPE='lora'
+Lora_alpha=64
+
+python merge/merge.py --base_model $base_model \
+--lora_checkpoint $lora_checkpoint \
+--output $output \
+--type $TYPE \
+--lora_alpha $Lora_alpha
+# --quant int8/nf4 （和训练时的量化参数同步）
+```
 
 ### 合并 LoRA 文件
 
-修改完成后保存文件，在 RWKV-PEFT 目录打开终端，并运行 `sh demo/demo-lora-merge.sh` 命令，进行 LoRA 模型合并。
+修改完成后保存文件，在 `RWKV-PEFT` 主目录运行 `sh scripts/merge_lora.sh` 命令，进行 LoRA 模型合并：
  
 ![lora-merge.png](./imgs/lora-merge.png)
 
@@ -189,6 +252,12 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 ![lora-merged-model](./imgs/lora-merged-model.png)
 
 合并后的 LoRA 模型可以在 RWKV Runner 或者 Ai00 中正常使用。
+
+![lora-model-usage-of-runner](./imgs/lora-model-usage-of-runner.png)
+
+![lora-model-usage](./imgs/lora-model-usage.png)
+
+详细用法请参考 [RWKV Runner 教程](https://rwkv.cn/RWKV-Runner/Introduction) 和 [Ai00 教程](https://rwkv.cn/ai00/Introduction)。
 
 
 
