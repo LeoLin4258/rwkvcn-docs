@@ -48,9 +48,9 @@ State tuning 的显存需求可参考下表：
 在 Linux 工作区依次运行以下命令，以使用 `RWKV-LM` 仓库中的 `make_data.py` 脚本生成 binidx 数据：
 
 ``` bash copy
-clone https://github.com/BlinkDL/RWKV-LM.git
-cd RWKV-LM/RWKV-v5
-python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512
+git clone https://github.com/BlinkDL/RWKV-LM.git # 克隆 RWKV-LM 仓库
+cd RWKV-LM/RWKV-v5 # 进入 RWKV-v5 目录
+python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复制数据并生成 binidx 数据
 ```
 ![state-tuning-make-data](./imgs/state-tuning-make-data.gif)
 
@@ -197,6 +197,39 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 <Callout type="warning" emoji="⚠️">
 参数调整完成后，请记得保存 `demo-state-tuning.sh` 文件。
 </Callout>
+
+### 附录：state tuning 配置参考
+
+``` bash copy filename="demo-state-tuning.sh"
+load_model='/home/rwkv/models/basemodel/3b.pth'
+proj_dir='/home/rwkv/RWKV-PEFT/output_state'
+data_file='/home/rwkv/RWKV-PEFT/data/qaemoji'
+
+
+n_layer=32
+n_embd=2560
+
+micro_bsz=2
+epoch_save=1
+epoch_steps=500
+ctx_len=512
+
+python train.py --load_model $load_model \
+--proj_dir $proj_dir --data_file $data_file \
+--data_type binidx --vocab_size 65536 \
+--ctx_len $ctx_len --epoch_steps $epoch_steps --epoch_count 1 --epoch_begin 0 --epoch_save $epoch_save --micro_bsz $micro_bsz \
+--n_layer $n_layer --n_embd $n_embd \
+--pre_ffn 0 --head_qk 0 --lr_init 1 --lr_final 1e-2 --warmup_steps 10 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
+--accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
+--my_testing "x060" \
+--train_type "state"  --dataload pad --wandb PEFT-State-tuning
+
+# 以下为可选项
+# --fla 
+# --quant int8/nf4 （是否量化训练）
+# --wandb PEFT-State-tuning （是否使用 wandb 监控训练过程）
+```
+
 </Steps>
 
 ## 开始训练
