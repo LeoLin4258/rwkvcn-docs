@@ -37,20 +37,3 @@ keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv�
 如你所见，消费级级显卡无法进行 RWKV-V6 的全参微调，即使是对最小尺寸的 RWKV6-1.6B 模型，全参微调也需要 A100 或更强大的 GPU 。
 
 但 24GB 显存可以尝试全参微调 [RWKV-V5 0.4B](https://huggingface.co/BlinkDL/rwkv-5-world/blob/main/RWKV-5-World-0.4B-v2-20231113-ctx4096.pth) ，本地跑通 RWKV 训练流程。
-
-## 下载基底 RWKV 模型
-
-在微调之前，你需要从以下链接下载官方 RWKV模型，并将其放在某个文件夹中（推荐下载最新的 RWKV-6 架构模型）：
-
-RWKV-5-World 模型下载链接：
-
-- Hugging Face ：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
-- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
-
-RWKV-6-World 模型下载链接：
-
-- Hugging Face ：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
-- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
-- modelscope（国内可访问）： https://modelscope.cn/models/Blink_DL/rwkv-6-world/files
-
-```
