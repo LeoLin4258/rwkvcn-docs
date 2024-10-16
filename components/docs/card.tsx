@@ -1,6 +1,6 @@
 export const CustomCard = () => {
     const cardData = [
-        { imgUrl: '/images/RWKV-Wiki-Cover.png', title: 'RWKV 百科', description: '了解 RWKV 的发展历史、版本信息、架构原理等基础知识', link: '/RWKV-Wiki/Introduction' },
+        { imgUrl: '/images/RWKV-Wiki-Cover.png', title: '关于 RWKV', description: '了解 RWKV 的发展历史、版本信息、架构原理等基础知识', link: '/RWKV-Wiki/Introduction' },
         { imgUrl: '/images/RWKV-Prompt-Cover.png', title: 'RWKV 提示词指南', description: '学习如何向 RWKV 提问，包括完成任务、角色扮演，等等', link: '/RWKV-Prompts/Chat-Prompts' },
         { imgUrl: '/images/RWKV-Finetune-Cover.png', title: 'RWKV 微调教程', description: '学习 RWKV 的全参、 LoRA、Pissa、State tuning 等微调方法', link: '/RWKV-Fine-Tuning/Introduction' },
         { imgUrl: '/images/RWKV-Runner-Cover.png', title: 'RWKV Runner 教程', description: 'RWKV Runner 是 RWKV 的本地部署软件，带新手友好的图形化界面', link: '/RWKV-Runner/Introduction' },
