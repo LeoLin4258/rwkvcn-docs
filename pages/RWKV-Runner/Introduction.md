@@ -16,24 +16,24 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 如果你不知道如何提示 RWKV 模型，才能让它更好地完成某项任务。可以从以下途径获得 RWKV-Prompts（提示词）参考：
 
-1. 参考我们整理的 RWKV-Prompts（提示词）示例，地址：https://shoumenchougou.github.io/Awesome-RWKV-Prompts
+1. 参考我们整理的 [RWKV-Prompts（提示词）示例](https://rwkv.cn/RWKV-Prompts/Completion-Prompts)
 
-2. 加入 RWKV 企鹅群 ：224287095 ，在群里提问（请附上任务文本）
+2. 加入 RWKV QQ 群：224287095 ，在群里提问（请附上任务文本）
 
 ### 聊天功能
 
 软件提供了开箱即用的聊天功能，你可以与 AI 畅聊、提出问题并获取建议。
 
-![](./imgs/RWKV-Runner-chat.png)
+![RWKV-Runner-chat](./imgs/RWKV-Runner-chat.png)
 
-![](./imgs/RWKV-Runner-chat2.png)
+![RWKV-Runner-chat](./imgs/RWKV-Runner-chat2.png)
 
 ### 写作功能
 
 写作功能可根据你提供的文本内容作进一步的续写、翻译等任务。
 
 
-![](./imgs/RWKV-Runner-writer.png)
+![RWKV-Runner-writer](./imgs/RWKV-Runner-writer.png)
 
 ### 作曲功能
 
@@ -41,8 +41,8 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 MIDI（Musical Instrument Digital Interface）是一种音乐数字化协议，它不传输录制的声音，而是使用标准化的数据格式来描述各种音乐元素，例如音符音调信息、旋律、节奏、声音效果等等。
 
-![](./imgs/RWKV-Runner-musician.png)
+![RWKV-Runner-musician](./imgs/RWKV-Runner-musician.png)
 
-![](./imgs/RWKV-Runner-musician2.png)
+![RWKV-Runner-musician2](./imgs/RWKV-Runner-musician2.png)
 
 

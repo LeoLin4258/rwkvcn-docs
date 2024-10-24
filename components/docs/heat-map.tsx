@@ -33,7 +33,7 @@ export const HeatMap = ({ name }: { name: string }) => {
                     <div className="w-40 flex-shrink-0">
                         <div className="h-12"></div> {/* 占位符 */}
                         {Model.map((model, index) => (
-                            <div key={index} className={`h-10 flex items-center text-xs ${model.includes('RWKV') ? 'text-white font-bold' : 'text-zinc-400'}`}>
+                            <div key={index} className={`h-10 flex items-center text-xs ${model.includes('RWKV') ? 'text-[#008AE6] font-bold' : 'text-zinc-400'}`}>
                                 {model}
                             </div>
                         ))}
