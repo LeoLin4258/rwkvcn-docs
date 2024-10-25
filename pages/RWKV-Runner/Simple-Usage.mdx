@@ -32,7 +32,7 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 </Callout>
 以下两种方法可为你的 RWKV Runner 软件提供完整的启动环境：
 
-### 方法 1：下载懒人包
+### 下载懒人包
 
 直接下载[ Baidu 网盘](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)中的懒人包，然后在一个空白的目录中解压懒人包。
 
@@ -44,7 +44,7 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 懒人包中预置了 RWKV Runner 软件本体和 Python 、Pytorch 等所有依赖项，以及一个 3B 的 RWKV 模型。将其下载至本地并在**空白目录**中解压，即可正常使用。
 
-### 方法 2 ：通过 RWKV Runner 自动下载
+### 通过 RWKV Runner 自动下载
 
 首次打开 RWKV Runner 软件时，点击“运行”按钮，软件会提示你缺失 Python 等依赖项。
 
@@ -79,11 +79,11 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 完成启动环境的配置后，我们可以开始下一步：选择预设模型配置、下载并运行 RWKV 模型。
 
-### RWKV Runner 预设模型配置
+### 什么是预设模型配置？
 
 为了照顾新手用户，RWKV Runner 内置了一系列预设模型配置，以降低使用难度。
 
-![alt text](./imgs/RWKV-Runner-preset.png)
+![RWKV-Runner-preset](./imgs/RWKV-Runner-preset.png)
 
 每个模型配置名称的规则，依次代表着：设备-所需显存-模型规模-模型语言。
 
@@ -103,11 +103,11 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 等待模型下载完成，再度点击 `运行` 按钮，即可启动模型并运行各类 AI 功能。
 
-### RWKV 模型下载方法
+## RWKV 模型下载方法
 
 有几种方法可以下载 RWKV 模型：
 
-1. **在 RWKV runner 中下载（默认）**
+### RWKV Runner 下载（默认）
 
 在 RWKV runner 的“模型”版块，可以筛选并下载 RWKV 模型。
 
@@ -115,24 +115,21 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 注意：如果你无法科学上网，请先勾选 `使用 Hugging Face 镜像源` 再下载模型。
 </Callout>
 
-![alt text](./imgs/runner-model-download.gif)
+![runner-model-download](./imgs/runner-model-download.gif)
 
-2. **在网站下载**
+### 通过网站下载
 
 如果 RWKV runner 的下载任务迟迟未响应，你可以按以下步骤手动下载：
 
-- 在浏览器中下载 RWKV 模型
-- 将下载的 RWKV 模型放在 RWKV Runner 的 `models` 文件夹中
+1. 在浏览器中下载 RWKV 模型
+2. 将下载的 RWKV 模型放在 RWKV Runner 的 `models` 文件夹中
 
-RWKV 5 系列下载链接：
+<Callout type="info" emoji="ℹ️">
+RWKV-6-World 模型下载链接：
+- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-6-world/tree/main)
+- [Hugging Face 镜像站（国内可访问）](https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main)
+- [modelscope（国内可访问）](https://modelscope.cn/models/Blink_DL/rwkv-6-world/files)
 
-- Hugging Face 主站：https://huggingface.co/BlinkDL/rwkv-5-world/tree/main
-- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-5-world/tree/main
-
-RWKV-6 系列下载链接：
-
-- Hugging Face 主站：https://huggingface.co/BlinkDL/rwkv-6-world/tree/main
-- Hugging Face 镜像站（国内可访问）： https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main
-- modelscope（国内可访问）： https://modelscope.cn/models/Blink_DL/rwkv-6-world/files
-
+其他模型下载链接请参考：[模型下载](https://rwkv.cn/RWKV-Wiki/Model-Download)
+</Callout>
 
