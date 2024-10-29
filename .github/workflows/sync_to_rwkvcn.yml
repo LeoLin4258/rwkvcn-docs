@@ -1,9 +1,9 @@
-name: Sync Pages Directory to RWKVCN
+name: Sync Pages and Components Directory to RWKVCN
 
 on:
   push:
     branches:
-      - main  # Listen to changes on the main branch of RWKVCN-DOCS
+      - main  # 监听 RWKVCN-DOCS 仓库的 main 分支
 
 jobs:
   sync:
@@ -13,23 +13,24 @@ jobs:
       - name: Checkout RWKVCN-DOCS repo
         uses: actions/checkout@v2
 
-      - name: Sync Pages Directory to RWKVCN
+      - name: Sync Directories to RWKVCN
         env:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # PAT configured in RWKVCN-DOCS secrets
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 在 RWKVCN-DOCS 的 Secrets 中配置 PAT
         run: |
-          # Clone the rwkvcn-docs branch from RWKVCN repository
-          git clone --branch rwkvcn-docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
+          # 克隆 RWKVCN 仓库的 docs 分支
+          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
 
-          # Sync pages directory from RWKVCN-DOCS to RWKVCN repository
+          # 使用 rsync 将 RWKVCN-DOCS 仓库的 pages 目录和 components/docs/ 目录同步到 RWKVCN 仓库
           rsync -av --delete --exclude='.git' pages/ rwkvcn/pages/
+          rsync -av --delete --exclude='.git' components/docs/ rwkvcn/components/docs/
 
-          # Commit and push the changes to rwkvcn-docs branch in RWKVCN
+          # 提交并推送更新到 RWKVCN 的 docs 分支
           cd rwkvcn
 
-          # Configure Git user info for the commit
+          # 配置 Git 用户信息
           git config user.name "github-actions[sync-docs]"
           git config user.email "github-actions[sync-docs]@users.noreply.github.com"
 
-          git add pages/
-          git commit -m "Sync pages directory from RWKVCN-DOCS main to rwkvcn-docs" || echo "No changes to commit"
+          git add pages/ components/docs/
+          git commit -m "Sync pages and components/docs directories from RWKVCN-DOCS main to rwkvcn-docs"
           git push origin rwkvcn-docs
