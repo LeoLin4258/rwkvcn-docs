@@ -12,19 +12,21 @@ jobs:
     steps:
       - name: Checkout RWKVCN-DOCS repo
         uses: actions/checkout@v2
+        
+- name: Sync Pages Directory to RWKVCN
+  env:
+    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 修改 Token 名称一致
+  run: |
+    # 克隆 RWKVCN 仓库的 docs 分支
+    git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/leo4258/rwkvcn.git rwkvcn
 
-      - name: Sync Docs to RWKVCN
-        env:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.SYNC_DOCS_TOKEN }}
-        run: |
-          # 克隆 RWKVCN 仓库的 docs 分支
-          git clone --branch docs https://$SYNC_DOCS_TOKEN@github.com/leo4258/rwkvcn.git rwkvcn
+    # 使用 rsync 将 RWKVCN-DOCS 仓库的 pages 目录同步到 RWKVCN 仓库的 pages 目录
+    rsync -av --delete --exclude='.git' pages/ rwkvcn/pages/
 
-          # 使用 rsync 将 RWKVCN-DOCS 仓库的 pages 目录同步到 RWKVCN 仓库的 pages 目录
-          rsync -av --delete --exclude='.git' pages/ rwkvcn/pages/
+    # 提交并推送更新到 RWKVCN 的 docs 分支
+    cd rwkvcn
+    git add pages/
+    git commit -m "Sync pages directory from RWKVCN-DOCS main to docs"
+    git push origin docs  # 注意这里应该推送到 RWKVCN 的 docs 分支
 
-          # 提交并推送更新到 RWKVCN 的 docs 分支
-          cd rwkvcn
-          git add pages/
-          git commit -m "Sync pages directory from RWKVCN-DOCS main to docs"
-          git push origin rwkvcn-docs
+
