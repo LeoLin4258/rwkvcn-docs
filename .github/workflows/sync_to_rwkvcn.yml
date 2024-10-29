@@ -18,7 +18,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 在 RWKVCN-DOCS 的 Secrets 中配置 PAT
         run: |
           # 克隆 RWKVCN 仓库的 docs 分支
-          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/leo4258/rwkvcn.git rwkvcn
+          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
 
           # 使用 rsync 将 RWKVCN-DOCS 仓库的 pages 目录同步到 RWKVCN 仓库的 pages 目录
           rsync -av --delete --exclude='.git' pages/ rwkvcn/pages/
@@ -26,5 +26,5 @@ jobs:
           # 提交并推送更新到 RWKVCN 的 docs 分支
           cd rwkvcn
           git add pages/
-          git commit -m "Sync pages directory from RWKVCN-DOCS main to docs"
-          git push origin docs
+          git commit -m "Sync pages directory from RWKVCN-DOCS main to rwkvcn-docs"
+          git push origin rwkvcn-docs
