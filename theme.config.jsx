@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useConfig } from "nextra-theme-docs";
+import { useEffect } from 'react';
+
 export default {
   logo: <span>RWKV</span>,
   project: {
@@ -12,11 +14,6 @@ export default {
   },
   search: {
     placeholder: "搜索文档...",
-  },
-  darkMode: false,
-  nextTheme: {
-    defaultTheme: "dark",
-    forcedTheme: "dark",
   },
   feedback: {
     content: null,
@@ -109,6 +106,15 @@ export default {
   },
 
   useNextSeoProps() {
+    useEffect(() => {
+      // 初始化主题
+      const docTheme = localStorage.getItem('docs-theme') || 'dark';
+      localStorage.setItem('docs-theme', docTheme);
+      // 初始化时设置正确的类名
+      document.documentElement.classList.toggle('dark', docTheme === 'dark');
+      document.documentElement.classList.toggle('light', docTheme === 'light');
+    }, []);
+
     return {
       titleTemplate: "%s ",
     };

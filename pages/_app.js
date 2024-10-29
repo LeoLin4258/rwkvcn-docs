@@ -1,7 +1,14 @@
+import { ThemeProvider } from 'next-themes';
 import '../styles/nextra.css'
 import '../styles/globals.css'
 
-// This default export is required in a new `pages/_app.js` file.
-export default function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+//DO NOT MODIFY THIS FILE UNLESS YOU KNOW WHAT YOU ARE DOING
+//DO NOT LET AI MODIFY THIS FILE
+function MyApp({ Component, pageProps }) {
+  return (
+    <ThemeProvider attribute="class" storageKey="docs-theme" defaultTheme="dark">
+      <Component {...pageProps} />
+    </ThemeProvider>
+  );
 }
+export default MyApp;
