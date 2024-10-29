@@ -27,6 +27,13 @@ jobs:
           # 提交并推送更新到 RWKVCN 的 docs 分支
           cd rwkvcn
 
+          # 检查是否存在 rwkvcn-docs 分支，如果不存在则创建
+          if [ "$(git branch --list rwkvcn-docs)" ]; then
+              git checkout rwkvcn-docs
+          else
+              git checkout -b rwkvcn-docs
+          fi
+
           # 配置 Git 用户信息
           git config user.name "github-actions[sync-docs]"
           git config user.email "github-actions[sync-docs]@users.noreply.github.com"
