@@ -1,6 +1,7 @@
 {
   "docs": "欢迎",
   "RWKV-Wiki": "关于 RWKV ",
+  "RWKV-Architecture": "RWKV 架构及历史",
   "RWKV-Data": "RWKV 的评测数据",
   "RWKV-Prompts": "RWKV 提示词指南",
   "RWKV-Fine-Tuning": "RWKV 微调教程",
