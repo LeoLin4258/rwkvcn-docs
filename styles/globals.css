@@ -237,6 +237,9 @@ body {
   line-height: 19px;
   margin-bottom: 8px;
 }
-.katex-display{
+.katex-display {
+  color: #000000;
+}
+.dark .katex-display {
   color: #ffffff;
 }
