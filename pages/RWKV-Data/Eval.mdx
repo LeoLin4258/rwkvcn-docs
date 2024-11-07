@@ -170,35 +170,38 @@ MMLU 涵盖了从初中到研究生水平的57个不同学科，包括数学、�
 
 如果使用 lm_eval 的标准格式测试，RWKV-6-World-7B-v2.1 的 MMLU 准确度是 42.8% ：
 
-``` text copy
+``` bash copy
 The following are multiple choice questions (with answers) about abstract algebra.
 Find the degree for the given field extension Q(sqrt(2), sqrt(3), sqrt(18)) over Q.
 A. 0
 B. 4
 C. 2
 D. 6
+
 Answer:
 ```
 如果使用 RWKV 的训练的数据格式作为 prompt，RWKV-6-World-7B-v2.1 的 MMLU 是 46.7%：
 
-``` text copy
+``` bash copy
 User: Find the degree for the given field extension Q(sqrt(2), sqrt(3), sqrt(18)) over Q.
 A. 0
 B. 4
 C. 2
 D. 6
- 
+
 Assistant: The answer is
 ```
+
 如果使用最适合 RWKV 模型推理的 prompt 模板，RWKV-6-World-7B-v2.1 的 MMLU 是 47.9%：
-``` text copy
+
+``` bash copy
 User: You are a very talented expert in <SUBJECT>. Answer this question:
 <Question>
 A. <|A|>
 B. <|B|>
 C. <|C|>
 D. <|D|>
- 
+
 Assistant: The answer is
 ```
 
