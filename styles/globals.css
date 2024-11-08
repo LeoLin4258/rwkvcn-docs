@@ -243,3 +243,8 @@ body {
 .dark .katex-display {
   color: #ffffff;
 }
+
+.katex {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
