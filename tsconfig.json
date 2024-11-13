@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/hook/useIsVisible.js", "app/dev/page.js", "components/news/markdownToHtml.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/hook/useIsVisible.js", "app/dev/page.js", "components/news/markdownToHtml.js", "pages/api/segment.js"],
   "exclude": ["node_modules"]
 }
