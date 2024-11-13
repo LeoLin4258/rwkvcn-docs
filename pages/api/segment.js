@@ -1,9 +1,16 @@
 import Segment from 'segment'
+import path from 'path'
 
 // Initialize the segmenter
 const segment = new Segment()
 segment.useDefault()
 
+// Load custom dictionary
+const customDictPath = path.join(process.cwd(), 'pages', 'api', 'custom_dict.txt')
+segment.loadDict(customDictPath)
+
+// API endpoint for segmenting text
+// DO NOT MODIFY THIS FILE
 export default function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, error: 'Method not allowed' })
