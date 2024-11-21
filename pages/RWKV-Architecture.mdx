@@ -4,8 +4,8 @@ description: RWKV 架构相关的知识，包括 RWKV 架构名称的由来、RW
 keywords: RWKV集成,rwkv部署,RWKV应用,RWKV API
 ---
 
-import { Callout } from "nextra/components";
-import { Steps } from "nextra/components";
+import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
 
 以下是 RWKV 架构相关的知识，包括 RWKV 架构名称的由来、RWKV 架构特性、架构历史、以及每个架构的模型发布等内容。
 
@@ -22,9 +22,7 @@ RNN 网络在运行过程中会保持一个隐藏状态（state），隐藏状�
 如图所示，RNN 网络依次处理每一个输入的 token，并根据“当前隐藏状态”来预测下一个可能出现的 token（如果有需求）。每处理一个 token，RNN 会将结果反馈给网络自身，从而“更新其隐藏状态”，再用“更新后的状态”去预测下一个 token。如此循环，直到达到“完成任务”的状态。
 
 <Callout type="warning" emoji="✨">
-  作为 RNN 的一种变体，RWKV 支持对隐藏状态进行微调（[state
-  tuning](https://rwkv.cn/RWKV-Fine-Tuning/State-Tuning)）。通过调整模型的“心理状态”，可使
-  RWKV 模型在特定任务上表现更佳。
+作为 RNN 的一种变体，RWKV 支持对隐藏状态进行微调（[state tuning](https://rwkv.cn/RWKV-Fine-Tuning/State-Tuning)）。通过调整模型的“心理状态”，可使 RWKV 模型在特定任务上表现更佳。
 </Callout>
 
 ## RWKV 架构名称的由来[#name-origin]
@@ -59,13 +57,11 @@ $$
 其中 $R$ 、 $K$ 、 $V$ 由输入线性变换生成，$W$ 则是长卷积中的卷积核。
 
 <Callout type="info" emoji="ℹ️">
-  Time-mix 和 Channel-mix 的结构设计均基于 $R$ 、$W$ 、 $K$ 、 $V$
-  四个主要参数，这便是 **RWKV** 这个名称的由来。
+Time-mix 和 Channel-mix 的结构设计均基于 $R$ 、$W$ 、 $K$ 、 $V$ 四个主要参数，这便是 **RWKV** 这个名称的由来。
 </Callout>
 
 <Callout type="warning" emoji="✨">
-  RWKV-V1 更接近 Linear Transformer 而非 RNN
-  ，因为其每一个时间步都依赖于历史时刻所有的输入。
+RWKV-V1 更接近 Linear Transformer 而非 RNN ，因为其每一个时间步都依赖于历史时刻所有的输入。
 </Callout>
 
 ### RWKV-V2-RNN
@@ -84,18 +80,16 @@ RWKV-V2 版本首次为 RWKV 实现了 RNN 模式，伪代码图如下：
 - **发明了一种 headQK 机制**，让模型可以直接从前文复制或避免生成某些字，这对于 ICL（in context learning） 很重要。几年后，其它研究者也发现了这一现象。但为了测试纯 RNN 的能力极限，RWKV 主线模型并未加入这一功能。
 
 ```python
-q = self.head_q(x)[:,:T,:]
-k = self.head_k(x)[:,:T,:]
+q = self.head_q(x)[:,:T,:] 
+k = self.head_k(x)[:,:T,:] 
 c = (q @ k.transpose(-2, -1)) * (1.0 / 256)
 c = c.masked_fill(self.copy_mask[:T,:T] == 0, 0)
-c = c @ F.one_hot(idx, num_classes = self.config.vocab_size).float()
+c = c @ F.one_hot(idx, num_classes = self.config.vocab_size).float()       
 x = self.head(x) + c
 ```
 
 <Callout type="warning" emoji="✨">
-  通过指数衰减（exponential decay），RWKV-V2 实现了 RNN
-  形式的推理：模型每次生成都依赖于上一个时刻的输入和当前时刻的输入，同时拥有固定大小的隐藏状态（在
-  RWKV-V2 里是 a 和 b）。
+通过指数衰减（exponential decay），RWKV-V2 实现了 RNN 形式的推理：模型每次生成都依赖于上一个时刻的输入和当前时刻的输入，同时拥有固定大小的隐藏状态（在 RWKV-V2 里是 a 和 b）。
 </Callout>
 
 RWKV-V2 的自注意力层简化表达：
@@ -114,7 +108,6 @@ xk = x * self.time_mix_k + xx * (1 - self.time_mix_k)
 xv = x * self.time_mix_v + xx * (1 - self.time_mix_v)
 xr = x * self.time_mix_r + xx * (1 - self.time_mix_r)
 ```
-
 RWKV-V3 对比 V2 的 token-shift 改进图示：
 
 ```mermaid
@@ -123,9 +116,9 @@ title: RWKV-V2
 ---
 graph TD;
     Xt["X<sub>t</sub>"] --> Zt["Z<sub>t</sub>"];
-
+    
     Zt --> R;
-    Zt --> K;
+    Zt --> K;  
     Zt --> V;
 
 ```
@@ -138,7 +131,7 @@ graph TD;
     Xt["X<sub>t</sub>"] --> Xr["X<sub>R</sub>"];
     Xt --> Xk["X<sub>K</sub>"];
     Xt --> Xv["X<sub>V</sub>"];
-
+ 
     Xr --> R;
     Xk --> K;
     Xv --> V;
@@ -146,7 +139,7 @@ graph TD;
 
 此外，这个版本使用 preLN 代替 postLN（更稳定，且收敛更快）：
 
-```python
+``` python
 if self.layer_id == 0:
 	x = self.ln0(x)
 x = x + self.att(self.ln1(x))
@@ -166,7 +159,7 @@ RWKV-V4 架构的论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次
 
 - 左侧：RWKV-V4 的 time-mixing 和 channel-mixing 模块
 - 右侧：RWKV-V4 的语言建模流程
-  </Callout>
+</Callout>
 
 #### Token Shift 概念[#token-shift]
 
@@ -180,7 +173,6 @@ RWKV-V4 语言建模的架构图，演示了 RWKV-V4 的 Token Shift 过程，�
 RWKV-V4 版本的一大特点是 state（RNN 的隐藏状态）非常小，这是因为彭博专注于在“最小的 state 下实现最大的性能”。
 
 以 $D$ 为模型主维数， $L$ 为模型层数。RWKV-4 模型的 state 大小为 $5DL$，包括 $2DL $ 的 mixing 和 $3DL$ 的 WKV。
-
 </Callout>
 
 #### RWKV-V4 的模型发布[#rwkv-v4-model-release]
@@ -193,7 +185,6 @@ RWKV-V4 的研究（架构迭代和模型训练等）横跨了 2022 和 2023 年
 - RWKV-4-Music：有 MIDI 和 ABC 两种格式的作曲模型，分别使用 bread-midi-dataset 和 irishman 乐谱数据进行训练。其中 ABC 模型参数为 82m，MIDI 模型参数分别为 120m 和 560m 。
 
 **RWKV-V4 模型对比表格：**
-
 <div style={{ 
   overflowX: 'auto',
   width: '100%',
@@ -204,13 +195,13 @@ RWKV-V4 的研究（架构迭代和模型训练等）横跨了 2022 和 2023 年
   wordBreak: 'break-all',
 }}>
 
-| 模型名称                                                                | 描述                                        | 训练数据（数据量）                                                                                                                                              | 词表（词表大小）                                                                                                         |
-| ----------------------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **[RWKV-4-Pile](https://huggingface.co/BlinkDL/rwkv-4-pile-14b)**       | 基于 Pile 数据集的预训练语言模型            | [EleutherAI/pile](https://huggingface.co/datasets/EleutherAI/pile) (331B tokens)                                                                                | [20B_tokenizer](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v4/20B_tokenizer.json) (50,277)                        |
-| **[RWKV-4-Raven](https://huggingface.co/BlinkDL/rwkv-4-raven)**         | RWKV-4-Pile 的指令微调语言模型              | Alpaca、CodeAlpaca、Guanaco、GPT4All、ShareGPT 等                                                                                                               | 20B_tokenizer (50,277)                                                                                                   |
-| **[RWKV-4-World](https://huggingface.co/BlinkDL/rwkv-4-world)**         | 基于 100 多种全球语言数据集的预训练语言模型 | [RWKV World v1](https://rwkv.cn/RWKV-Wiki/FAQ#rwkv-%E6%A8%A1%E5%9E%8B%E5%90%8D%E7%9A%84-v2--v21-v3-%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D) (590B tokens) | [rwkv_vocab_v20230424](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/tokenizer/rwkv_vocab_v20230424.txt) (65,536) |
-| **[RWKV-4-Music（MIDI）](https://huggingface.co/BlinkDL/rwkv-4-music)** | 基于 MIDI 乐谱数据训练的音乐（作曲）模型    | [bread-midi-dataset](https://github.com/briansemrau/MIDI-LLM-tokenizer)                                                                                         | [MIDI-LLM-tokenizer](https://github.com/briansemrau/MIDI-LLM-tokenizer)（20,095）                                        |
-| **[RWKV-4-Music（ABC）](https://huggingface.co/BlinkDL/rwkv-4-music)**  | 基于 ABC 乐谱数据训练的音乐（作曲）模型     | [irishman](https://huggingface.co/datasets/sander-wood/irishman)                                                                                                | -                                                                                                                        |
+| 模型名称 | 描述 | 训练数据（数据量）| 词表（词表大小）|
+|---------|------|------------------|----------------|
+|**[RWKV-4-Pile](https://huggingface.co/BlinkDL/rwkv-4-pile-14b)**|基于 Pile 数据集的预训练语言模型|[EleutherAI/pile](https://huggingface.co/datasets/EleutherAI/pile) (331B tokens)|[20B_tokenizer](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v4/20B_tokenizer.json) (50,277)|
+|**[RWKV-4-Raven](https://huggingface.co/BlinkDL/rwkv-4-raven)**|RWKV-4-Pile 的指令微调语言模型|Alpaca、CodeAlpaca、Guanaco、GPT4All、ShareGPT 等|20B_tokenizer (50,277)|
+|**[RWKV-4-World](https://huggingface.co/BlinkDL/rwkv-4-world)**|基于 100 多种全球语言数据集的预训练语言模型|[RWKV World v1](https://rwkv.cn/RWKV-Wiki/FAQ#rwkv-%E6%A8%A1%E5%9E%8B%E5%90%8D%E7%9A%84-v2--v21-v3-%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D) (590B tokens)|[rwkv_vocab_v20230424](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/tokenizer/rwkv_vocab_v20230424.txt) (65,536)|
+|**[RWKV-4-Music（MIDI）](https://huggingface.co/BlinkDL/rwkv-4-music)**|基于 MIDI 乐谱数据训练的音乐（作曲）模型|[bread-midi-dataset](https://github.com/briansemrau/MIDI-LLM-tokenizer)|[MIDI-LLM-tokenizer](https://github.com/briansemrau/MIDI-LLM-tokenizer)（20,095）|
+|**[RWKV-4-Music（ABC）](https://huggingface.co/BlinkDL/rwkv-4-music)**|基于 ABC 乐谱数据训练的音乐（作曲）模型|[irishman](https://huggingface.co/datasets/sander-wood/irishman)|-|
 
 </div>
 此外，RWKV-V4 模型首次训练了 14B 参数的模型，并从 RWKV-V4-World 起正式启用了包含 100 多种世界语言的 `World` 系列数据集，以及对应的多语言词表 `rwkv_vocab_v20230424`。
@@ -243,11 +234,11 @@ RWKV-V5 和 RWKV-V6 这两个架构在同一篇论文 [《Eagle and Finch: RWKV 
 上图是论文中 RWKV 5/6 的架构概览，其中：
 
 - 左侧：RWKV 的 time-mixing 和 channel-mixing 模块
-- 右上角：作为 RNN 单元时的 RWKV time-mixing 模块
+- 右上角：作为 RNN 单元时的 RWKV  time-mixing 模块
 - 底部的中间：前向传播模式下 RWKV-V5 time-mixing 的 token-shift 模块
 - 右下角：前向传播模式下 RWKV-V6 time-mixing 的 token-shift 模块
 - 虚线箭头（左侧，右上角）：表示 RWKV-V6 架构的连接，但在 RWKV-V5 中不存在
-  </Callout>
+</Callout>
 
 #### RWKV-V5 架构优化细节[#rwkv-5-optimization-details]
 
@@ -255,22 +246,22 @@ RWKV-V5 和 RWKV-V6 这两个架构在同一篇论文 [《Eagle and Finch: RWKV 
 
 在 RWKV-V4 架构的 time mixing 计算中，$u$、$w$、$k$、$v$ 参数都是维度为 $D$ 的向量，而 head size 是 1 ：
 
-| $t$ | RWKV-4 $u, w, k_t, v_t \in \mathbb{R}^D$, head size 1                                                                                                                 |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | $ \sigma(r_0) \odot \frac{u \odot k_0 \odot v_0}{u \odot k_0} $                                                                                                       |
-| 1   | $ \sigma(r_1) \odot \frac{u \odot k_1 \odot v_1 + k_0 \odot v_0}{u \odot k_1 + k_0} $                                                                                 |
-| 2   | $ \sigma(r_2) \odot \frac{u \odot k_2 \odot v_2 + k_1 \odot v_1 + w \odot k_0 \odot v_0}{u \odot k_2 + k_1 + w \odot k_0} $                                           |
+| $t$ | RWKV-4 $u, w, k_t, v_t \in \mathbb{R}^D$, head size 1 |
+| --- | ----------------------------------------------------- |
+| 0   | $ \sigma(r_0) \odot \frac{u \odot k_0 \odot v_0}{u \odot k_0} $ |
+| 1   | $ \sigma(r_1) \odot \frac{u \odot k_1 \odot v_1 + k_0 \odot v_0}{u \odot k_1 + k_0} $ |
+| 2   | $ \sigma(r_2) \odot \frac{u \odot k_2 \odot v_2 + k_1 \odot v_1 + w \odot k_0 \odot v_0}{u \odot k_2 + k_1 + w \odot k_0} $ |
 | 3   | $ \sigma(r_3) \odot \frac{u \odot k_3 \odot v_3 + k_2 \odot v_2 + w \odot k_1 \odot v_1 + w^2 \odot k_0 \odot v_0}{u \odot k_3 + k_2 + w \odot k_1 + w^2 \odot k_0} $ |
 
 而 RWKV-V5 则将 $u$、$w$参数分别进行对角化，而 $k$ 和 $v$ 从维度为 $D$ 的**向量**转化为维度为 64 \* 64 的**矩阵**， head size 大小改为固定的 64 。
 
 RWKV-V5 的 time-mixing 时间步：
 
-| $t$ | Eagle (RWKV-5) $\text{diag}(u)$, $\text{diag}(w)$, $k_t$, $v_t \in \mathbb{R}^{64 \times 64}$ for each head, head size 64                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0   | $r_0 \cdot (\text{diag}(u) \cdot k_0^\top \cdot v_0)$                                                                                                            |
-| 1   | $r_1 \cdot (\text{diag}(u) \cdot k_1^\top \cdot v_1 + k_0^\top \cdot v_0)$                                                                                       |
-| 2   | $r_2 \cdot (\text{diag}(u) \cdot k_2^\top \cdot v_2 + k_1^\top \cdot v_1 + \text{diag}(w) \cdot k_0^\top \cdot v_0)$                                             |
+| $t$ | Eagle (RWKV-5) $\text{diag}(u)$, $\text{diag}(w)$, $k_t$, $v_t \in \mathbb{R}^{64 \times 64}$ for each head, head size 64 |
+| --- | ------------------------------------------------------------------------------------------------------- |
+| 0   | $r_0 \cdot (\text{diag}(u) \cdot k_0^\top \cdot v_0)$                                                  |
+| 1   | $r_1 \cdot (\text{diag}(u) \cdot k_1^\top \cdot v_1 + k_0^\top \cdot v_0)$                              |
+| 2   | $r_2 \cdot (\text{diag}(u) \cdot k_2^\top \cdot v_2 + k_1^\top \cdot v_1 + \text{diag}(w) \cdot k_0^\top \cdot v_0)$ |
 | 3   | $r_3 \cdot (\text{diag}(u) \cdot k_3^\top \cdot v_3 + k_2^\top \cdot v_2 + \text{diag}(w) \cdot k_1^\top \cdot v_1 + \text{diag}(w^2) \cdot k_0^\top \cdot v_0)$ |
 
 RWKV-V5 前向传播（推理过程）的 time-mixing 计算公式：
@@ -291,15 +282,15 @@ $$
 o_t = \text{concat}(\text{SiLU}(g_t) \odot \text{LayerNorm}(r_t \cdot wkv_t)) W_o \in \mathbb{R}^D
 $$
 
-通过将 RWKV-V4 的向量变成矩阵，RWKV-V5 的 state 计算从“基于向量”变成了“基于 64×64 的矩阵值”，即 “matrix-valued states” 。假设当前 RWKV 模型的维度是 512 ，则可以说有 512/64 = 8 个头 （八头 ×64 维），这就是 RWKV-V5 的“多头-multi-headed” 概念。
+
+通过将 RWKV-V4 的向量变成矩阵，RWKV-V5 的 state 计算从“基于向量”变成了“基于 64×64 的矩阵值”，即 “matrix-valued states” 。假设当前 RWKV 模型的维度是 512 ，则可以说有 512/64 = 8 个头 （八头×64 维），这就是 RWKV-V5 的“多头-multi-headed” 概念。
 
 因此，我们可以把 RWKV-V5 的优化细节总结为：**RWKV-V5 消除了归一化项（RWKV-V4 公式中的分母），并引入了矩阵值状态代替以往的向量值状态。**
 
 通过这种方式，RWKV-V5 巧妙地扩大了 state 的规模，使得 RWKV 模型有更好的记忆力和模型容量。
 
 <Callout type="info" emoji="ℹ️">
-  以 $D$ 为模型主维数， $L$ 为模型层数。RWKV-5/6 模型的 state 大小为
-  $66DL$，包括 $2DL $ 的 mixing 和 $64DL$ 的 WKV。
+以 $D$ 为模型主维数， $L$ 为模型层数。RWKV-5/6 模型的 state 大小为 $66DL$，包括 $2DL $ 的 mixing 和 $64DL$ 的 WKV。
 </Callout>
 
 #### RWKV-V5 迭代过程[#rwkv-5-iteration]
@@ -326,21 +317,21 @@ RWKV-5.2 架构发布了 0.4B、1B5、3B、7B，以及 3B（ctx16k）六类模�
 
 **RWKV-V5 子版本对比表格**
 
-| 架构版本 | 优化细节                                                                                                                                                          | 发布模型                                                                                                                | 数据集                                                                                                                                     |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| RWKV-5.0 | 在 RWKV-V4 的基础上重新设计了 $wkv$ 模块，其中 $k$ 和 $v$ 两个参数从维度为 $D$ 的向量转化为维度为 64 \* 64 的矩阵，因此 RWKV-5.0 的 $wkv$ 状态比 RWKV-V4 大 32 倍 | [RWKV-5-World-0.1B-v1](https://huggingface.co/BlinkDL/rwkv-5-world/blob/main/RWKV-5-World-0.1B-v1-20230803-ctx4096.pth) | World-v1                                                                                                                                   |
-| RWKV-5.1 | 在 RWKV-5.0 的基础上引入了 Time-mixing 门控机制，即在 time-mixing 模块中添加额外的矩阵 $ W_g $ 和门控激活函数 SiLU 实现                                           | [RWKV-5-music](https://huggingface.co/BlinkDL/rwkv-5-music) 系列，含 ABC-82M 和 MIDI-560M                               | [irishman](https://huggingface.co/datasets/sander-wood/irishman)， [bread-midi-dataset](https://github.com/briansemrau/MIDI-LLM-tokenizer) |
-| RWKV-5.2 | 在 RWKV-5.1 的基础上引入了对角衰减矩阵，也就是将 $u$、$w$ 向量参数分别进行对角化                                                                                  | [RWKV-5-World-V2.1](https://huggingface.co/BlinkDL/rwkv-5-world) 系列，参数包含 0.4B、1B5、3B、7B，以及 3B（ctx16k）    | World-v2                                                                                                                                   |
+| 架构版本 | 优化细节                                                                                                                            | 发布模型                                          | 数据集                                                                                                                                     |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| RWKV-5.0 | 在 RWKV-V4 的基础上重新设计了 $wkv$ 模块，其中 $k$ 和 $v$ 两个参数从维度为 $D$ 的向量转化为维度为 64 \* 64 的矩阵，因此 RWKV-5.0 的 $wkv$ 状态比 RWKV-V4 大 32 倍 | [RWKV-5-World-0.1B-v1](https://huggingface.co/BlinkDL/rwkv-5-world/blob/main/RWKV-5-World-0.1B-v1-20230803-ctx4096.pth)                              | World-v1                                                                                                                                   |
+| RWKV-5.1 | 在 RWKV-5.0 的基础上引入了 Time-mixing 门控机制，即在 time-mixing 模块中添加额外的矩阵 $ W_g $ 和门控激活函数 SiLU 实现             | [RWKV-5-music](https://huggingface.co/BlinkDL/rwkv-5-music) 系列，含 ABC-82M 和 MIDI-560M                | [irishman](https://huggingface.co/datasets/sander-wood/irishman)， [bread-midi-dataset](https://github.com/briansemrau/MIDI-LLM-tokenizer) |
+| RWKV-5.2 | 在 RWKV-5.1 的基础上引入了对角衰减矩阵，也就是将 $u$、$w$ 向量参数分别进行对角化                                                        | [RWKV-5-World-V2.1](https://huggingface.co/BlinkDL/rwkv-5-world) 系列，参数包含 0.4B、1B5、3B、7B，以及 3B（ctx16k） | World-v2                                                                                                                                   |
 
 <Callout type="error" emoji="️🚫">
-  RWKV-V5 全系列模型均已过时，建议使用 RWKV-V6 模型。
+RWKV-V5 全系列模型均已过时，建议使用 RWKV-V6 模型。
 </Callout>
 
 ### RWKV-V6
 
 RWKV-V6 的版本代号是“Finch（雀）”，这个版本自 2023 年 10 月开发，是当前（2024 年 11 月）的稳定架构。
 
-![RWKV-V6 完整架构图](./images/RWKV-Architecture/rwkv-6_architecture.webp)
+![RWKV-V6 完整架构图](./images/RWKV-Architecture/rwkv-6-architecture.png)
 
 #### RWKV-V6 架构优化细节[#rwkv-6-optimization-details]
 
@@ -363,7 +354,6 @@ RWKV-V6 的 Token Shift 中，$x$ 和 $x-1$ 之间的线性插值公式如下：
 $$
 \text{lora}_{\Box}(x) = \lambda_{\Box} + \tanh(x A_{\Box}) B_{\Box}
 $$
-
 $$
 \text{ddlerp}_{\Box}(a, b) = a + (b - a) \odot \text{lora}_{\Box}(a + (b - a) \odot \mu_x)
 $$
@@ -374,7 +364,6 @@ $$
 通俗地理解，这种动态递归机制使“重要的信息”可以有效地标记自身，以待在后续任务使用；而“不重要的信息”也可以标记自身，以减少或完全避免进入后续的数据流，从而为更重要的现有数据保留空间。
 
 此外，如果某些信息对于特定任务没有用，那么动态递归机制可以允许这些信息预先被过滤掉。
-
 </Callout>
 
 RWKV-V6 的动态 Time Mixing 计算公式：
@@ -422,21 +411,20 @@ $$
 <Callout type="warning" emoji="✨">
 上述新的 LoRA 机制用于获取混合向量。注意，LoRA 过程本身使用 Eagle（RWKV-V5） 风格的 Token Shift 值作为输入（**RWKV-V6 完整架构图左下方**的 $\mu_x$）而不仅仅是最新的 token。新的时间变化衰减 $w_t$ 也需要再次应用 LoRA。
 
-直观上，这是 Token Shift 的二阶变体，允许 $w_t$ 的每个通道根据当前和先前 token 的混合来变化，而混合本身由两个 token 的嵌入决定。
-
+直观上，这是 Token Shift 的二阶变体，允许 $w_t$ 的每个通道根据当前和先前 token 的混合来变化，而混合本身由两个 token 的嵌入决定。 
 </Callout>
 
 #### RWKV-V6 的模型发布[#rwkv-v6-model-release]
 
 RWKV-V6 架构本身并没有子版本，但发布了不同类型的模型，包括不同训练集的预训练基底模型，以及中文小说和日文微调模型。以下是基于 RWKV-V6 架构的模型概览：
 
-| 模型类别          | 模型状态   | 模型描述                                                                   | 训练数据                 |
-| ----------------- | ---------- | -------------------------------------------------------------------------- | ------------------------ |
-| RWKV-6-World-v2   | **过时**   | 基于 World-v2 数据集的多语言预训练模型                                     | World-v2                 |
-| RWKV-6-World-v2.1 | 稳定       | 基于 World-v2.1 数据集的多语言预训练模型                                   | World-v2.1               |
-| RWKV-6-World-v3   | **训练中** | 基于 World-v3 数据集的多语言预训练模型                                     | World-v3                 |
-| RWKV-6-ChnNovel   | 稳定       | 中文小说微调模型，在 RWKV-6-World-v2.1 的基础上，使用中文小说+指令数据微调 | World-v2.1，中文小说数据 |
-| RWKV-6-Jpn        | 稳定       | 日文微调模型，在 RWKV-6-World-v2.1 的基础上，使用日文+指令数据微调         | World-v2                 |
+| 模型类别          | 模型状态 | 模型描述                                                            | 训练数据                 |
+| ----------------- | -------- | ------------------------------------------------------------------- | ------------------------ |
+| RWKV-6-World-v2   | **过时**   | 基于 World-v2 数据集的多语言预训练模型                              | World-v2                 |
+| RWKV-6-World-v2.1 | 稳定 | 基于 World-v2.1 数据集的多语言预训练模型                              | World-v2.1                 |
+| RWKV-6-World-v3   | **训练中**   | 基于 World-v3 数据集的多语言预训练模型                              | World-v3                 |
+| RWKV-6-ChnNovel   | 稳定 | 中文小说微调模型，在 RWKV-6-World-v2.1 的基础上，使用中文小说+指令数据微调 | World-v2.1，中文小说数据 |
+| RWKV-6-Jpn        | 稳定 | 日文微调模型，在 RWKV-6-World-v2.1 的基础上，使用日文+指令数据微调 | World-v2                 |
 
 #### RWKV-V6 的 state tuning[#rwkv-state-tuning]
 
@@ -445,21 +433,21 @@ RWKV-V6 架构本身并没有子版本，但发布了不同类型的模型，包
 
 微调得来的 state 文件可以合并到基底模型中，也可以作为“RWKV 模型的增强插件”使用：即在加载基底 RWKV 模型之前初始化模型的 state ，以影响模型的回答文风、回答格式等效果。
 
-有关 RWKV State 文件的加载方法，请查看 [RWKV state 文件用法](https://rwkv.cn/news/read?id=343)。
-
+有关 RWKV State 文件的加载方法，请查看 [RWKV state 文件用法](https://rwkv.cn/news/read?id=343)。 
 </Callout>
 
 RWKV 官方发布了不同类型的 **state 文件**：
 
-| state 类型                        | state 描述                                                                                  | 适用 RWKV 模型            |
-| --------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------- |
-| chn-single-round                  | 中文单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情                                   | 通用 RWKV 模型            |
-| eng-single-round                  | 英文单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情                                   | 通用 RWKV 模型            |
-| chn-小说扩写-single-round         | 中文单轮对话，会根据用户输入进行小说扩写（建议使用 RWKV-V6-ChnNovel 模型和 state 作为替代） | 通用 RWKV 模型            |
-| chn-打油诗-single-round           | 中文单轮对话，会根据用户输入创作打油诗                                                      | 通用 RWKV 模型            |
-| chn-文言文-single-round           | 中文单轮对话，回答的风格会偏向文言文                                                        | 通用 RWKV 模型            |
-| chn-文言文和古典名著-single-round | 中文单轮对话，回答的风格会偏向文言文和古典名著                                              | 通用 RWKV 模型            |
-| OnlyForChnNovel\_小说扩写         | 用于扩写中文小说，适用于同尺寸的 RWKV-V6-ChnNovel 模型                                      | RWKV-V6-ChnNovel 中文小说 |
+| state 类型                        | state 描述                                                     | 适用 RWKV 模型               |
+|--------------------------------|----------------------------------------------------------|------------------------|
+| chn-single-round               | 中文单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情 | 通用 RWKV 模型         |
+| eng-single-round               | 英文单轮对话增强，更符合人类语言习惯，带丰富的 Emoji 表情 | 通用 RWKV 模型         |
+| chn-小说扩写-single-round       | 中文单轮对话，会根据用户输入进行小说扩写（建议使用 RWKV-V6-ChnNovel 模型和 state 作为替代）                 | 通用 RWKV 模型       |
+| chn-打油诗-single-round         | 中文单轮对话，会根据用户输入创作打油诗                   | 通用 RWKV 模型         |
+| chn-文言文-single-round         | 中文单轮对话，回答的风格会偏向文言文                     | 通用 RWKV 模型         |
+| chn-文言文和古典名著-single-round | 中文单轮对话，回答的风格会偏向文言文和古典名著           | 通用 RWKV 模型         |
+| OnlyForChnNovel_小说扩写 | 用于扩写中文小说，适用于同尺寸的 RWKV-V6-ChnNovel 模型     | RWKV-V6-ChnNovel 中文小说       |
+
 
 ### RWKV-7
 
@@ -470,7 +458,7 @@ RWKV-7 的研究始于 2024 年 9 月，其预览版 `RWKV-7 "Goose" x070.rc2-24
 `RWKV-7 "Goose" x070.rc2-2409-2r7a-b0b4a` 的时间步递归公式：
 
 $$
-S_t = S_{t-1} \left( \text{diag}(w_t) - \alpha_t^\top \beta_t \right) + v_t^\top \tilde{k}_t
+S_t = S_{t-1} \left( \text{diag}(w_t) - \alpha_t^\top \beta_t \right) + v_t^\top \tilde{k}_t 
 $$
 
 $$
@@ -478,54 +466,54 @@ $$
 $$
 
 $$
-\beta_t = \alpha_t \cdot a_t
+\beta_t = \alpha_t \cdot a_t 
 $$
 
 <Callout type="info" emoji="ℹ️">
-  其中，$a_t$ 可看作 in-context learning rate。RWKV-7 拥有很强的 ICL 能力。
+其中，$a_t$ 可看作 in-context learning rate。RWKV-7 拥有很强的 ICL 能力。
 </Callout>
 
 **RWKV -7 与历史版本（RWKV5/6）的时间步公式和状态更新机制对比：**
 
-| 模型版本     | 时间步公式                                                                                                                                 | 状态更新机制            |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| RKWV-5 Eagle | $S_t = \begin{pmatrix} w_0 & \cdots & 0 \\ \cdots & \cdots & \cdots \\ 0 & \cdots & w_n \end{pmatrix} S_{t-1}$                             | Trainable State Decay   |
-| RKWV-6 Finch | $S_t = \begin{pmatrix} w_{t,0} & \cdots & 0 \\ \cdots & \cdots & \cdots \\ 0 & \cdots & w_{t,n} \end{pmatrix} S_{t-1}$                     | Dynamic State Decay     |
+| 模型版本 | 时间步公式 | 状态更新机制 |
+| --- | --- | --- |
+| RKWV-5 Eagle | $S_t = \begin{pmatrix} w_0 & \cdots & 0 \\ \cdots & \cdots & \cdots \\ 0 & \cdots & w_n \end{pmatrix} S_{t-1}$ | Trainable State Decay |
+| RKWV-6 Finch | $S_t = \begin{pmatrix} w_{t,0} & \cdots & 0 \\ \cdots & \cdots & \cdots \\ 0 & \cdots & w_{t,n} \end{pmatrix} S_{t-1}$ | Dynamic State Decay |
 | RKWV-7 Goose | $S_t = \begin{pmatrix} w_{t,0,0} & \cdots & w_{t,0,n} \\ \cdots & \cdots & \cdots \\ w_{t,n,0} & \cdots & w_{t,n,n} \end{pmatrix} S_{t-1}$ | Dynamic State Evolution |
+
 
 #### 核心机制代码[#core-mechanism]
 
-```python
+``` python
 def ref_fwd(r, w, k, v, a, b):
-    r = r.view(B, T, H, N).double()
-    k = k.view(B, T, H, N).double()
-    v = v.view(B, T, H, N).double()
-    a = a.view(B, T, H, N).double()
-    b = b.view(B, T, H, N).double()
-    w = torch.exp(-torch.exp(w.view(B, T, H, N).double()))
-    out = torch.zeros(B, T, H, N, device=DEVICE).double()
-    state = torch.zeros((B, H, N, N), device=DEVICE).double()
+    r = r.view(B, T, H, N)
+    k = k.view(B, T, H, N)
+    v = v.view(B, T, H, N)
+    a = a.view(B, T, H, N)
+    b = b.view(B, T, H, N)
+    w = torch.exp(-torch.exp(w.view(B, T, H, N)))
+    out = torch.zeros((B, T, H, N), device=DEVICE)
+    state = torch.zeros((B, H, N, N), device=DEVICE)
+
     for t in range(T):
-        kk = k[:, t, :, :]
-        rr = r[:, t, :, :]
-        vv = v[:, t, :, :]
-        aa = a[:, t, :, :]
-        bb = b[:, t, :, :]
-        sab = torch.einsum('bhk,bhk,bhj->bhij', state, aa, bb)
-        state = state * w[:, t, :, :] + sab + torch.einsum('bhj,bhk,bhv->bhij', kk, vv)
-        out[:, t, :, :] = torch.einsum('bhj,bhij->bhi', rr, state)
-    return out.view(B, T, C)
+        kk = k[:, t, :]
+        rr = r[:, t, :]
+        vv = v[:, t, :]
+        aa = a[:, t, :]
+        bb = b[:, t, :]
+        sab = torch.einsum('bhik,bhk,bhj->bhij', state, aa, bb)
+        state = state * w[: , t, :, None, :] + sab + torch.einsum('bhj,bhi->bhij', kk, vv)
+        out[:, t, :] = torch.einsum('bhj,bhij->bhi', rr, state)
+
+    return out.view((B, T, C))
 
 ```
-
 <Callout type="warning" emoji="⚠️">
-  RWKV-7 处于**早期预览版本**，其论文仍然由 RWKV
-  作者彭博和社区成员共同撰写。截至 2024 年 11
-  月，论文仍处于撰写阶段，暂无具体发布计划。
+RWKV-7 处于**早期预览版本**，其论文仍然由 RWKV 作者彭博和社区成员共同撰写。截至 2024 年 11 月，论文仍处于撰写阶段，暂无具体发布计划。
 </Callout>
 
-{/\*
 
+{/*
 ## RWKV 与经典 RNN 的区别
 
 由于 RNN 本身具有顺序性质，传统的 RNN 需要完全处理**一个 token 及其隐藏状态**才能处理下一个 token。因此，传统 RNN 很难并行化地用 GPU 集群训练。在 RWKV 架构之前，训练大参数的 RNN 语言模型是一件非常困难的事情。
@@ -534,14 +522,14 @@ def ref_fwd(r, w, k, v, a, b):
 
 ![RWKV 语言建模的隐藏状态流动图解](./images/RWKV-Architecture/rwkv-architecture-for-language-modeling.png)
 
-\*/}
+*/}
 
 ## RWKV 架构特性[#features]
 
 RWKV 大模型架构的特点包括：
 
 - 高效且稳定的推理速度
-- 低且固定的显存占用量（支持在 CPU 上运行）
+- 低且固定的显存占用量（支持在CPU 上运行）
 - 能够处理无限上下文，非常适合长文本处理和多轮对话等应用
 - 对硬件友好，仅执行矩阵与矢量的乘法操作，无需 KV 缓存
 
@@ -549,7 +537,8 @@ RWKV 架构由一系列堆叠的残差块组成，每个残差块由具有循环
 
 根据对不同模型的推理复杂度进行比较，Transformer 的时间复杂度为：O (T^2)、空间复杂度为：O (T^2)，因此推理速度将会越来越慢，也越来越耗内存。而 RWKV 的时间复杂度为：O(T)、空间复杂度为 O(1)。RWKV 大模型通过对计算流程的优化，实现了恒定的推理速度，极大地减少了推理过程中的时间消耗。
 
-此外，RWKV 架构设计显著降低了显存占用，使得模型即使在标准配置的 CPU 或非专业级的 GPU 上也能高效运行，无需依赖昂贵或高端的计算硬件。这一突破性的进展使得大规模深度学习模型不再受限于特定的硬件平台，拓宽了应用范围。
+此外，RWKV 架构设计显著降低了显存占用，使得模型即使在标准配置的 CPU 或非专业级的 GPU上也能高效运行，无需依赖昂贵或高端的计算硬件。这一突破性的进展使得大规模深度学习模型不再受限于特定的硬件平台，拓宽了应用范围。
+
 
 ## RWKV 架构参考资料[#reference-material]
 
