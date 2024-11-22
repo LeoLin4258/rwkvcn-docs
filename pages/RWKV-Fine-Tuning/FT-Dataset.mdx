@@ -151,16 +151,21 @@ graph TD;
 
 在训练数据不充足的情况下，复制训练数据有助于增强模型对特定知识的理解和记忆，打乱数据排序则是为了降低过拟合的风险。
 
-在 Linux 或 Mac 系统上，可以使用命令行工具进行数据重复和打乱：
+在 Linux 或 Mac 系统上，使用以下命令对数据文件进行重复和打乱：
 
 ``` bash copy
-# 将 data.jsonl 文件重复三次，并输出到 repeated_data.jsonl 文件中
-cat data.jsonl data.jsonl data.jsonl > repeated_data.jsonl
-# 将 repeated_data.jsonl 文件的行打乱，并将打乱的结果输出到 shuffled_data.jsonl 文件中
-shuf repeated_data.jsonl > shuffled_data.jsonl
+# 将 data.jsonl 文件重复三次，并将所有行输出到 repeated-data.jsonl 文件中
+# 此命令也可用于合并多个 jsonl 数据文件
+awk 'NR > 1 && NF == 0 {next} {print}' data.jsonl data.jsonl data.jsonl > repeated-data.jsonl
+# 将 repeated-data.jsonl 文件的行打乱，并将打乱结果输出到 shuffled-data.jsonl 文件中
+shuf repeated-data.jsonl > shuffled-data.jsonl
 ```
-
+<Callout type="warning" emoji="⚠️">
 `data.jsonl` 需要改成你准备好的 jsonl 数据文件名称。
+</Callout>
+<Callout type="info" emoji="ℹ️">
+Windows 系统可以通过 [WSL](https://docs.microsoft.com/zh-cn/windows/wsl/install) (Windows Subsystem for Linux) 或安装 [Cygwin](https://www.cygwin.com/) 工具，以使用 `awk` 和 `shuf` 命令。
+</Callout>
 
 ### 添加常规数据
 
