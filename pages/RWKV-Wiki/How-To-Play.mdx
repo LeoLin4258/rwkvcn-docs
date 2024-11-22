@@ -103,24 +103,24 @@ ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你�
 - 内存：32GB
 </Callout>
 
-| Strategy | 1B6显存 | 3B显存 | 7B显存 | 14B显存 |
+| Strategy | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
 | --- | --- | --- | --- | --- |
 | CPU-FP32 | 6.6G内存 | 12GB内存 | 21G内存 | OOM（不建议使用） |
 | rwkv.cpp-FP16 | 3.5G内存 | 7.6GB内存 | 15.7G内存 | 30GB（内存） |
 | rwkv.cpp-Q5_1 | 2GB内存 | 3.7GB内存 | 7.2GB内存 | 12.4GB（内存） |
-| CUDA-FP16 | 3.2GB | 6.2GB | 14.3GB | 约28.5G |
-| CUDA-INT8 | 1.9G | 3.4GB | 7.7GB | 15GB |
-| webgpu-FP16 | 3.2GB | 6.5GB | 14.4GB | 约29G |
-| webgpu-INT8 | 2GB | 4.4GB | 8.2GB | 16G（量化41层，60层约14.8GB） |
-| webgpu-NF4 | 1.3GB | 2.6GB | 5.2GB | 15.1G（量化41层，60层约10.4GB） |
-| webgpu(python)-FP16 | 3GB | 6.3GB | 14GB | 约28G  |
-| webgpu(python)-INT8 | 1.9GB | 4.2GB | 7.7GB | 15GB（量化41层） |
-| webgpu(python)-NF4  | 1.2GB | 2.5GB | 4.8GB | 14.3GB（量化41层） |
+| CUDA-FP16 | 3.2GB显存 | 6.2GB显存 | 14.3GB显存 | 约28.5G显存 |
+| CUDA-INT8 | 1.9GB显存 | 3.4GB显存 | 7.7GB显存 | 15GB显存 |
+| webgpu-FP16 | 3.2GB显存 | 6.5GB显存 | 14.4GB显存 | 约29G显存 |
+| webgpu-INT8 | 2GB显存 | 4.4GB显存 | 8.2GB显存 | 16G显存（量化41层，60层约14.8GB） |
+| webgpu-NF4 | 1.3GB显存 | 2.6GB显存 | 5.2GB显存 | 15.1G显存（量化41层，60层约10.4GB） |
+| webgpu(python)-FP16 | 3GB显存 | 6.3GB显存 | 14GB显存 | 约28G显存  |
+| webgpu(python)-INT8 | 1.9GB显存 | 4.2GB显存 | 7.7GB显存 | 15GB显存（量化41层） |
+| webgpu(python)-NF4  | 1.2GB显存 | 2.5GB显存 | 4.8GB显存 | 14.3GB显存（量化41层） |
 </Tabs.Tab>
 <Tabs.Tab> 
-  不同推理后端/量化的生成速度（TPS，约等于每秒多少字）：
+不同推理后端/量化的生成速度（单位：TPS，约等于每秒多少字）。
 
-| Strategy | 1B6生成速度 | 3B生成速度 | 7B生成速度 | 14B生成速度 |
+| Strategy | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
 | --- | --- | --- | --- | --- |
 | CPU-FP32 | 4.36 | 2.3 | 极慢 | OOM（不建议使用） |
 | rwkv.cpp-FP16 | 8.6 | 4.5 | 2 | 1 |

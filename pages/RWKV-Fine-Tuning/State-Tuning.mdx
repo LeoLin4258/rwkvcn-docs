@@ -37,13 +37,13 @@ State tuning 的显存需求可参考下表：
 
 要 state tuning 微调 RWKV 模型，需要使用收集适合训练 RWKV 的数据（jsonl 格式），具体方法可参考[准备微调数据集](https://rwkv.cn/RWKV-Fine-Tuning/FT-Dataset)。
 
-为了突出 state tuning 的特性，我们选取了大量 emoji 数据作为训练数据：
+为了突出 state tuning 的特性，我们为本教程选取了大量带 emoji 的对话数据作为训练数据：
 
 ![state-tuning-dataset-demo](./imgs/state-tuning-dataset-demo.png)
 
 ### 转化成 binidx 数据
 
-使用 [`make_data.py`](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/make_data.py) 脚本，将 jsonl 训练数据乱序重复生成 10 遍，同时转化成可供 RWKV 训练的 binidx 数据。
+使用 [`make_data.py`](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/make_data.py) 脚本，可以将 jsonl 训练数据乱序重复生成 10 遍，同时转化成可供 RWKV 训练的 binidx 数据。
 
 在 Linux 工作区依次运行以下命令，以使用 `RWKV-LM` 仓库中的 `make_data.py` 脚本生成 binidx 数据：
 
