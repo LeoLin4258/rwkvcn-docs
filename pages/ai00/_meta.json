@@ -1,6 +1,7 @@
 {
-    "Introduction" : "Ai00简介",
-    "Simple-Usage" : "轻松使用",
-    "Ai00-Features" : "Ai00 进阶功能",
+    "Introduction" : "Ai00 简介",
+    "Simple-Usage" : "快速使用",
+    "Ai00-Features" : "进阶功能",
+    "Ai00-API": "API 文档",
     "FAQ":"常见问题"
 }
