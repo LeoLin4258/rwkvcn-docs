@@ -69,7 +69,7 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 
 **请使用 RWKV-6 系列模型**，RWKV-6 模型基于最新的 RWKV 架构和最大的数据集版本，因此性能更强。
 
-对于大多数用例，你应该使用最新的 RWKV-6-World 14B 模型。如果你的硬件配置不足以使用 14B 参数模型，可以考虑使用 RWKV-6-World 7B 模型。
+对于大多数用例，你应该使用最新的 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型。如果你的硬件配置不足以使用 14B 参数模型，可以考虑使用 [RWKV-6-World-7B-V3](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) 模型。
 
 可以查看[本地部署 RWKV 模型的硬件性能需求](https://rwkv.cn/RWKV-Wiki/How-To-Play#vram-of-rwkv)，以确认使用哪一款 RWKV 模型。
 
@@ -77,19 +77,18 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 
 ### 优势
 
-+ 运行和训练时资源使用更低（VRAM、CPU、GPU 等）。
-+ **与较大上下文的 Transformer 相比，计算需求低 10 倍到 100 倍**。
-+ 支持以线性方式扩展到任何上下文长度（Transformer 以二次方扩展）。
-+ 在答案质量和泛化能力方面的表现与 Transformer 架构一样好。
-+ RWKV 模型的训练数据包括英文以外的其他语言（例如中文、日文等），多语言能力比大多数现有的开源模型要好。
+- 运行和训练时资源使用更低（VRAM、CPU、GPU 等）。
+- **与较大上下文的 Transformer 相比，计算需求低 10 倍到 100 倍**。
+- 支持以线性方式扩展到任何上下文长度（Transformer 以二次方扩展）。
+- 在答案质量和泛化能力方面的表现与 Transformer 架构一样好。
+- RWKV 模型的训练数据包括英文以外的其他语言（例如中文、日文等），多语言能力比大多数现有的开源模型要好。
 
 ### 不足
 
-+ RWKV 基底模型对提示词（prompt）的格式非常敏感，你可能需要了解如何提示 RWKV 模型。
-+ 出于架构设计，RWKV 模型在**需要回顾的任务**上较弱，因此需要相应地对提示词进行重新排序。
-    + （例如，不能对 RWKV 模型说“对于上面的文档，执行某个任务”，因为这种提示词需要模型进行回顾。与之相反，我们需要在给 RWKV 的提示词中说“对于下面的文档，执行某个任务”）。
+- RWKV 基底模型对提示词（prompt）的格式非常敏感，提示词的格式对生成结果影响较大。
+- 出于架构设计，RWKV 模型在**需要回顾的任务**上较弱，因此需要恰当地对提示词进行排序。比如先给模型提供任务指令，再提供需要执行任务的材料文本。
 
-
+ 
 ## RWKV 社区的基本术语
 
 | 概念 | 描述 |
@@ -124,7 +123,7 @@ RWKV 模型通常有两种命名规则：
 - RWKV-x060-World-3B-v2.1-20240208-ctx4096.pth
 - RWKV-5-World-1B5-v2-20231113-ctx4096.pth
 
-让我们逐一解析每个字段的含义：
+模型名称中每个字段的含义：
 
 | 字段 | 含义 |
 | --- | --- |
@@ -137,16 +136,15 @@ RWKV 模型通常有两种命名规则：
 | **ctx4096** | 预训练的上下文长度 |
 
 
-## 谁曾赞助了 RWKV 的计算？
+## RWKV 的赞助与贡献者
 
-RWKV 作为一个开源项目，此前接受了 [Stability AI](https://stability.ai/)、[EleutherAI](https://www.eleuther.ai/) 和其他贡献者提供的大量 GPU 资源和研究支持。
+作为一个开源项目，RWKV 曾接受 [Stability AI](https://stability.ai/)、[EleutherAI](https://www.eleuther.ai/) 提供的大量 GPU 资源和研究支持。
 
----
+此外，我们还要感谢以下组织或团队：
 
-此外，我们还要感谢
 - [alpin @ pygmalionAI](https://pygmalion.chat/)
 - [AutoMeta @ AlignmentLab](https://twitter.com/alignment_lab)
 - [Recursal.AI](https://recursal.ai)
-- 以及其他提供 GPU 资源支持 / 不公开姓名的支持者
+- 以及其他提供 GPU 资源而不公开姓名的支持者
 
-同时，我们也感谢在较小的实验、微调和各种类型的 RWKV 模型上努力的贡献者们，特别是对于那些因运行失败而从未公开发布的 RWKV 模型。
+同时，我们也感谢 RWKV 社区成员的辛苦付出，包括参与 RWKV 架构改进、使用 RWKV 进行学术研究、协助建设 RWKV 内容、测试最新模型，以及其他任何有帮助的工作。
