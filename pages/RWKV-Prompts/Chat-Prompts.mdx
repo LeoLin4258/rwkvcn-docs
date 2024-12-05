@@ -12,6 +12,11 @@ import { Steps } from 'nextra/components'
 </Callout>
 
 ### ⭐ 撰写并翻译电子邮件（多语言）
+
+<Callout type="info" emoji="ℹ️">
+该类任务既需要一定的创造力也需保证翻译的准确性，建议的参数：Temperature 设为 1、Top_P 设为 0.2、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 --- 
 
 **输入 prompts:**
@@ -89,6 +94,10 @@ Mit freundlichen Grüßen, [Ihr Name]
 
 ### ⭐ 撰写并修改请假邮件
 
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts:**
 
 ``` markdown copy
@@ -148,7 +157,11 @@ Best regards,
 
 ### ⭐ 生成或修改代码
 
-#### 1.分析并修改简单代码
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
+#### 1. 分析并修改简单代码
 
 **输入 prompts：**
 
@@ -168,17 +181,17 @@ print("Total apples for all: ", total_apples)
 ```
 **参考输出：**
 ``` markdown
-这是一段Python代码，其中包含了3个变量和1个函数调用。变量分别为ming_fruit、leo_fruit和blink_fruit，它们分别表示三只动物（Ming、Leo和Blink）拥有的苹果数量。另外还定义了一个名为total_fruit的变量，用于计算三只动物共同拥有的苹果总数。
+这段代码定义了三个变量ming_apples、leo_apples和blink_apples，分别表示苹果的数量。然后使用print()函数输出了它们的值，并计算出了它们的总数。
 
-在代码中首先定义了3个变量并赋值给它们，然后通过print语句输出每只动物拥有多少苹果。接着使用sum函数计算三只动物共同拥有的苹果总数，并将结果赋值给total_fruit变量。最后通过print语句输出结果。
+具体来说，代码首先定义了三个变量ming_apples、leo_apples和blink_apples，分别赋值为7、6和85。
 
-因此这段代码实现了计算三只动物共同拥有的苹果总数并输出结果。
+然后使用print()函数输出了它们的值，并计算出了它们的总数。最后，将计算结果打印到屏幕上。
 ```
 
 **继续输入 prompts：**
 
 ``` markdown copy
-请将程序中小明的苹果数改为 80
+请将程序中Ming的苹果数改为80，并提供修改后的代码。
 ```
 
 **参考输出：**
@@ -186,15 +199,17 @@ print("Total apples for all: ", total_apples)
 ```` markdown
 好的，根据您提供的信息，我已经将程序中小明（Ming）所拥有的苹果数从7改为80。修改后完整代码如下：
 ``` python
-ming_apples = 80  # 小明所拥有的苹果数为80个
-leo_apples = 6  # Leo所拥有的苹果数为6个
-blink_apples = 85  # Blink所拥有的苹果数为85个
-total_apples = ming_apples + leo_apples + blink_apples  # 计算三只动物共同拥有的苹果总数
-print("Ming has", ming_apples, "Apple(S).")  # 输出小明所拥有的苹果数和名称（Apple）。
-print("Leo has", leo_apples, "Apple(S).")  # 输出Leo所拥有的苹果数和名称（Apple）。
-print("Blink has", blink_apples, "Apple(S).")  # 输出Blink所拥有的苹果数和名称（Apple）。
-total_fruit = total_apples   # 将计算得到的总共持有多少个水果存储在变量total\_fruit中
-print("Total apples for all:", total\_fruit)   # 输出三只动物共同持有多少个水果，并以“Total apples for all: ”作为前缀
+好的，以下是修改后的代码：
+ming_apples = 80
+leo_apples = 6
+blink_apples = 85
+
+total_apples = ming_apples + leo_apples + blink_apples
+
+print("Ming has", ming_apples, "apples.")
+print("Leo has", leo_apples, "apples.")
+print("Blink has", blink_apples, "apples.")
+print("Total apples for all: ", total_apples)
 ```
 ````
 
@@ -234,6 +249,11 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ````
 
 ### ⭐ 撰写销售工作日报
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts:**
 
 ``` markdown copy
@@ -253,6 +273,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ```
 
 ### ⭐ 撰写图书馆办公室工作周报
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts:**
 ```markdown copy
@@ -308,6 +332,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 ### ⭐ 撰写产品发布会策划案
 
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts:**
 
 ``` markdown copy
@@ -342,6 +370,11 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 
 ### ⭐ 解读社会现象
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts:**
 
 ``` markdown copy
@@ -362,6 +395,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 总之，在现代城市化生活下，我们需要认识到幸福感和自由度之间存在着复杂的关系。只有通过全面考虑个人利益与社会责任之间的平衡点，才能实现真正意义上的幸福和自由。
 ```
 ### ⭐ 总结分布式系统理论概念
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts**
 
@@ -385,6 +422,11 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ```
 
 ### ⭐ 金融学论文选题建议
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts**
 ``` markdown copy
 请你基于金融学的专业知识，结合当前的热点话题，为我提供几个具有创新性、实用性、研究价值的毕业论文选题
@@ -405,6 +447,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 希望这些选题能够给您提供一些启示，祝您顺利完成毕业论文！
 ```
 ### ⭐ 帮助答辩回答
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts**
 
@@ -428,6 +474,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 ### ⭐ 冠词知识点辨析
 
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts**
 
 ``` markdown copy
@@ -449,6 +499,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 总之，不定冠词和定冠词在英语中都非常重要，它们可以帮助我们更准确地表达自己的意思。
 ```
 ### ⭐ 散文诗文学创作
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts**
 
@@ -485,6 +539,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 ### ⭐ 生活贴士-除去冰箱异味
 
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts**
 
 ``` markdown copy
@@ -506,6 +564,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ```
 
 ### ⭐ 厨房帮手-麻婆豆腐的做法
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts**
 
@@ -552,6 +614,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 ### ⭐ 一句话扩写文本
 
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
+
 **输入 prompts**
 
 ``` markdown copy
@@ -568,6 +634,10 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ```
 
 ### ⭐ 制定 Python 学习计划
+
+<Callout type="info" emoji="ℹ️">
+建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+</Callout>
 
 **输入 prompts**
 
