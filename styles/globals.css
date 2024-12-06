@@ -248,3 +248,15 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
 }
+
+.iframe-container {
+  padding-top: 56.25%;
+  position: relative;
+}
+.iframe-container iframe {
+   position: absolute;
+   height: 100%;
+   width: 100%;
+   top: 0;
+   left: 0;
+}

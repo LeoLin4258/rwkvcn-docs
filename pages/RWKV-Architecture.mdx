@@ -148,7 +148,7 @@ x = x + self.ffn(self.ln2(x))
 
 ### RWKV-V4
 
-RWKV-V4 是 RWKV 架构的**首个正式版本**，版本代号 "Dove（鸽）" 。RWKV-V4 解决了 RWKV-v3 架构的数值稳定性问题，同时也发布了 RWKV 项目的首篇论文 [《RWKV: Reinventing RNNs for the Transformer Era》](https://arxiv.org/abs/2305.13048)。
+RWKV-V4 是 RWKV 架构的**首个正式版本**，版本代号 "Dove（鸽）" 。RWKV-V4 解决了 RWKV-V3 架构的数值稳定性问题，同时也发布了 RWKV 项目的首篇论文 [《RWKV: Reinventing RNNs for the Transformer Era》](https://arxiv.org/abs/2305.13048)。
 
 RWKV-V4 架构的论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2023 年 5 月 22 日。同年 10 月，RWKV-V4 架构论文被顶级会议 [EMNLP 2023](https://2023.emnlp.org/program/accepted_findings/) 收录。
 
@@ -225,7 +225,7 @@ RWKV-V5 是 RWKV-V4 架构的改良版本，版本代号“Eagle（鹰）”。
 
 RWKV-V5 和 RWKV-V6 这两个架构在同一篇论文 [《Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence》](https://arxiv.org/abs/2404.05892)中发布。
 
-该论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2024 年 4 月 9 日。同年 10 月，RWKV-5/6 架构论文被 LLM 领域顶级会议 [COLM 2024](https://colmweb.org/AcceptedPapers.html) 收录。
+该论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2024 年 4 月 9 日。同年 10 月，RWKV 5/6 架构论文被 LLM 领域顶级会议 [COLM 2024](https://colmweb.org/AcceptedPapers.html) 收录。
 
 ![RWKV 5/6 架构概览](./images/RWKV-Architecture/rwkv-5-6-architecture.png)
 
@@ -290,7 +290,7 @@ $$
 通过这种方式，RWKV-V5 巧妙地扩大了 state 的规模，使得 RWKV 模型有更好的记忆力和模型容量。
 
 <Callout type="info" emoji="ℹ️">
-以 $D$ 为模型主维数， $L$ 为模型层数。RWKV-5/6 模型的 state 大小为 $66DL$，包括 $2DL $ 的 mixing 和 $64DL$ 的 WKV。
+以 $D$ 为模型主维数， $L$ 为模型层数。RWKV 5/6 模型的 state 大小为 $66DL$，包括 $2DL $ 的 mixing 和 $64DL$ 的 WKV。
 </Callout>
 
 #### RWKV-V5 迭代过程[#rwkv-5-iteration]

@@ -148,9 +148,9 @@ path = "assets/www/index.zip" # 【不建议更改】web 界面资源的路径
 
 配置项修改完毕后，请保存 `Config.toml` 文件，并双击运行 `ai00_server.exe` 程序。
 
-当命令行中出现 `INFO  [ai00_server::middleware] model reloaded` 提示时，意味着模型已经加载完成：
+当命令行中出现 `INFO  [ai00_server::middleware] model loaded` 提示时，意味着模型已经加载完成：
 
-![ai00-model-reloaded](./imgs/ai00-model-reloaded.png)
+![ai00-model-loaded](./imgs/ai00-model-loaded.png)
 
 此时我们打开任意浏览器，并访问 `http://localhost:65530`，即可打开 Ai00 的 Web 界面。
 
@@ -198,3 +198,19 @@ Web 页面的右侧有一些可设置的模型解码参数，如 `Temperature` �
 `Temperature` 1 ，`Top_P` 0
 
 举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence Penalty`、`Frequency Penalty` 都设为 0 。
+
+## Ai00 推理视频教程
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=113605173381576&bvid=BV1TUiBYHEPW&cid=27207730714&poster=1&p=0&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowfullscreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<Callout type="info" emoji="ℹ️">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1TUiBYHEPW)观看。
+</Callout>

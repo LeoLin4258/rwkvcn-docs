@@ -25,28 +25,24 @@ import { Steps } from 'nextra/components'
 
 ### 下载 State 文件
 
-Ai00 Server 目前仅支持 `.state` 后缀的 State 文件，可以从 [HF 仓库](https://huggingface.co/cgisky/ai00_rwkv_x060/tree/main)下载 `.state` 文件。
+Ai00 Server 目前仅支持 `.state` 后缀的 State 文件，可以从 [HF 仓库](https://huggingface.co/shoumenchougou/RWKV-6-State-for-st/tree/main)下载 `.state` 文件。
 
-如果你无法访问上面的网站，请访问 [HF 镜像站](https://hf-mirror.com/cgisky/ai00_rwkv_x060/tree/main)。
+如果你无法访问上面的网站，请访问 [HF 镜像站](https://hf-mirror.com/shoumenchougou/RWKV-6-State-for-st/tree/main)。
 
-### 如何挂载 State ？
+### 如何挂载 State 文件
 
-在 `Config.toml` 配置文件中修改关于挂载 State 的参数：
+在 `Config.toml` 配置文件中修改关于挂载 State 的参数：移除 `#` 注释符号，并修改对应的参数。
 
-``` bash copy
-# [[state]] # 是否挂载 state
-# id = "fd7a60ed-7807-449f-8256-bccae3246222"   #  state 文件的 UUID，不指定则随机分配 
-# name = "x060-3B" # 是否为此 state 文件命名（可选项）
-# path = "rwkv-x060-chn_single_round_qa-3B-20240505-ctx1024.state" # state 文件的路径
-```
-要启用 State 挂载功能，请移除 `#` 注释符号，并修改对应的参数。参考如下：
+参考的配置信息如下：
 
 ``` bash copy
 [[state]] # 是否挂载 state
-# id = "fd7a60ed-7807-449f-8256-bccae3246222"   # 非开发环境一般不指定 UUID，可保留 `#` 注释符
+# id = "fd7a60ed-7807-449f-8256-bccae3246222"   # 非开发环境一般不指定 UUID，可保留注释符
 name = "x060-7B-Chinese"  # 为此 state 文件命名为“x060-7B-Chinese”
 path = "rwkv-x060-chn_single_round_qa-7B-20240516-ctx2048.state" # state 文件的名称，存放在 `model` 文件夹
 ```
+
+启动 RWKV 模型后，在 WebUI 界面的右上角可以切换 State 文件。
 
 ### 挂载 State 注意事项
 
@@ -127,18 +123,26 @@ BNF 可以强制模型以您想要的格式输出（例如，JSON、带有指定
 ![ai00-bnf](./imgs/ai00-bnf.png)
 
 ---
-## 以 prefab 格式导出量化模型[版本 0.4.9]
+## 以 prefab 格式使用量化模型[版本 0.4.9]
 
 <Callout type="info" emoji="ℹ️">
 **什么是 prefab 格式？prefab 格式的 RWKV 模型有什么用？**
 
-Prefab（预制件）通常是指在游戏开发中使用的一种资源格式，Prefab 允许开发者创建、保存和复用游戏对象（GameObject）及其组件的配置。一个Prefab可以包含任何类型的游戏对象，比如角色、道具、环境元素等，以及它们的所有属性和设置。
+`.prefab` 预制件通常指游戏开发中使用的一种资源格式，允许开发者创建、保存和复用游戏对象（GameObject）及其组件的配置。
 
-以 prefab 格式导出 RWKV 模型，可以方便地将 RWKV 模型集成到游戏中，比如用于对话系统、故事生成或者角色行为。
+Ai00 支持导入和导出 `.prefab` 格式的 RWKV 模型，这种格式可以附带量化类型和量化层数，从而节省加载 RWKV 模型的在线量化时间。
 </Callout>
 
-在 Ai00 的 WebUI - Setting 界面，可以以 prefab 格式导出量化后的 RWKV 模型。
+在 Ai00 的 WebUI - Setting 界面，可以以 `.prefab` 格式导出当前加载的 RWKV 模型，并附带量化类型和量化层数。
 
 ![ai00-prefab-export](./imgs/ai00-prefab-export.png)
 
+在 `Config.toml` 配置文件中，可以通过修改模型路径参数使用 `.prefab` 格式的 RWKV 模型。
 
+``` bash copy
+# [[model]]
+path = "rwkv-x060-3b.prefab" # 指定 prefab 格式的 RWKV 模型路径
+```
+<Callout type="info" emoji="ℹ️">
+使用 `.prefab` 格式的 RWKV 模型时，无需指定量化类型和量化层数，模型会自动加载 prefab 文件中记录的量化信息。
+</Callout>
