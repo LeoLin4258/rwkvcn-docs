@@ -47,7 +47,7 @@ RWKV Bone 微调的显存（GPU VRAM）需求可参考下表：
 
 ## 配置训练环境
 
-要训练 RWKV 模型，首先要配置 conda 等训练环境。具体过程请参考[RWKV 微调环境配置](https://rwkv.cn/RWKV-Fine-Tuning/FT-Environment)板块。
+请参考[RWKV 微调环境配置](https://rwkv.cn/RWKV-Fine-Tuning/FT-Environment)板块，配置 Conda 等训练环境。
 
 ## 克隆仓库并安装依赖
 
@@ -135,7 +135,7 @@ pip install -r requirements.txt
 | `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，通常保持默认值 0 |
 | `--head_qk 0` | 通常保持默认值 0，即关闭状态 |
-| `--lr_init 2e-5` | 初始学习率，Pissa 建议 2e-5 ，最大不超过 1e-4 |
+| `--lr_init 2e-5` | 初始学习率，Bone 建议 2e-5 ，最大不超过 1e-4 |
 | `--lr_final 2e-5` | 最终学习率，建议和初始学习率保持一致 |
 | `--warmup_steps 0` | 预热步骤数，默认 0，加载模型时可尝试改成 50 |
 | `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |

@@ -62,56 +62,21 @@ python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复�
 
 ## 配置训练环境
 
-要训练 RWKV 模型，首先要配置训练环境。
+请参考[RWKV 微调环境配置](https://rwkv.cn/RWKV-Fine-Tuning/FT-Environment)板块，配置 Conda 等训练环境。
 
-<Steps>
-
-### 1. 配置虚拟环境（conda）
-
-RWKV 默认训练虚拟环境为 conda ，如果不知道如何配置 Linux 系统的 conda ，请参考[**此文章**](https://zhuanlan.zhihu.com/p/166102942)。
-
-### 2. 安装 state tuning 所需的软件
-
-要获得 RWKV 模型的最佳训练性能，请使用 `python 3.10`、`torch 2.1.2+cu121`（或最新版本）、`cuda 12.3+`、最新的 `deepspeed`，但保持 `pytorch-lightning ==1.9.5` 。
-
-在 Linux 环境中依次运行以下命令：
-``` bash copy
-pip install torch --upgrade --extra-index-url https://download.pytorch.org/whl/cu121
-```
-``` bash copy
-pip install pytorch-lightning==1.9.5 transformers ninja einops tqdm gpustat nvitop bitsandbytes wandb datasets triton==2.2.0 --upgrade
-```
-第一条命令通过指定 url 安装 cu121 版本的 torch ,第二条命令安装 RWKV State tuning 所需的其他软件包，并指定安装 1.9.5 版本的 `PyTorch Lightning`、2.2.0 版本的 `triton`。
-
-`-- upgrade` 参数意味着如果环境中已经安装了对应的软件包，则将其升级到最新版本。
-
-### 3. 检查 CUDA 环境
-
-依次运行以下命令，检查 CUDA 库是否可用：
-```  bash copy
-python3 # 启动 python
-
-import torch # 导入 torch 包
-
-torch.cuda.is_available() # 检查 CUDA 是否可用
-```
-![state-tuning-check-cuda](./imgs/state-tuning-check-cuda.png)
-
-如果返回值为 True ，证明 CUDA 环境可用。如果返回 False ，请重新安装 CUDA 环境（cuda 12.3+）。
-
-</Steps>
-
-<Callout type="info" emoji="ℹ️">
-安装 CUDA 环境的过程可以参考 https://docs.nvidia.com/cuda/ 。
-</Callout>
-
-## 克隆 RWKV-PEFT 仓库
+## 克隆仓库并安装依赖
 
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
+
 ```  bash copy
 git clone https://github.com/JL-er/RWKV-PEFT.git
 ```
-克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。
+
+克隆完成后，使用 `cd RWKV-PEFT` 命令进入 `RWKV-PEFT` 目录。并运行以下命令，安装项目所需依赖：
+
+```  bash copy
+pip install -r requirements.txt
+```
 
 ## 修改训练参数 
 
