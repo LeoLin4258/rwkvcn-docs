@@ -1,3 +1,8 @@
+---
+title: RWKV解码参数 - RWKV提示词
+description: RWKV模型解码参数介绍，包括Temperature、Top_P、Presence Penalty和Frequency Penalty等参数的效果和推荐配置。
+keywords: RWKV解码参数,RWKV采样参数,RWKV参数配置,RWKV参数推荐
+---
 
 你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 、`Presence Penalty `、`Frequency Penalty`等参数，这些参数是 RWKV 模型的“解码参数”（也可称之为“采样参数”）。
 
