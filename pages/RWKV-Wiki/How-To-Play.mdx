@@ -18,39 +18,39 @@ import { LinkToSvg } from '/components/svgs.tsx'
 ### Hugging Face 
 
 <Cards>
-  <Card  icon={< LinkToSvg />} title="RWKV-6-7B 基础模型" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
-  <Card  icon={< LinkToSvg />} title="RWKV-6-3B 基础模型" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1" />
+  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
+  <Card  icon={< LinkToSvg />} title="RWKV-7-World-0.1B" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1" />
 </Cards>
 
 ### ModelScope
 
 <Cards>
-  <Card  icon={< LinkToSvg />} title="RWKV-6-7B 中文小说模型" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN-PRO" />
-  <Card  icon={< LinkToSvg />} title="RWKV-6-7B 基础模型" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN" />
+  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN-PRO" />
+  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN" />
 </Cards>
 
 <Callout type="warning" emoji="⚠️">
-💡上述公共 Demo 只能使用续写模式，不支持直接对话。
+上述公共 Demo 只能使用续写模式，不支持直接对话。
 
 如果你在公共 Demo 中体验 RWKV 模型，建议按以下两种格式输入 prompts :
 </Callout>
 
-``` text copy
+```bash copy
 User: hi
  
 Assistant: Hi. I am your assistant and I will provide expert full response in full details. Please feel free to ask any question and I will always answer it.
- 
+
 User: (你的问题，比如“请为我推荐三本适合五岁小孩阅读的世界名著” )
- 
+
 Assistant:
 ```
 或者：
 
-``` text copy
+```bash copy
 Instruction: （你希望模型进行什么操作，比如“请将下列瑞典语翻译成中文”）
- 
+
 Input:（你希望模型处理的内容，比如“hur l?ng tid tog det att bygga twin towers”）
- 
+
 Response:
 ```
 
@@ -78,17 +78,21 @@ AI00 的具体用法可以参考 [Ai00 使用教程](https://rwkv.cn/ai00/Simple
 
 ### ChatRWKV
 
-ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你可能需要一定的命令行知识才能使用 ChatRWKV 。
+ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你可能需要一定的命令行知识才能使用 ChatRWKV。
 
 [ChatRWKV 仓库地址](https://github.com/BlinkDL/ChatRWKV)
 
 ## 本地部署 RWKV 模型的性能需求[#VRAM-of-RWKV]
 
-我们推荐使用 **FP16** 精度在本地部署并推理 RWKV 模型。当你的显存和内存不足时，可以使用 INT8 / NF4 量化运行 RWKV 模型，降低显存和内存需求。
+推荐使用 **FP16** 精度在本地部署并推理 RWKV 模型。当你的显存和内存不足时，可以使用 **INT8 或 NF4 等量化方法**运行 RWKV 模型，降低显存和内存需求。
 
-从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 较明显地降低。
+<Callout type="info" emoji="ℹ️">
+从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 明显降低。
 
-以下是使用不同推理后端，以及多种量化（FP16、INT8、NF4）  本地部署并运行 RWKV 模型的显存占用和生成速度：
+模型的参数比量化更重要，比如 7B 模型 + INT8 量化，生成效果比 3B 模型 + FP16 更好。
+</Callout>
+
+以下是本地部署并运行 RWKV 模型的显存需求和生成速度：
 
 <Tabs items={['显存需求', '生成速度']}>
   <Tabs.Tab>
@@ -100,27 +104,27 @@ ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你�
 
 - CPU ：i7-10870H
 - GPU： RTX 3080 Laptop ，16G 显存
-- 内存：32GB
+- 内存：32G
 </Callout>
 
-| Strategy | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
+| 推理后端 | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
 | --- | --- | --- | --- | --- |
-| CPU-FP32 | 6.6G内存 | 12GB内存 | 21G内存 | OOM（不建议使用） |
-| rwkv.cpp-FP16 | 3.5G内存 | 7.6GB内存 | 15.7G内存 | 30GB（内存） |
-| rwkv.cpp-Q5_1 | 2GB内存 | 3.7GB内存 | 7.2GB内存 | 12.4GB（内存） |
-| CUDA-FP16 | 3.2GB显存 | 6.2GB显存 | 14.3GB显存 | 约28.5G显存 |
-| CUDA-INT8 | 1.9GB显存 | 3.4GB显存 | 7.7GB显存 | 15GB显存 |
-| webgpu-FP16 | 3.2GB显存 | 6.5GB显存 | 14.4GB显存 | 约29G显存 |
-| webgpu-INT8 | 2GB显存 | 4.4GB显存 | 8.2GB显存 | 16G显存（量化41层，60层约14.8GB） |
-| webgpu-NF4 | 1.3GB显存 | 2.6GB显存 | 5.2GB显存 | 15.1G显存（量化41层，60层约10.4GB） |
-| webgpu(python)-FP16 | 3GB显存 | 6.3GB显存 | 14GB显存 | 约28G显存  |
-| webgpu(python)-INT8 | 1.9GB显存 | 4.2GB显存 | 7.7GB显存 | 15GB显存（量化41层） |
-| webgpu(python)-NF4  | 1.2GB显存 | 2.5GB显存 | 4.8GB显存 | 14.3GB显存（量化41层） |
-</Tabs.Tab>
-<Tabs.Tab> 
-不同推理后端/量化的生成速度（单位：TPS，约等于每秒多少字）。
+| CPU-FP32 | 6.6G内存 | 12G内存 | 21G内存 | OOM（不建议使用） |
+| rwkv.cpp-FP16 | 3.5G内存 | 7.6G内存 | 15.7G内存 | 30G（内存） |
+| rwkv.cpp-Q5_1 | 2G内存 | 3.7G内存 | 7.2G内存 | 12.4G（内存） |
+| CUDA-FP16 | 3.2G显存 | 6.2G显存 | 14.3G显存 | 约28.5G显存 |
+| CUDA-INT8 | 1.9G显存 | 3.4G显存 | 7.7G显存 | 15G显存 |
+| webgpu-FP16 | 3.2G显存 | 6.5G显存 | 14.4G显存 | 约29G显存 |
+| webgpu-INT8 | 2G显存 | 4.4G显存 | 8.2G显存 | 16G显存（量化41层，60层约14.8G） |
+| webgpu-NF4 | 1.3G显存 | 2.6G显存 | 5.2G显存 | 15.1G显存（量化41层，60层约10.4G） |
+| webgpu(python)-FP16 | 3G显存 | 6.3G显存 | 14G显存 | 约28G显存  |
+| webgpu(python)-INT8 | 1.9G显存 | 4.2G显存 | 7.7G显存 | 15G显存（量化41层） |
+| webgpu(python)-NF4  | 1.2G显存 | 2.5G显存 | 4.8G显存 | 14.3G显存（量化41层） |
+  </Tabs.Tab>
+  <Tabs.Tab> 
+不同推理后端/量化（**默认量化所有层**）的生成速度（单位：TPS，约等于每秒多少字）。
 
-| Strategy | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
+| 推理后端 | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
 | --- | --- | --- | --- | --- |
 | CPU-FP32 | 4.36 | 2.3 | 极慢 | OOM（不建议使用） |
 | rwkv.cpp-FP16 | 8.6 | 4.5 | 2 | 1 |
@@ -151,21 +155,21 @@ ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你�
 
 由于架构设计，RWKV 在“回顾”能力上较弱。因此，**不建议**使用下面这种格式：
 
-```
+```bash copy
 Input: 输入给模型的上下文内容，比如 “hello，I love you.”
- 
+
 Instruction: 你给模型的指令，比如“请将上面的英文翻译成中文”
- 
+
 Response:
 ```
 
-如果 RWKV 模型先接收了输入的上下文内容（Input）再接收指令（INSTRUCTION），它在执行指令时可能会漏掉内容中的重要信息。
+如果 RWKV 模型先接收了材料内容（Input）再接收指令（Instruction），它在执行指令时可能会漏掉内容中的重要信息。
 
-但如果你先告诉模型要执行什么指令，然后再给模型输入上下文。模型就会先理解指令，然后使用指令来处理上下文的内容。就像这样:
+但如果你先告诉模型要执行什么指令，然后再给模型输入材料内容。模型就会先理解指令，然后使用指令来处理材料内容。就像这样:
 
-```
+```bash copy
 Instruction: 给模型的指令，比如“请将上面的英文翻译成中文”
- 
+
 Input: 输入给模型的上下文内容，比如 “hello，I love you.”
  
 Response:
@@ -174,17 +178,17 @@ Response:
 
 如下所示：
 
-``` text copy
+```bash copy
 User: 把“hello，I love you.”翻译成中文
- 
+
 Assistant: 你好，我爱你。
- 
+
 User: 把“how are you?”翻译成中文
- 
+
 Assistant: 你好吗？
- 
+
 User: 把“I am fine, thank you.”翻译成中文
- 
+
 Assistant:
 ```
 <Callout type="info" emoji="ℹ️">
@@ -194,7 +198,7 @@ Assistant:
 ## 如何调整模型的解码参数？[#RWKV-Parameters]
 
 <Callout type="warning" emoji="⚠️">
-如果你熟悉 Transfoemer 的相关解码参数，则无需阅读此章节。
+如果你熟悉 Transformer 的相关解码参数，则无需阅读此章节。
 </Callout>
 
 你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 等 RWKV 模型解码参数。
