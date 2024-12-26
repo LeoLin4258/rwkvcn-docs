@@ -455,23 +455,50 @@ RWKV-7 的架构代号是 “Goose（雁）” 。RWKV-7 **超越了 attention /
 
 RWKV-7 的研究始于 2024 年 9 月，其预览版 `RWKV-7 "Goose" x070.rc2-2409-2r7a-b0b4a` 的训练代码首次提交于 RWKV-LM 仓库的 [commit](https://github.com/BlinkDL/RWKV-LM/commit/e1d143f526e28be61fc06571034dda179101a683) 中。
 
-`RWKV-7 "Goose" x070.rc2-2409-2r7a-b0b4a` 的时间步递归公式：
+![RWKV-7 完整架构图](./images/RWKV-Architecture/rwkv-7-architecture.jpg)
 
-$$
-S_t = S_{t-1} \left( \text{diag}(w_t) - \alpha_t^\top \beta_t \right) + v_t^\top \tilde{k}_t 
-$$
-
-$$
-\alpha_t = \text{normalize}(k_t + b_t)
-$$
-
-$$
-\beta_t = \alpha_t \cdot a_t 
-$$
+#### RWKV-7 架构优化细节[#rwkv-7-optimization-details]
 
 <Callout type="info" emoji="ℹ️">
-其中，$a_t$ 可看作 in-context learning rate。RWKV-7 拥有很强的 ICL 能力。
+RWKV-7 采用了**动态状态演化**（Dynamic State Evolution），超越了 attention / linear attention 范式 $TC0$ 表达能力的根本限制。RWKV-7 拥有 $NC1$ 的表达能力，使其可以解决许多 attention 无法解决的问题。
 </Callout>
+
+简单地说，传统注意力机制（如 Transformer 的 QKV-softmax-attention）会将多个 ${k, v}$（key 和 value 的向量对）存储起来，通过 $q$（query，查询向量）去匹配 key，得到对应的 value 输出。
+
+RWKV-7 不直接存储 ${k, v}$ 对，而是通过动态计算更新 state，从上下文动态学习 key 和 value 之间的关系，再使用更新后的 state 处理新的输入 $q$（在 RWKV 中是 $r$） 并得到输出。
+
+具体而言，RWKV-7 模型拥有一个内部模型 $v ≈ k S^\top$ 。它需要拟合一个简单的目标：对于给定的两个向量序列 ${k_t}$ 和 ${v_t}$，通过 $S$（state）把 $k_i$ 转化为 $v_i$ ，输出的 $v$ 需要和目标的 $v$ 尽量接近。
+
+为实现这个目标，RWKV-7 在推理时，对于 L2 损失函数 $\mathcal{L} = \frac{1}{2} \| v - k S^\top \|^2$ 自动模拟出动态的梯度下降，以此来持续训练内部模型 $v ≈ kS^\top$。
+
+**state 的梯度公式：**
+
+$$
+\frac{\partial \mathcal{L}}{\partial S} = S k^\top k - v^\top k
+$$
+
+带权重衰减 $w_t$ 和学习率 $η_t$ 的 state 梯度下降公式：
+
+$$
+S_t = S_{t-1} \cdot \text{diag}(w_t) - \left( S_{t-1} k_t^\top k_t - v_t^\top k_t \right)  \text{diag}(\eta_t)
+$$
+
+等价于：
+
+$$
+S_t = S_{t-1} \left( \text{diag}(w_t) - k_t^\top k_t  \text{diag}(\eta_t) \right) + v_t^\top k_t \text{diag}(\eta_t)
+$$
+
+RWKV-7 广义公式
+$$
+S_t = S_{t-1}  \left( \text{diag}(w_t) + \text{a}_t^\top \text{b}_t \right) + \text{v}_t^\top \text{k}_t
+$$
+
+其中，合理的初始值选择为：
+
+$$
+\text{a} = -k ,\quad \text{b} = k \cdot \eta, \quad \text{v} = v, \quad \text{k} = k \cdot \eta
+$$
 
 **RWKV -7 与历史版本（RWKV5/6）的时间步公式和状态更新机制对比：**
 
@@ -509,7 +536,7 @@ def ref_fwd(r, w, k, v, a, b):
 
 ```
 <Callout type="warning" emoji="⚠️">
-RWKV-7 处于**早期预览版本**，其论文仍然由 RWKV 作者彭博和社区成员共同撰写。截至 2024 年 11 月，论文仍处于撰写阶段，暂无具体发布计划。
+RWKV-7 论文由 RWKV 作者彭博和社区成员共同撰写。截至 2024 年 12 月，论文仍处于撰写阶段，暂无具体发布计划。
 </Callout>
 
 

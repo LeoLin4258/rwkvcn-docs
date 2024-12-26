@@ -1,11 +1,12 @@
 ---
 title: RWKV简介 - 关于 RWKV
 description: 关于 RWKV介绍了RWKV原理架构、如何体验RWKV、基于RWKV的应用、微调RWKV等内容。RWKV是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
-keywords: RWKV介绍,RWKV架构,rwkv是什么,RWKV模型用法,rwkv模型最新版本
+keywords: RWKV介绍,RWKV架构,rwkv是什么,RWKV模型用法,RWKV开源模型
 ---
 
 import { Callout } from 'nextra/components'
 import { Steps } from 'nextra/components'
+import { Tabs } from 'nextra/components'
 
 RWKV（读作 RWaKuV）是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
 
@@ -17,49 +18,58 @@ RWKV 项目最初由彭博（Bo Peng ，BlinkDL）提出，随着项目被外界
 
 ## RWKV 架构和论文
 
-RWKV 模型架构有 RWKV-4、RWKV-5（代号 Eagle）、RWKV-6（代号 Finch） **三个正式版本**，更早以前的 RWKV 1/2/3 为实验版本。
+RWKV 模型架构有 RWKV-4、RWKV-5（代号 Eagle）、RWKV-6（代号 Finch）、RWKV-7（代号 Goose） **四个正式版本**，更早以前的 RWKV 1/2/3 为实验版本。
 
 RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2023 年 5 月 22 日。同年 10 月，RWKV-4 架构论文被顶级会议 [EMNLP 2023](https://2023.emnlp.org/program/accepted_findings/) 收录。
 
-- RWKV-4 论文：《RWKV: Reinventing RNNs for the Transformer Era》
-- 论文地址：[arXiv:2305.13048](https://arxiv.org/abs/2305.13048)
+- **RWKV-4 论文**：《RWKV: Reinventing RNNs for the Transformer Era》
+- **论文地址**：[arXiv:2305.13048](https://arxiv.org/abs/2305.13048)
 
 RWKV 5/6 两个架构在 RWKV-4 架构的基础上进行了若干改进。因此，这两个架构在同一篇论文中发布。
 
 - RWKV 5/6 论文：《Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence》
 - 论文地址：[arXiv:2404.05892](https://arxiv.org/abs/2404.05892)
 
-
 <Callout type="info" emoji="ℹ️">
 有关 RWKV5/6 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=382345)。
 </Callout>
 
+RWKV-7 架构是 RWKV 的最新版本，架构的训练和推理代码均已定稿，架构论文正在由彭博和社区成员联合撰写。
 
+RWKV-7 采用了动态状态演化（Dynamic State Evolution），超越了 attention / linear attention 范式 $TC$0 表达能力的根本限制。
+<Tabs items={['RWKV-7 架构图', 'RWKV-6 架构图']}>
+  <Tabs.Tab>
+RWKV-7 架构图如下： 
+
+![RWKV-7-architecture](./imgs/rwkv-7-architecture.jpg)
+
+</Tabs.Tab>
+  <Tabs.Tab>
 RWKV-6 架构图如下： 
 
-![Rwkv-6_architecture](./imgs/Rwkv-6_architecture.webp)
+![RWKV-6-architecture](./imgs/rwkv-6-architecture.png)
 
 <Callout type="info" emoji="ℹ️">
 RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在 [rwkv-wiki.fandom](https://rwkv.fandom.com/zh/wiki/RWKV-6%E6%9E%B6%E6%9E%84) 上找到原始版本。
 </Callout>
-
-
+</Tabs.Tab>
+</Tabs>
 ## RWKV 模型的版本状态
 
-从 RWKV-4 架构开始，RWKV 在每个版本都提供了多种尺寸的开源模型。
+从 RWKV-4 架构开始，RWKV 在每个版本都发布了多种参数规模的开源模型。
 
-截至 2024 年 7 月，RWKV-4、RWKV-5 模型的生命周期已结束。推荐使用最新版本的 RWKV-6 模型，得益于最新的架构设计，RWKV-6 模型在所有任务上的表现都更好。
-  
-| 版本 | RWKV-V4 | RWKV-v5-Eagle | RWKV-v6-Finch |
-| --- | --- | --- | --- |
-| 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓与 RWKV-6 架构同一篇论文 | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) |
-| 总体状态 | **⚠ 生命周期已结束** | **⚠ 生命周期已结束**| **✨ 稳定版本** |
-| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |
-| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |
-| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |
-| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth) |
-| 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |
-| MoE 模型 | ❌ 无计划 | ❌ 无计划 | 计划中 |
+截至 2024 年 12 月，RWKV-4、RWKV-5 模型的生命周期已结束。推荐使用最新版本的 RWKV-6-world-V3 模型。得益于最新的架构设计，RWKV-6 模型在所有任务上的表现都更好。
+
+| 版本 | RWKV-V4 | RWKV-v5-Eagle | RWKV-v6-Finch | RWKV-v7-Goose |
+| --- | --- | --- | --- | --- |
+| 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | **✍️ 撰写中** |
+| 总体状态 | **⚠ EOL** | **⚠ EOL**| **✨ 稳定版本** | **⚙️ 模型训练中** |
+| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |**⚙️ 2025年1月上旬** |
+| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |**⚙️ 2025年1月下旬** |
+| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |**⚙️ 2025年2月中旬** |
+| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth) |**📅 计划训练** |
+| 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |**📅 计划训练** |
+| MoE 模型 | ❌ 无计划 | ❌ 无计划 | ❌ 无计划 | ❌ 无计划 |
 
 ## 我应该使用哪些 RWKV 模型？
 
@@ -73,7 +83,7 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 
 请查看[本地部署 RWKV 模型的硬件性能需求](https://rwkv.cn/RWKV-Wiki/How-To-Play#vram-of-rwkv)，以确认使用哪一款 RWKV 模型。
 
-## RWKV 与 Transformer 模型的差异
+## RWKV 与 Transformer 的差异
 
 ### 优势
 
@@ -102,20 +112,6 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 | **RWKV CHNtuned / one-state-chat / role_play / novel ...** | RWKV 社区提供的微调模型，针对特定任务或数据类型优化。请优先考虑使用 RWKV-6 系列的微调模型。 |
 
 
-## RWKV 社区成员如何交流？
-
-我们拥有 [Discord 频道](https://discord.gg/bDSBUMeFpc) 和 [QQ 频道](https://pd.qq.com/s/f2iep06ms) ，同时也有 QQ 交流群：
-
-- RWKV 技术研发群：325154699
-- RWKV 交流群：224287095
-- ChatRWKV水和机器人群：597996773
-  
-以下是一些由 RWKV 开源社区成员或爱好者组建的 QQ 群，用于 RWKV 相关项目的讨论：
-
-- RWKV第三方微调/训练/lora综合群：439087067
-- AI00_Server for RWKV 群：30920262
-- rwkv runner 懒人包交流群：818930736
-
 ## RWKV 模型的命名规则
 
 RWKV 模型通常有两种命名规则：
@@ -135,6 +131,26 @@ RWKV 模型通常有两种命名规则：
 | **20240208 / 20231113** | 模型的发布日期 |
 | **ctx4096** | 预训练的上下文长度 |
 
+## RWKV 社区成员如何交流？
+
+我们拥有 [Discord 频道](https://discord.gg/bDSBUMeFpc) 和 [QQ 频道](https://pd.qq.com/s/f2iep06ms) ，同时也有 QQ 交流群：
+
+### 官方交流群
+
+| 群名称 | QQ群号 |
+| --- | --- |
+| RWKV 技术研发群 | 325154699 |
+| RWKV 用户交流群 | 224287095 |
+| ChatRWKV水和机器人群 | 597996773 |
+
+### 社区交流群
+
+| 群名称 | QQ群号 |
+| --- | --- |
+| RWKV第三方微调/训练/lora综合群 | 439087067 |
+| AI00_Server for RWKV 群 | 30920262 |
+| rwkv runner 懒人包交流群 | 818930736 |
+
 
 ## RWKV 的赞助与贡献者
 
@@ -145,6 +161,6 @@ RWKV 模型通常有两种命名规则：
 - [alpin @ pygmalionAI](https://pygmalion.chat/)
 - [AutoMeta @ AlignmentLab](https://twitter.com/alignment_lab)
 - [Recursal.AI](https://recursal.ai)
-- 以及其他提供 GPU 资源而不公开姓名的支持者
+- 以及其他提供 GPU 资源的匿名支持者
 
 同时，我们也感谢 RWKV 社区成员的辛苦付出，包括参与 RWKV 架构改进、使用 RWKV 进行学术研究、协助建设 RWKV 内容、测试最新模型，以及其他任何有帮助的工作。
