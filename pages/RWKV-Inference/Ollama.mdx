@@ -17,7 +17,7 @@ import { Tabs } from 'nextra/components'
 
 ## 下载 gguf 格式 RWKV 模型
 
-Ollama 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` 格式模型。因此，我们需要从 [RWKV - GGUF 仓库](https://huggingface.co/latestissue) 下载 gguf 格式的 RWKV 模型。
+Ollama 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` 格式模型。因此，我们需要从 [RWKV - GGUF 仓库](https://hf-mirror.com/latestissue) 下载 gguf 格式的 RWKV 模型。
 
 <Callout type="warning" emoji="⚠️">
 RWKV gguf 模型有各种量化版本，建议使用 `Q5_1`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变得很差。
@@ -77,7 +77,7 @@ ollama create rwkv-6-world-1.6b-Q8_0 -f Modelfile
 
 创建完毕后，使用 `ollama run` 命令直接运行模型：
 
-``` bash
+``` bash copy
 ollama run rwkv-6-world-1.6b-Q8_0
 ```
 
