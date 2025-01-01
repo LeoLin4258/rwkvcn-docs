@@ -244,25 +244,25 @@ RWKV-V5 和 RWKV-V6 这两个架构在同一篇论文 [《Eagle and Finch: RWKV 
 
 相对 RWKV-V4， RWKV-V5 的最重点改动在于引入了**多头的**、**基于矩阵值的状态（state）**，即论文中的 “multi-headed matrix-valued states”。
 
-在 RWKV-V4 架构的 time mixing 计算中，$u$、$w$、$k$、$v$ 参数都是维度为 $D$ 的向量，而 head size 是 1 ：
+在 RWKV-V4 架构的 time mixing 计算中，$u$、$w$、$k$、$v$ 参数都是维度为 $D$ 的向量，而 head size 是 1，所计算的 state 也是维度为 $D$ 的向量 ：
 
-| $t$ | RWKV-4 $u, w, k_t, v_t \in \mathbb{R}^D$, head size 1 |
-| --- | ----------------------------------------------------- |
-| 0   | $ \sigma(r_0) \odot \frac{u \odot k_0 \odot v_0}{u \odot k_0} $ |
-| 1   | $ \sigma(r_1) \odot \frac{u \odot k_1 \odot v_1 + k_0 \odot v_0}{u \odot k_1 + k_0} $ |
-| 2   | $ \sigma(r_2) \odot \frac{u \odot k_2 \odot v_2 + k_1 \odot v_1 + w \odot k_0 \odot v_0}{u \odot k_2 + k_1 + w \odot k_0} $ |
-| 3   | $ \sigma(r_3) \odot \frac{u \odot k_3 \odot v_3 + k_2 \odot v_2 + w \odot k_1 \odot v_1 + w^2 \odot k_0 \odot v_0}{u \odot k_3 + k_2 + w \odot k_1 + w^2 \odot k_0} $ |
+| $t$ | State $s_t \in \mathbb{R}^D$                                                                                                                              | Output $y_t \in \mathbb{R}^D$   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 0   | $ s_0 = \frac{u \odot k_0 \odot v_0}{u \odot k_0} $                                                                                                       | $ y_0 = \sigma(r_0) \odot s_0 $ |
+| 1   | $ s_1 = \frac{u \odot k_1 \odot v_1 + k_0 \odot v_0}{u \odot k_1 + k_0} $                                                                                 | $ y_1 = \sigma(r_1) \odot s_1 $ |
+| 2   | $ s_2 = \frac{u \odot k_2 \odot v_2 + k_1 \odot v_1 + w \odot k_0 \odot v_0}{u \odot k_2 + k_1 + w \odot k_0} $                                           | $ y_2 = \sigma(r_2) \odot s_2 $ |
+| 3   | $ s_3 = \frac{u \odot k_3 \odot v_3 + k_2 \odot v_2 + w \odot k_1 \odot v_1 + w^2 \odot k_0 \odot v_0}{u \odot k_3 + k_2 + w \odot k_1 + w^2 \odot k_0} $ | $ y_3 = \sigma(r_3) \odot s_3 $ |
 
-而 RWKV-V5 则将 $u$、$w$参数分别进行对角化，而 $k$ 和 $v$ 从维度为 $D$ 的**向量**转化为维度为 64 \* 64 的**矩阵**， head size 大小改为固定的 64 。
+而 RWKV-V5 则将 $u$、$w$、$k$、$v$ 分割成一组组维度为 64 向量， 每一组 $k$ 和 $v$ 通过外积交织相乘成为一个 $64 \times 64$ 的**矩阵**，即 state 的一个**头（head）**。 Head size 是固定的 64 。
 
-RWKV-V5 的 time-mixing 时间步：
+RWKV-V5 每一个 head 的 time-mixing 时间步：
 
-| $t$ | Eagle (RWKV-5) $\text{diag}(u)$, $\text{diag}(w)$, $k_t$, $v_t \in \mathbb{R}^{64 \times 64}$ for each head, head size 64 |
-| --- | ------------------------------------------------------------------------------------------------------- |
-| 0   | $r_0 \cdot (\text{diag}(u) \cdot k_0^\top \cdot v_0)$                                                  |
-| 1   | $r_1 \cdot (\text{diag}(u) \cdot k_1^\top \cdot v_1 + k_0^\top \cdot v_0)$                              |
-| 2   | $r_2 \cdot (\text{diag}(u) \cdot k_2^\top \cdot v_2 + k_1^\top \cdot v_1 + \text{diag}(w) \cdot k_0^\top \cdot v_0)$ |
-| 3   | $r_3 \cdot (\text{diag}(u) \cdot k_3^\top \cdot v_3 + k_2^\top \cdot v_2 + \text{diag}(w) \cdot k_1^\top \cdot v_1 + \text{diag}(w^2) \cdot k_0^\top \cdot v_0)$ |
+| $t$ | State $s_t \in \mathbb{R}^{64 \times 64}$                                                                                                                  | Output $y_t \in \mathbb{R}^{64}$ |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| 0   | $s_0 = \text{diag}(u) \cdot k_0^\top \cdot v_0$                                                                                                            | $y_0 = r_0 \cdot s_0$            |
+| 1   | $s_1 = \text{diag}(u) \cdot k_1^\top \cdot v_1 + k_0^\top \cdot v_0$                                                                                       | $y_1 = r_1 \cdot s_1$            |
+| 2   | $s_2 = \text{diag}(u) \cdot k_2^\top \cdot v_2 + k_1^\top \cdot v_1 + \text{diag}(w) \cdot k_0^\top \cdot v_0$                                             | $y_2 = r_2 \cdot s_2$            |
+| 3   | $s_3 = \text{diag}(u) \cdot k_3^\top \cdot v_3 + k_2^\top \cdot v_2 + \text{diag}(w) \cdot k_1^\top \cdot v_1 + \text{diag}(w^2) \cdot k_0^\top \cdot v_0$ | $y_3 = r_3 \cdot s_3$            |
 
 RWKV-V5 前向传播（推理过程）的 time-mixing 计算公式：
 
