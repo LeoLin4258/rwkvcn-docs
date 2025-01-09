@@ -43,10 +43,13 @@ torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cuda.matmul.allow_tf32 = True
 
+# os.environ["RWKV_V7_ON"] = '1' # 启用 RWKV-7 模型
 os.environ["RWKV_JIT_ON"] = "1" # 启用 JIT 编译
 os.environ["RWKV_CUDA_ON"] = "0"  # 禁用原生 CUDA 算子，改成 '1' 表示启用 CUDA 算子（速度更快，但需要 c++ 编译器和 CUDA 库）
 ```
-
+<Callout type="warning" emoji="⚠️">
+在推理 RWKV-7 模型时，请务必将 `os.environ["RWKV_V7_ON"]` 设置为 `1` 。
+</Callout>
 这里是一些加快推理速度的 torch 设置和操作环境的优化项。
 
 ---
