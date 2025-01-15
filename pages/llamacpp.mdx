@@ -94,8 +94,8 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 - `-m models/rwkv-6-world-7b-Q8_0.gguf`：模型的路径参数
 - `-p "User: What's mbti?tell me in chinese.\n\nAssistant:"`： prompt 参数，模型根据该提示词生成文本。更多 RWKV prompt 格式请在[RWKV文档-提示词指南](https://rwkv.cn/RWKV-Prompts/Chat-Prompts "RWKV文档-提示词指南")中查看。
 - `-t 8`：-t 指定线程数，建议根据可用的物理 CPU 核心数调整
-- `- ngl`：指定模型使用的 n-gpu-layers ，可以设定 `-ngl 99`，使 llama.cpp 加载 RWKV 模型所有层
-- `-n 500`：-n 参数表示生成的最大 token 数
+- `-ngl`：指定使用 GPU 加载的模型层数，可以通过设定 `-ngl 99`，使用 GPU 加载 RWKV 模型所有层
+- `-n 500`：-n 参数表示模型生成的最大 token 数
 <Callout type="info" emoji="ℹ️">
 完整的参数列表可以在 [llama.cpp 参数文档](https://github.com/ggerganov/llama.cpp/blob/master/examples/main/README.md)中查看。
 </Callout>

@@ -89,7 +89,7 @@ x = self.head(x) + c
 ```
 
 <Callout type="warning" emoji="✨">
-通过指数衰减（exponential decay），RWKV-V2 实现了 RNN 形式的推理：模型每次生成都依赖于上一个时刻的输入和当前时刻的输入，同时拥有固定大小的隐藏状态（在 RWKV-V2 里是 a 和 b）。
+通过指数衰减（exponential decay），RWKV-V2 实现了 RNN 形式的推理：模型每次生成都依赖于上一个时刻的输出和当前时刻的输入，同时拥有固定大小的隐藏状态（在 RWKV-V2 里是 a 和 b）。
 </Callout>
 
 RWKV-V2 的自注意力层简化表达：
@@ -358,7 +358,7 @@ $$
 \text{ddlerp}_{\Box}(a, b) = a + (b - a) \odot \text{lora}_{\Box}(a + (b - a) \odot \mu_x)
 $$
 
-相对 RWKV-V4/RWKV-V5 ，RWKV-V6 这种增强了数据依赖性的新型 Token Shift 有效地扩展模型的能力，每个通道分配的新旧数据量取决于当前和之前时间步骤的输入。
+相对 RWKV-V4/RWKV-V5 ，RWKV-V6 这种增强了数据依赖性的新型 Token Shift 有效地扩展模型的能力，每个通道分配的新旧数据量取决于当前和之前时间步骤的输出。
 
 <Callout type="info" emoji="ℹ️">
 通俗地理解，这种动态递归机制使“重要的信息”可以有效地标记自身，以待在后续任务使用；而“不重要的信息”也可以标记自身，以减少或完全避免进入后续的数据流，从而为更重要的现有数据保留空间。
