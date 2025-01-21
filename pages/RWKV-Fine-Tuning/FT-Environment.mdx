@@ -8,9 +8,28 @@ import { Callout } from 'nextra/components'
 
 要训练 RWKV 模型，请先遵循以下步骤，为你的 Linux 系统配置训练环境。
 
+## 视频教程
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=113865220162755&bvid=BV1opwheLE9b&cid=27992263465&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowfullscreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<Callout type="info" emoji="ℹ️">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1opwheLE9b)观看。
+</Callout>
+
+
 ##  配置 Conda 虚拟环境
 
-RWKV 模型的微调训练默认虚拟环境为 Conda。此处以 MiniConda 为例，介绍如何配置 Linux 系统的 Conda 环境。在你的 Linux 工作区，依次运行以下命令：
+RWKV 模型的微调训练默认虚拟环境为 Conda。此处以 MiniConda 为例，介绍如何配置 Linux 系统的 Conda 环境。
+
+在你的 Linux 或 WSL 工作区，依次运行以下命令：
 
 ``` bash copy
 # 下载最新的 MiniConda 安装包
