@@ -56,17 +56,17 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 </Tabs>
 ## RWKV 模型的版本状态
 
-从 RWKV-4 架构开始，RWKV 在每个版本都发布了多种参数规模的开源模型。
+从 RWKV-4 架构开始，RWKV 在每个架构版本都发布了多种参数规模的开源模型。
 
-截至 2024 年 12 月，RWKV-4、RWKV-5 模型的生命周期已结束。推荐使用最新版本的 RWKV-6-world-V3 模型。得益于最新的架构设计，RWKV-6 模型在所有任务上的表现都更好。
+截至 2025 年 2 月，RWKV-4、RWKV-5 模型的生命周期已结束。推荐使用**最新的 RWKV-7-world 模型**。得益于最新的架构设计，RWKV-7 模型在所有任务上的表现都更好。
 
 | 版本 | RWKV-V4 | RWKV-v5-Eagle | RWKV-v6-Finch | RWKV-v7-Goose |
 | --- | --- | --- | --- | --- |
 | 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | **✍️ 撰写中** |
 | 总体状态 | **⚠ EOL** | **⚠ EOL**| **✨ 稳定版本** | **⚙️ 模型训练中** |
-| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-7-world/blob/main/RWKV-x070-World-0.4B-v2.9-20250107-ctx4096.pth) |
-| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |**⚙️ 2025年1月下旬** |
-| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |**⚙️ 2025年2月中旬** |
+| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) |
+| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) |
+| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) |
 | 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth) |**📅 计划训练** |
 | 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |**📅 计划训练** |
 | MoE 模型 | ❌ 无计划 | ❌ 无计划 | ❌ 无计划 | ❌ 无计划 |
@@ -77,11 +77,15 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 由于老旧架构导致的性能问题， RWKV-5、RWKV-4 全系列（Raven / World / Pile ...）和更早的 RWKV 版本均已结束生命周期，现有模型仅作为存档。
 </Callout>
 
-**请使用 RWKV-6 系列模型**，RWKV-6 模型基于最新的 RWKV 架构和最大的数据集版本，因此性能更强。
+**请使用 RWKV-7 系列模型**，RWKV-7 模型基于最新的 RWKV-7 架构和最新的数据集，因此性能更强。
 
-对于大多数用例，你应该使用最新的 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型。如果你的硬件配置不足以使用 14B 参数模型，可以考虑使用 [RWKV-6-World-7B-V3](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) 模型。
+由于 RWKV-7 7B 及更大的模型正在训练中，因此对于 7B 及更大参数的模型，推荐使用 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型；如果你的硬件配置不足以使用 14B 参数模型，可以考虑使用 [RWKV-6-World-7B-V3](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) 模型。。
 
-请查看[本地部署 RWKV 模型的硬件性能需求](https://rwkv.cn/RWKV-Wiki/How-To-Play#vram-of-rwkv)，以确认使用哪一款 RWKV 模型。
+<Callout type="info" emoji="ℹ️">
+RWKV-7-World 7B/14B 完成训练后，将代替现有的 RWKV-6-World 7B/14B 模型。
+</Callout>
+
+请查看[本地部署 RWKV 模型的显存需求](https://rwkv.cn/RWKV-Wiki/How-To-Play#vram-of-rwkv)，以确认**你的显卡可以使用哪一款 RWKV 模型**。
 
 ## RWKV 与 Transformer 的差异
 
@@ -105,12 +109,11 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 | --- | --- |
 | **RWKV** | 模型架构本身，训练代码可于[此处](https://github.com/BlinkDL/RWKV-LM)获取。 |
 | **ChatRWKV** | RWKV 的官方聊天机器人（类似 ChatGPT，但基于 RWKV），代码可于[此处](https://github.com/BlinkDL/ChatRWKV)获取。 |
-| **RWKV-4/5/6** | RWKV 的不同架构版本。注意，只推荐使用 RWKV-6 系列模型。 |
+| **RWKV-4/5/6/7** | RWKV 的不同架构版本。注意，推荐使用最新的 RWKV-7 系列模型。 |
 | **RWKV World** | 使用全球语言训练的基底 RWKV 模型，这类模型涵盖了更广泛、更多样化的数据集，包括 100 多种语言的训练数据，以及部分指令训练。 |
 | **Raven** | RWKV-4 基础模型的官方微调版，包含指令训练。但由于 RWKV-4 系列已停止更新，不建议继续使用。 |
-| **RWKV ABC/MIDI** | 基于 ABC/MIDI 格式的 RWKV 音乐模型，推荐使用 RWKV-5 / 6 系列。|
-| **RWKV CHNtuned / one-state-chat / role_play / novel ...** | RWKV 社区提供的微调模型，针对特定任务或数据类型优化。请优先考虑使用 RWKV-6 系列的微调模型。 |
-
+| **RWKV ABC/MIDI** | 基于 ABC/MIDI 格式的 RWKV 音乐模型 |
+| **RWKV CHNtuned / one-state-chat / role_play / novel ...** | RWKV 社区提供的微调模型，针对特定任务或数据类型优化。请优先考虑使用 RWKV-7 系列的微调模型。 |
 
 ## RWKV 模型的命名规则
 

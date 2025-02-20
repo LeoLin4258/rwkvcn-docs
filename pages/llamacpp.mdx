@@ -60,17 +60,19 @@ llama.cpp 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` �
 
 <Tabs items={[' 下载现成 gguf 模型（推荐）', '从 HF 格式转换成 .gguf']}>
   <Tabs.Tab> 
-可以从 [RWKV - GGUF 仓库](https://hf-mirror.com/latestissue) 下载已量化并转化成 gguf 格式的 RWKV 模型。
+可以从 [RWKV-6-World-GGUF 仓库](https://modelscope.cn/collections/RWKV-6-World-GGUF-f06d2c9def1349) 下载已量化并转化成 gguf 格式的 RWKV 模型。
 
 <Callout type="info" emoji="ℹ️">
 请在 llama.cpp 目录下新建一个 models 文件夹，将下载的 gguf 模型放入 models 文件夹中。
 </Callout>
 
 <Callout type="warning" emoji="⚠️">
-建议下载 `Q8_0` 和 `Q5_1` 两种量化精度的 gguf 模型，更低的量化可能会使模型的回答变得很差。
+RWKV gguf 模型有多种量化类型，精度越高模型的回复效果越好，但模型体积和计算要求越高。
+
+推荐顺序：`FP16` > `Q8_0` > `Q5_K_M` > `Q4_K_M` ，更低的量化精度（如 `Q3_0`、`Q2_0` 等）可能会大大降低模型的性能，甚至无法正常回答问题。
 </Callout>
 
-  </Tabs.Tab>
+</Tabs.Tab>
   <Tabs.Tab> 
   首先，从 [RWKV - HF 仓库](https://huggingface.co/RWKV) 或[镜像仓库](https://hf-mirror.com/RWKV)（国内可访问）下载一个 Hugging Face 格式的 RWKV 模型，如 `RWKV/v6-Finch-1B6-HF`。
 

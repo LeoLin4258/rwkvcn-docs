@@ -7,6 +7,23 @@ keywords: RWKV相关链接,rwkv项目,RWKV工具,rwkv实现
 import { Callout } from 'nextra/components'
 import { Steps } from 'nextra/components'
 
+## RWKV-7-World 基底模型
+
+<Callout type="info" emoji="ℹ️">
+RWKV-7-World 系列模型均为基底模型（base model ，又称预训练模型）。基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
+
+但为了保持泛化能力和通用性，基底模型通常不会针对任何一类任务作优化。针对一些垂直的下游任务，可能需要[微调 RWKV 基底模型](https://rwkv.cn/RWKV-Fine-Tuning/Introduction)才能获得更好的任务效果。
+</Callout>
+
+- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-7-world/tree/main)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-7-world/tree/main)（国内可访问）
+- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files)（国内可访问）
+- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/Rwkv-7-world/file)（国内可访问）
+
+在寻找其他格式（safetensors、gguf）的 RWKV-7-World 模型？请查阅：
+
+- [下载 .st 格式 RWKV-7-World 模型](https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST/files)
+
 ## RWKV-6-World 基底模型
 
 <Callout type="info" emoji="ℹ️">
@@ -24,8 +41,8 @@ RWKV-6-World 系列模型均为基底模型（base model ，又称预训练模�
 
 在寻找其他格式（safetensors、gguf）的 RWKV-6-World 模型？请查阅：
 
-- [下载 .st 格式 RWKV 模型](https://rwkv.cn/ai00/Simple-Usage#%E4%B8%8B%E8%BD%BD%E8%BD%AC%E6%8D%A2-rwkv-%E6%A8%A1%E5%9E%8B)
-- [下载 .gguf 格式 RWKV 模型](https://rwkv.cn/llamacpp#%E8%8E%B7%E5%8F%96-gguf-%E6%A0%BC%E5%BC%8F%E6%A8%A1%E5%9E%8B)
+- [下载 .st 格式 RWKV-6-World 模型](https://modelscope.cn/models/shoumenchougou/RWKV-6-World-ST/files)
+- [下载 .gguf 格式 RWKV-6-World 模型](https://modelscope.cn/collections/RWKV-6-World-GGUF-f06d2c9def1349)
 
 ## RWKV-6 中文小说模型
 
