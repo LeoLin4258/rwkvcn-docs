@@ -539,6 +539,23 @@ def ref_fwd(r, w, k, v, a, b):
 RWKV-V7 论文由 RWKV 作者彭博和社区成员共同撰写。截至 2024 年 12 月，论文仍处于撰写阶段，暂无具体发布计划。
 </Callout>
 
+#### RWKV-V7 的模型发布[#rwkv-v7-model-release]
+
+RWKV-V7 发布了 Pile 和 World 数据集的预训练模型。**[RWKV-7-Pile](https://hf-mirror.com/BlinkDL/rwkv-7-pile)** 属于实验模型，基于 [EleutherAI/pile](https://huggingface.co/datasets/EleutherAI/pile) 数据集预训练而来。
+
+RWKV-7-World 模型基于 World V3 数据集预训练而来，有 0.1B/0.4B/1.5B/2.9B 四种参数版本。
+
+| 模型类别          | 模型描述          | 
+| ----------------- | -------- | 
+| RWKV-7-World-v2.8      | 基于 World-v2.8 数据集的多语言预训练模型，只发布了 0.1B 参数版本            | 
+| RWKV-7-World-v2.9     | 基于 World-v2.9 数据集的多语言预训练模型，只发布了 0.4B 参数版本         |
+| RWKV-7-World-v3   | 基于 World V3 数据集的多语言预训练模型，有 1.5B 和 2.9B 两种参数    |
+
+<Callout type="info" emoji="ℹ️">
+World-v2.8 数据集：：从 World v3 数据集中采样 1T tokens 作为训练数据
+
+World-v2.9 数据集：：从 World v3 数据集中采样 2T tokens 作为训练数据
+</Callout>
 
 {/*
 ## RWKV 与经典 RNN 的区别
