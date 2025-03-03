@@ -11,40 +11,104 @@ import { LinkToSvg } from '/components/svgs.tsx'
 
 以下内容可指引你体验 RWKV 模型（在线服务或本地部署）：
 
-## RWKV 模型在线 DEMO 
 
-如果你只是想简单尝试一下 RWKV 模型，可以尝试由 RWKV 官方部署在各大模型平台的演示 Demo：
-
-### Hugging Face 
-
-<Cards>
-  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
-  <Card  icon={< LinkToSvg />} title="RWKV-7-World-0.1B" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1" />
-</Cards>
-
-### ModelScope
-
-<Cards>
-  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN-PRO" />
-  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN" />
-</Cards>
+## 如何调整模型的解码参数？[#RWKV-Parameters]
 
 <Callout type="warning" emoji="⚠️">
-上述公共 Demo 只能使用续写模式，不支持直接对话。
-
-如果你在公共 Demo 中体验 RWKV 模型，建议按以下两种格式输入 prompts :
+如果你熟悉 Transformer 的相关解码参数，则无需阅读此章节。
 </Callout>
 
-```bash copy
-User: hi
- 
-Assistant: Hi. I am your assistant and I will provide expert full response in full details. Please feel free to ask any question and I will always answer it.
+你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 等 RWKV 模型解码参数。
 
+这些主要解码参数对应的效果如下：
+
+| 参数                | 效果                                                                                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Temperature`       | 采样温度，就像给模型喝酒，数值越大随机性越强，更具创造力，数值越小则越保守稳定。                                                                                |
+| `Top_P`             | 就像给模型喂镇静剂，优先考虑前 n% 概率质量的结果。如设置成 0.1 则考虑前 10% , 生成内容质量更高但更保守。如设置成 1 ，则考虑所有质量结果，内容质量降低但更多样。 |
+| `Presence penalty`  | 存在惩罚，根据**“新内容在现有的文本中是否出现过”**来对其进行惩罚，从而增加了模型涉及新话题的可能性                                                 |
+| `Frequency Penalty` | 频率惩罚，根据**“新内容在目前的文本中出现的频率/次数”**来对其进行惩罚，从而减少模型原封不动地重复相同短语/句子的可能性                                             |
+| `max_tokens`        | 模型生成文本时的最大 token 数，可以理解为“模型一次最多生成多少字”                        |
+
+其中 `Temperature` 和 `Top_P` 两个参数对生成效果的影响最大。
+
+### `Top_P` 参数[#Top_P]
+
+降低 `Top_P` 就是给模型喂“镇静剂”，越低就越冷静、机械、准确、单调、无趣、重复。
+
+建议采用以下 `Top_P` 数值：
+
+- 创意回答和写作，建议 `Top_P` 0.5 ~ 0.7。
+- 机械的问答和摘要和翻译等等，建议 `Top_P` 0 ~ 0.5，甚至 0 ~ 0.3。
+- 很机械的回答，例如回答“是/否”、ABCD、1234 之类，建议 `Top_P` 0。
+
+### `Temperature` 参数[#Temperature]
+
+增加 `Temperature` 就像给模型“喝酒”，它可以在 `Top_P` 低时增加文采和趣味，并减少重复内容。
+
+建议采用以下 `Temperature` 数值：
+
+- 若 `Top_P` >= 0.7，建议 `Temperature` 1。
+- 若 `Top_P` < 0.7，而且追求趣味，可以增加 `Temperature` 给模型喝酒（喝太多会胡言乱语）。如果追求准确，就保持 `Temperature` 1。
+- 如果 `Top_P` 0.5，建议 `Temperature` 1 ~ 1.5。
+- 如果 `Top_P` 0.3，建议 `Temperature` 1 ~ 1.7。
+- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
+
+### `Presence penalty` 参数[#Presence-Penalty]
+
+增加 `Presence penalty` 可以让模型额外避免生成已经生成过的文字，建议先设为 0.2 ~ 0.4 。如果你认为生成的内容有重复，而且调 `Top_P` 和 `Temperature` 仍然不满意，可以调整 `Presence penalty`。
+
+- 如果 `Top_P` 0.7，建议 `Presence penalty` 0 ~ 0.3。
+- 如果 `Top_P` 0.5，建议 `Presence penalty` 0 ~ 0.5。
+- 如果 `Top_P` 0.3，建议 `Presence penalty` 0 ~ 0.7。
+- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
+
+**注意，如果 `Presence penalty` 数值过高，会让模型无法正常使用文字，例如无法使用正常的标点符号，或者直接乱码。**
+
+### 各类任务的推荐参数[#RWKV-Parameters-for-Tasks]
+
+我们为不同的任务提供了一些推荐的参数：
+
+续写小说和对话这一类**需要创造性的任务**，需要高 `Temperature` + 低 `Top_P` 的参数组合，可以尝试以下四种参数搭配：
+
+- `Temperature` 1.2 ，`Top_P` 0.5
+- `Temperature` 1.4 ，`Top_P` 0.4 
+- `Temperature` 1.4 ，`Top_P` 0.3
+- `Temperature` 2 ，`Top_P` 0.2 
+
+举个例子，续写小说可以尝试将 `Temperature` 设为 2 （ `Temperature` 增加会提高文采，但逻辑会下降），然后将 `Top_P` 设为 0.1 ~ 0.2 （`Top_P` 越低，逻辑能力越强），这样生成的小说内容逻辑和文采都很好。
+
+完成**相对机械的任务**，例如材料问答、文章摘要等，则可将参数设为：
+
+- `Temperature` 1 ，`Top_P` 0.2
+- `Temperature` 1 ，`Top_P` 0.1
+- `Temperature` 1 ，`Top_P` 0 
+
+举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence penalty`、`Frequency Penalty` 都设为 0 。
+
+## RWKV 的提示词怎么写？[#RWKV-Prompts]
+
+**与基于 Transformer 的模型相比，RWKV 对提示格式更敏感。**
+
+RWKV 偏好以下两种提示格式：
+
+- QA 格式
+- 指令问答格式
+
+### QA 格式 prompt[#QA-Format-Prompt]
+
+```bash copy
 User: (你的问题，比如“请为我推荐三本适合五岁小孩阅读的世界名著” )
 
 Assistant:
 ```
-或者：
+<Callout type="info" emoji="ℹ️">
+这种 QA（问答）格式是 RWKV 的默认训练格式。
+
+其中 `User:` 是用户提问的问题，`Assistant:` 是模型的回答。因此我们需要在 `Assistant:` 后面留空，让模型进行续写。
+</Callout>
+
+### 指令问答格式 prompt[#Instruction-Format-Prompt]
 
 ```bash copy
 Instruction: （你希望模型进行什么操作，比如“请将下列瑞典语翻译成中文”）
@@ -53,8 +117,131 @@ Input:（你希望模型处理的内容，比如“hur l?ng tid tog det att bygg
 
 Response:
 ```
+<Callout type="info" emoji="ℹ️">
+这种格式是 RWKV 另一种训练格式。其中 `Instruction:` 是用户给模型的指令，`Input:` 是用户给模型的输入，`Response:` 是模型的回答。
 
-## 本地部署 RWKV 模型
+`Response:` 后面留空，让模型进行续写。
+</Callout>
+
+注意不要调换 `Instruction:` 和 `Input:` 的位置，由于架构设计，RWKV 在“回顾”能力上较弱。如果 RWKV 模型先接收了材料内容（Input）再接收指令（Instruction），它在执行指令时可能会漏掉内容中的重要信息。
+
+但如果你先告诉模型**要执行什么指令**，然后再给模型**输入材料内容**。模型就会先理解指令，然后基于指令处理材料内容。就像这样:
+
+```bash copy
+Instruction: 给模型的指令，比如“请将上面的英文翻译成中文”
+
+Input: 输入给模型的上下文内容，比如 “hello，I love you.”
+ 
+Response:
+```
+### few-shot[#Few-Shot]
+
+对于一些带上下文的问答任务，我们建议在 prompt 前后重复几个同类的问题（few-shot），为模型作示范。
+
+如下所示：
+
+```bash copy
+User: 把“hello，I love you.”翻译成中文
+
+Assistant: 你好，我爱你。
+
+User: 把“how are you?”翻译成中文
+
+Assistant: 你好吗？
+
+User: 把“I am fine, thank you.”翻译成中文
+
+Assistant:
+```
+<Callout type="info" emoji="ℹ️">
+可以在 [RWKV 提示词指南板块](https://rwkv.cn/RWKV-Prompts/Chat-Prompts) 找到一些开箱即用的 RWKV prompt 示例。
+</Callout>
+
+## RWKV 模型在线 DEMO[#RWKV-Online-Demo]
+
+如果你只是想简单尝试一下 RWKV 模型，可以尝试由 RWKV 官方部署在各大模型平台的演示 Demo：
+
+### Hugging Face(续写模式)
+
+<Cards>
+  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
+  <Card  icon={< LinkToSvg />} title="RWKV-7-World-2.9B（推荐）" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1" />
+</Cards>
+
+### ModelScope（续写模式）
+
+<Cards>
+  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN-PRO" />
+  <Card  icon={< LinkToSvg />} title="RWKV-7-World-2.9B（推荐）" href="https://modelscope.cn/studios/Blink_DL/RWKV-Gradio-1" />
+</Cards>
+
+<Callout type="warning" emoji="⚠️">
+上述公共 Demo 只能使用续写模式，不支持直接对话。
+</Callout>
+
+如果你在公共 Demo 中体验 RWKV 模型，建议按 RWKV 的两种标准格式输入 prompts：
+
+![RWKV-prompt-of-online-demo](./imgs/RWKV-prompt-of-online-demo.png)
+
+### RWKV WebGPU Demo
+
+基于 [web-rwkv](https://github.com/cryscan/web-rwkv "web-rwkv") 的 [RWKV WebGPU Demo](https://cryscan.github.io/web-rwkv-puzzles/#/chat "RWKV WebGPU Demo") 由社区开发。
+
+**无需下载任何应用**，RWKV WebGPU Demo 在浏览器中本地运行 RWKV-7 模型，支持**聊天**、**解 15 谜题**、**音乐作曲**，以及**可视化查看 state 变化**等功能！
+
+加载模型后，RWKV 模型将在浏览器中离线运行，不需要任何服务器通信。
+
+**对话功能**
+
+在 chat 界面选择一个 RWKV-7-World 模型（0.1B 或 0.4B），点击 Load Model 按钮，即可下载并运行模型进行对话。
+
+也可以从**本地目录**拖动一个 RWKV-7-World 模型（`.st` 格式）到灰框内运行，省略下载的过程。
+
+![WebGPU Demo 聊天功能](./imgs/web-rwkv-15-chat-demo.gif)
+
+**解 15 谜题**
+
+<Callout type="info" emoji="ℹ️">
+15 谜题（也叫数字推盘游戏或 15 数码）是一个经典的滑块益智游戏，玩家需要在一个 4x4 的方格中放置 1-15 数字并留一个空格，然后通过滑动数字将数字按顺序排列。
+</Callout>
+
+在 Demo 的 15 puzzle 界面点击 `New Game` 按钮，可以设置一局全新的 15 谜题。
+
+点击 `start` 按钮，WebGPU Demo 会运行 RWKV-puzzle15 模型**自动**解开当前的 15 谜题，左侧则显示模型的 CoT 推理过程。
+
+![web-rwkv-15-pizzle-demo](./imgs/web-rwkv-15-pizzle-demo.gif)
+
+**作曲功能**
+
+在 Demo 的 Music 界面，可以驱动 **RWKV ABC 模型**进行**作曲**。操作步骤：
+
+1. 点击 `Load Model` 按钮下载作曲模型
+2. 点击 `prompt`下拉框选择一个 ABC 格式的 prompt
+3. 点击 `Generate Music` 按钮，开始作曲
+
+![web-rwkv-musci-demo](./imgs/web-rwkv-musci-demo.gif)
+
+**State 可视化**
+
+在 Demo 的 State Replay 界面，可以查看 **RWKV 作为 RNN 模型的隐藏状态演变**。
+
+<Callout type="info" emoji="ℹ️">
+State Replay 功能需要提前在 **chat 界面**启动一个 RWKV 模型。
+</Callout>
+
+下图是对 RWKV-7-World-0.1B 模型输入 “你好” 后，模型的隐藏状态演化。
+
+RWKV-7-World-0.1B 的设计是 L12-D768，所以我们可以在 State Replay 中查看模型 12 层的状态演化，每层按照 $64×64$  维度（一个 head）划分为 12 个可视化小方格。
+
+小方格的颜色解释：
+
+- 深蓝色：较低值或接近负数的数值
+- 黄色：较高值或接近正数的数值
+- 灰色或黑色：数值接近 0
+
+![web-rwkv-state-replay-demo](./imgs/web-rwkv-state-replay-demo.gif)
+
+## 本地部署 RWKV 模型[#Local-Deployment-of-RWKV-Model]
 
 如果你希望在自己的设备上本地部署并使用 RWKV 模型，建议采用以下几种工具：
 
@@ -143,131 +330,11 @@ ChatRWKV 是 RWKV 官方的聊天机器人项目，但无图形化界面。你�
 <Callout type="info" emoji="ℹ️">
 - CUDA、CPU 来自 [RWKV 官方 pip 包](https://pypi.org/project/rwkv/)
 - rwkv.cpp 来自 [rwkv.cpp](https://github.com/RWKV/rwkv.cpp) 项目
-- webgpu 来自 [web-rwkv](https://github.com/cryscan/web-rwkv) 项目，一个基于 webgpu 的 rust 推理框架
-- webgpu(python) 来自 [web-rwkv-py](https://github.com/cryscan/web-rwkv-py)，即 web-rwkv 项目的 Python 绑定项目
+- webgpu 来自 [web-rwkv](https://github.com/cryscan/web-rwkv) 项目，一个基于 webgpu 的 Rust 推理框架
+- webgpu(python) 来自 [web-rwkv-py](https://github.com/cryscan/web-rwkv-py)，web-rwkv 项目的 Python 版本
 </Callout>
 
 以上参数仅作为 RWKV 端侧推理的入门性能参考，随着量化层数等配置项的变化和显卡架构的新旧程度，模型的性能表现可能会改变。
-
-## RWKV 的提示词怎么写？
-
-**与基于 Transformer 的模型相比，RWKV 对提示格式更敏感。**
-
-由于架构设计，RWKV 在“回顾”能力上较弱。因此，**不建议**使用下面这种格式：
-
-```bash copy
-Input: 输入给模型的上下文内容，比如 “hello，I love you.”
-
-Instruction: 你给模型的指令，比如“请将上面的英文翻译成中文”
-
-Response:
-```
-
-如果 RWKV 模型先接收了材料内容（Input）再接收指令（Instruction），它在执行指令时可能会漏掉内容中的重要信息。
-
-但如果你先告诉模型要执行什么指令，然后再给模型输入材料内容。模型就会先理解指令，然后使用指令来处理材料内容。就像这样:
-
-```bash copy
-Instruction: 给模型的指令，比如“请将上面的英文翻译成中文”
-
-Input: 输入给模型的上下文内容，比如 “hello，I love you.”
- 
-Response:
-```
-对于一些带上下文的问答任务，我们建议在 prompt 前后重复几个同类的问题，为模型作示范。
-
-如下所示：
-
-```bash copy
-User: 把“hello，I love you.”翻译成中文
-
-Assistant: 你好，我爱你。
-
-User: 把“how are you?”翻译成中文
-
-Assistant: 你好吗？
-
-User: 把“I am fine, thank you.”翻译成中文
-
-Assistant:
-```
-<Callout type="info" emoji="ℹ️">
-可以在 [RWKV 提示词指南板块](https://rwkv.cn/RWKV-Prompts/Chat-Prompts) 找到一些开箱即用的 RWKV prompt 示例。
-</Callout>
-
-## 如何调整模型的解码参数？[#RWKV-Parameters]
-
-<Callout type="warning" emoji="⚠️">
-如果你熟悉 Transformer 的相关解码参数，则无需阅读此章节。
-</Callout>
-
-你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 等 RWKV 模型解码参数。
-
-这些主要解码参数对应的效果如下：
-
-| 参数                | 效果                                                                                                                                                            |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Temperature`       | 采样温度，就像给模型喝酒，数值越大随机性越强，更具创造力，数值越小则越保守稳定。                                                                                |
-| `Top_P`             | 就像给模型喂镇静剂，优先考虑前 n% 概率质量的结果。如设置成 0.1 则考虑前 10% , 生成内容质量更高但更保守。如设置成 1 ，则考虑所有质量结果，内容质量降低但更多样。 |
-| `Presence penalty`  | 存在惩罚，根据**“新内容在现有的文本中是否出现过”**来对其进行惩罚，从而增加了模型涉及新话题的可能性                                                 |
-| `Frequency Penalty` | 频率惩罚，根据**“新内容在目前的文本中出现的频率/次数”**来对其进行惩罚，从而减少模型原封不动地重复相同短语/句子的可能性                                             |
-| `max_tokens`        | 模型生成文本时的最大 token 数，可以理解为“模型一次最多生成多少字”                        |
-
-其中 `Temperature` 和 `Top_P` 两个参数对生成效果的影响最大。
-
-### `Top_P` 参数
-
-降低 `Top_P` 就是给模型喂“镇静剂”，越低就越冷静、机械、准确、单调、无趣、重复。
-
-建议采用以下 `Top_P` 数值：
-
-- 创意回答和写作，建议 `Top_P` 0.5 ~ 0.7。
-- 机械的问答和摘要和翻译等等，建议 `Top_P` 0 ~ 0.5，甚至 0 ~ 0.3。
-- 很机械的回答，例如回答“是/否”、ABCD、1234 之类，建议 `Top_P` 0。
-
-### `Temperature` 参数
-
-增加 `Temperature` 就像给模型“喝酒”，它可以在 `Top_P` 低时增加文采和趣味，并减少重复内容。
-
-建议采用以下 `Temperature` 数值：
-
-- 若 `Top_P` >= 0.7，建议 `Temperature` 1。
-- 若 `Top_P` < 0.7，而且追求趣味，可以增加 `Temperature` 给模型喝酒（喝太多会胡言乱语）。如果追求准确，就保持 `Temperature` 1。
-- 如果 `Top_P` 0.5，建议 `Temperature` 1 ~ 1.5。
-- 如果 `Top_P` 0.3，建议 `Temperature` 1 ~ 1.7。
-- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
-
-### `Presence penalty` 参数
-
-增加 `Presence penalty` 可以让模型额外避免生成已经生成过的文字，建议先设为 0.2 ~ 0.4 。如果你认为生成的内容有重复，而且调 `Top_P` 和 `Temperature` 仍然不满意，可以调整 `Presence penalty`。
-
-- 如果 `Top_P` 0.7，建议 `Presence penalty` 0 ~ 0.3。
-- 如果 `Top_P` 0.5，建议 `Presence penalty` 0 ~ 0.5。
-- 如果 `Top_P` 0.3，建议 `Presence penalty` 0 ~ 0.7。
-- 如果 `Top_P` {'<'}= 0.2，建议 `Temperature` 1 ~ 2。
-
-**注意，如果 `Presence penalty` 数值过高，会让模型无法正常使用文字，例如无法使用正常的标点符号，或者直接乱码。**
-
-## 各类任务的推荐参数
-
-我们为不同的任务提供了一些推荐的参数：
-
-续写小说和对话这一类**需要创造性的任务**，需要高 `Temperature` + 低 `Top_P` 的参数组合，可以尝试以下四种参数搭配：
-
-- `Temperature` 1.2 ，`Top_P` 0.5
-- `Temperature` 1.4 ，`Top_P` 0.4 
-- `Temperature` 1.4 ，`Top_P` 0.3
-- `Temperature` 2 ，`Top_P` 0.2 
-
-举个例子，续写小说可以尝试将 `Temperature` 设为 2 （ `Temperature` 增加会提高文采，但逻辑会下降），然后将 `Top_P` 设为 0.1 ~ 0.2 （`Top_P` 越低，逻辑能力越强），这样生成的小说内容逻辑和文采都很好。
-
-完成**相对机械的任务**，例如材料问答、文章摘要等，则可将参数设为：
-
-- `Temperature` 1 ，`Top_P` 0.2
-- `Temperature` 1 ，`Top_P` 0.1
-- `Temperature` 1 ，`Top_P` 0 
-
-举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence penalty`、`Frequency Penalty` 都设为 0 。
 
 
 
