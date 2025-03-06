@@ -6,7 +6,23 @@ keywords: ai00 rwkv server,ai00_rwkv_server,ai00下载,Ai00安装
 
 import { Callout } from 'nextra/components'
 import { Steps } from 'nextra/components'
+import { Tabs } from 'nextra/components'
 
+## Ai00 推理视频教程
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=113605173381576&bvid=BV1TUiBYHEPW&cid=27207730714&poster=1&p=0&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowfullscreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<Callout type="info" emoji="ℹ️">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1TUiBYHEPW)观看。
+</Callout>
 
 ## 下载与安装
 
@@ -45,35 +61,49 @@ import { Steps } from 'nextra/components'
 
 ## 下载/转换 RWKV 模型
 
-Ai00 Server 目前仅支持 `.st` 后缀的 Safetensors 模型，有两种方法可以得到 `.st` 模型：
+Ai00 Server 目前仅支持 `.st` 后缀的 Safetensors 模型，有两种方法可以得到 `.st` 模型。
 
-1. **直接下载 `.st` 模型（推荐方式）**
-
-从以下仓库中下载已经转换好的 `.st` 模型：
-
-- [Hugging Face 仓库](https://huggingface.co/cgisky/ai00_rwkv_x060/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/cgisky/ai00_rwkv_x060/tree/main)
-
-2. **下载 `.pth` 后缀模型，并通过工具转换成 `.st` 模型**
-
-从以下 RWKV 官方仓库中下载 `.pth` 后缀的 RWKV 模型：
-
-- [Hugging Face 仓库](https://huggingface.co/BlinkDL/rwkv-6-world/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main)
-
-下载完成后，在文件夹中找到 `.pth` 模型:
-
-![ai00-model-list](./imgs/ai00-model-list.png)
-
-在 Ai00 解压的目录中，可以找到名为 “`converter.exe`” 的模型转换工具。在 Ai00 目录启动终端并执行以下命令，可以将指定路径的 `.pth` 模型转化成 `.st` 模型：
-```
-./converter --input /path/to/model.pth
-```
 <Callout type="info" emoji="ℹ️">
-请将上述命令中的 `/path/to/model.pth` 改成需要转换的 `.pth` 模型文件路径。
+如果你本地没有任何模型权重，建议直接从仓库中下载 `.st` 模型，如果你本地已经存在 `.pth` 文件，可以根据下列转换教程将 `.pth` 转换为 `.st` 。
+
 </Callout>
 
+<Tabs items={['直接下载 .st 模型（推荐方式）', '将 .pth 模型转换成 .st 模型']}>
+<Tabs.Tab>
+从以下仓库中下载已经转换好的 `.st` 模型：
+
+- [RWKV-7 ModelScope 仓库](https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST/files) （推荐）
+- [RWKV-6 ModelScope 仓库](https://modelscope.cn/models/shoumenchougou/RWKV-6-World-ST/files)
+</Tabs.Tab>
+
+<Tabs.Tab>
+首先进入 `Python` 官网 [Python 官网](https://www.python.org) 下载并安装Python
+
+然后使用 `pip` 安装需要的库：
+```
+pip install numpy torch safetensors
+```
+
+接着将 `.pth` 文件移动到 `dist/assets/scripts` 目录中，启动终端并执行以下命令，将指定的 `.pth` 模型转化成 `.st` 模型：
+```
+python convert_safetensors.py --input ./model.pth --output ./model.st
+```
+<Callout type="info" emoji="ℹ️">
+请将上述命令中的 `./model.pth` 改成需要转换的 `.pth` 模型文件；  
+同时将 `./model.st` 改成目标的 `.st` 模型文件。
+</Callout>
+
+下图为运行成功的示例，注意要使用 `./` 相对路径，否则部分系统无法直接读取到当前文件路径。
+
+![ai00-transform-example](./imgs/ai00-transform-example.png) 
+
+
+</Tabs.Tab>
+</Tabs>
+
 获得 `.st` 后缀的 RWKV 模型后，在 Ai00 的 `dist/assets` 目录中新建一个 `models` 文件夹，并将 RWKV 模型放在此文件夹中。
+
+![ai00-create-model-dir](./imgs/ai00-create-model-dir.png) 
 
 ## 调整配置参数
 
@@ -167,50 +197,15 @@ Web 页面的右侧有一些可设置的模型解码参数，如 `Temperature` �
 
 参数对应的效果如下：
 
-| API 参数| 效果描述  |
-|----|----|
-| Temperature | 采样温度，就像给模型喝酒，数值越大随机性越强，更具创造力，数值越小则越保守稳定。                                             |
-| Top_P | 就像给模型喂镇静剂，优先考虑前 n% 概率质量的结果。如设置成 0.1 则考虑前 10%，生成内容质量更高但更保守。如设置成 1，则考虑所有质量结果，质量降低但更多样。 |
-| Presence Penalty | 存在惩罚，正值根据“新 token 在至今的文本中是否出现过”来对其进行惩罚，从而增加了模型涉及新话题的可能性。|
-| Frequency Penalty| 频率惩罚，正值根据“新 token 在至今的文本中出现的频率/次数”来对其进行惩罚，从而减少模型原封不动地重复相同句子的可能性。|
+| 参数                | 效果                                                                                                                                                            |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Top_P`             | 选择累积概率达到 $P$ 值的前 $N$ 个 token 作为候选集。如设置成 0.1 则考虑前 10% , 生成内容质量更高但更保守。设置成 1 则内容质量降低但更多样。 |
+| `Temperature`       | 温度参数 $T$ 通过修改 logits 的缩放比例控制生成结果的随机性。高温会使概率分布更均匀，增加生成内容的随机性；低温则使模型更倾向于选择概率最高的 token。                                                                              |
+| `Presence penalty`  | 存在惩罚，对**已出现过的所有 token** 施加**固定惩罚**，从而增加了模型生成新 token 的可能性。                                                                 |
+| `Frequency Penalty` | 频率惩罚，根据 **token 出现的次数**进行**累加惩罚**，从而减少模型频繁地重复相同内容的可能性。 |
+| `max_tokens`        | 模型生成文本时的最大 token 数，可以理解为“模型一次最多生成多少字”。                                                                 |
 
-其中 `Temperature` 和 `Top_P` 两个参数对模型生成效果的影响最大。
-
-### 参数推荐
-
-续写小说和对话这一类需要创造性的任务，需要高 `Temperature` + 低 `Top_P` 的参数组合，可以尝试以下四种参数搭配：
-
-`Temperature` 1.2 ，`Top_P` 0.5
-
-`Temperature` 1.4 ，`Top_P` 0.4
-
-`Temperature` 1.4 ，`Top_P` 0.3
-
-`Temperature` 2 ，`Top_P` 0.2
-
-举个例子，续写小说可以尝试将 `Temperature` 设为 2 （ `Temperature` 增加会提高文采，但逻辑会下降），然后将 `Top_P` 设为 0.1 ~ 0.2 （`Top_P` 越低，逻辑能力越强），这样生成的小说内容逻辑和文采都很好。
-完成相对机械的任务，例如材料问答、文章摘要等，则可将参数设为：
-
-`Temperature` 1 ，`Top_P` 0.2
-
-`Temperature` 1 ，`Top_P` 0.1
-
-`Temperature` 1 ，`Top_P` 0
-
-举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence Penalty`、`Frequency Penalty` 都设为 0 。
-
-## Ai00 推理视频教程
-
-<div className="iframe-container">
- <iframe 
- src="https://player.bilibili.com/player.html?isOutside=true&aid=113605173381576&bvid=BV1TUiBYHEPW&cid=27207730714&poster=1&p=0&high_quality=1&autoplay=0"
- scrolling="no"
- frameBorder="0"
- allowfullscreen={true}
- sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
->
-</iframe>
-</div>
 <Callout type="info" emoji="ℹ️">
-高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1TUiBYHEPW)观看。
+更详细的解码参数解释和参数推荐查看[RWKV 的解码参数](https://rwkv.cn/RWKV-Prompts/RWKV-Parameters)
 </Callout>
+
