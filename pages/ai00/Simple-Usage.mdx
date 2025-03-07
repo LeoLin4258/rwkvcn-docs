@@ -77,15 +77,13 @@ Ai00 Server 目前仅支持 `.st` 后缀的 Safetensors 模型，有两种方法
 </Tabs.Tab>
 
 <Tabs.Tab>
-首先进入 `Python` 官网 [Python 官网](https://www.python.org) 下载并安装Python
-
-然后使用 `pip` 安装需要的库：
-```
+首先进入 [Python](https://www.python.org) 官网下载并安装 Python，然后使用 `pip` 安装需要的库：
+```bash copy
 pip install numpy torch safetensors
 ```
 
 接着将 `.pth` 文件移动到 `dist/assets/scripts` 目录中，启动终端并执行以下命令，将指定的 `.pth` 模型转化成 `.st` 模型：
-```
+```bash copy
 python convert_safetensors.py --input ./model.pth --output ./model.st
 ```
 <Callout type="info" emoji="ℹ️">
