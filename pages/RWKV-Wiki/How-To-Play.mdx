@@ -22,14 +22,14 @@ import { LinkToSvg } from '/components/svgs.tsx'
 
 如果你只是想简单尝试一下 RWKV 模型，可以尝试由 RWKV 官方部署在各大模型平台的演示 Demo：
 
-### Hugging Face(续写模式)
+### Hugging Face（续写模式）[#Hugging-Face-Online-Demo]
 
 <Cards>
-  <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
+  <Card  icon={< LinkToSvg />} title="RWKV-7 G1 0.1B 推理模型" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-2" /> 
   <Card  icon={< LinkToSvg />} title="RWKV-7-World-2.9B（推荐）" href="https://huggingface.co/spaces/BlinkDL/RWKV-Gradio-1" />
 </Cards>
 
-### ModelScope（续写模式）
+### ModelScope（续写模式）[#ModelScope-Online-Demo]
 
 <Cards>
   <Card  icon={< LinkToSvg />} title="RWKV-6-World-7B-v3" href="https://modelscope.cn/studios/BlinkDL/RWKV-CHN-PRO" />
@@ -42,9 +42,28 @@ import { LinkToSvg } from '/components/svgs.tsx'
 
 如果你在公共 Demo 中体验 RWKV 模型，建议按 RWKV 的两种标准格式输入 prompts：
 
-![RWKV-prompt-of-online-demo](./imgs/RWKV-prompt-of-online-demo.png)
+```bash copy
+User: 请将下列瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
-### RWKV WebGPU Demo
+Assistant:
+```
+
+```bash copy
+Instruction: 请将下列瑞典语翻译成中文
+
+Input: hur l?ng tid tog det att bygga twin towers
+
+Response:
+```
+
+对于 **RWKV-7 G1 系列推理模型**，可以在 QA prompt 中添加 **`<think>` 标签**开启模型的推理过程：
+
+``` bash copy
+User: Please translate I love you into Chinese 
+ 
+Assistant: <think>
+```
+### RWKV WebGPU Demo[#RWKV-WebGPU-Demo]
 
 基于 [web-rwkv](https://github.com/cryscan/web-rwkv "web-rwkv") 的 [RWKV WebGPU Demo](https://cryscan.github.io/web-rwkv-puzzles/#/chat "RWKV WebGPU Demo") 由社区开发。
 
