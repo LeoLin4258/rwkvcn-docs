@@ -95,13 +95,13 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 在 llama.cpp 目录运行以下命令，可驱动 RWKV 模型基于 prompt 生成文本：
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -no-cnv -t 8 -ngl 99 -n 500
 ```
 
 这条命令通过 llama-cli 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、跳过预热、并根据给定的 prompt 生成最多 500 个 token。
 
 <Callout type="warning" emoji="⚠️">
-不添加 `-cnv` 参数时，`./llama-cli` 默认是续写模式。模型会根据给定的 prompt 继续生成文本。
+不添加 `-no-cnv` 参数时，`./llama-cli` 默认是对话模式。添加 `-no-cnv` 参数，设置为续写模式，此处模型会根据给定的 prompt 继续生成文本。
 </Callout>
 
 ![RWKV 模型推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.png)
@@ -123,7 +123,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 
 ### 开启对话模式
 
-使用 `-cnv` 参数，可以开启 llama.cpp 的命令行**对话模式**。例如：
+删除 `-no-cnv ` 参数，或设置参数为 `-cnv ` ，可以开启 llama.cpp 的命令行**对话模式**。例如：
 
 ``` bash copy
 ./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
