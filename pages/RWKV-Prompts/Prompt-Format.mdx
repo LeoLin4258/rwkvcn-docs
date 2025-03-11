@@ -12,7 +12,7 @@ RWKV 更适合 QA 和指令问答两种提示格式：
 ## QA 格式 prompt[#QA-Format-Prompt]
 
 ```bash copy
-User: (你的问题，比如“请为我推荐三本适合五岁小孩阅读的世界名著” )
+User: 请将下列瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
 Assistant:
 ```
@@ -25,9 +25,9 @@ QA（问答）格式是 RWKV 的默认训练格式。
 ## 指令问答格式 prompt[#Instruction-Format-Prompt]
 
 ```bash copy
-Instruction: （你希望模型进行什么操作，比如“请将下列瑞典语翻译成中文”）
+Instruction: 请将下列瑞典语翻译成中文
 
-Input:（你希望模型处理的内容，比如“hur l?ng tid tog det att bygga twin towers”）
+Input: hur l?ng tid tog det att bygga twin towers
 
 Response:
 ```
