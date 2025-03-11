@@ -90,49 +90,50 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
   </Tabs.Tab>
 </Tabs>
 
-### 运行 RWKV 模型推理
+### 运行 RWKV 模型进行对话
 
-在 llama.cpp 目录运行以下命令，可驱动 RWKV 模型基于 prompt 生成文本：
+在 llama.cpp 目录运行以下命令，可以开启 llama.cpp 的命令行**对话模式**：
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -no-cnv -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
 ```
+这条命令通过 `llama-cli` 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、并根据给定的初始 prompt `You are a helpful assistant` 开启对话，每次生成最多 500 个 token。
 
-这条命令通过 llama-cli 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、跳过预热、并根据给定的 prompt 生成最多 500 个 token。
-
-<Callout type="warning" emoji="⚠️">
-不添加 `-no-cnv` 参数时，`./llama-cli` 默认是对话模式。添加 `-no-cnv` 参数，设置为续写模式，此处模型会根据给定的 prompt 继续生成文本。
-</Callout>
-
-![RWKV 模型推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.png)
+![llama.cpp-RWKV-inference-cnv-mode](./images/llamacpp/llama.cpp-RWKV-inference-cnv-mode.png)
 
 **参数解释：**
 
 - `./llama-cli`：启动编译好的 llama-cli 程序
 - `-m models/rwkv-6-world-7b-Q8_0.gguf`：模型的路径参数
-- `-p "User: What's mbti?tell me in chinese.\n\nAssistant:"`： prompt 参数，模型根据该提示词生成文本。更多 RWKV prompt 格式请在[RWKV文档-提示词指南](https://rwkv.cn/RWKV-Prompts/Chat-Prompts "RWKV文档-提示词指南")中查看。
-- `-t 8`：-t 指定线程数，建议根据可用的物理 CPU 核心数调整
+- `-p "You are a helpful assistant"`：初始 prompt 参数，模型根据该提示词开启对话
+- `-cnv`：开启对话模式，此参数为默认参数，可以省略
+- `-t 8`：指定线程数，建议根据可用的物理 CPU 核心数调整
 - `-ngl`：指定使用 GPU 加载的模型层数，可以通过设定 `-ngl 99`，使用 GPU 加载 RWKV 模型所有层
 - `-n 500`：-n 参数表示模型生成的最大 token 数
+
 <Callout type="info" emoji="ℹ️">
 完整的参数列表可以在 [llama.cpp 参数文档](https://github.com/ggerganov/llama.cpp/blob/master/examples/main/README.md)中查看。
 </Callout>
+
 </Steps>
 
 ## 附加功能（可选）
 
-### 开启对话模式
+### 启用续写模式
 
-删除 `-no-cnv ` 参数，或设置参数为 `-cnv ` ，可以开启 llama.cpp 的命令行**对话模式**。例如：
+<Callout type="info" emoji="ℹ️">
+`./llama-cli` 默认是对话模式。可通过添加 `-no-cnv` 参数设置为续写模式，根据给定的 prompt 继续生成文本。
+</Callout>
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -no-cnv -t 8 -ngl 99 -n 500
 ```
 
-![llama.cpp-RWKV-inference-cnv-mode](./images/llamacpp/llama.cpp-RWKV-inference-cnv-mode.png)
+![RWKV 模型续写推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.png)
 
-
-参数解释：`-cnv`: 开启对话模式（conversation mode），其他参数的含义和续写模式一致。
+- `-p "User: What's mbti?tell me in chinese.\n\nAssistant:"`： prompt 参数，模型根据该提示词进行续写。更多 RWKV prompt 格式请在 [RWKV 文档-提示词指南](https://rwkv.cn/RWKV-Prompts/Chat-Prompts "RWKV文档-提示词指南")中查看
+- `-no-cnv` 参数：关闭对话模式，设置 llama.cpp 为续写模式，模型会根据给定的 prompt 继续生成文本
+- 其他参数：与对话模式相同
 
 ### 启动 Web 服务（推荐）
 
