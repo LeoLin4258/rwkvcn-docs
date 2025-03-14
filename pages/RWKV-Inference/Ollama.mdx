@@ -5,6 +5,7 @@ keywords: Ollama RWKV,RWKV Ollama教程,怎么在Ollama中使用RWKV模型
 ---
 
 import { Callout } from 'nextra/components'
+import { Steps } from 'nextra/components'
 import { Tabs } from 'nextra/components'
 
 <Callout type="info" emoji="ℹ️">
@@ -15,7 +16,7 @@ import { Tabs } from 'nextra/components'
 
 本章节介绍如何在 Ollama 中使用 RWKV-6 模型进行推理。
 
-## 视频教程
+## 视频教程[#video-tutorial]
 
 <div className="iframe-container">
  <iframe 
@@ -31,15 +32,47 @@ import { Tabs } from 'nextra/components'
 高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1TrrdYmE7M/)观看。
 </Callout>
 
-## 下载 gguf 格式 RWKV 模型
+## Ollama 下载与安装[#ollama-download-and-install]
 
-Ollama 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` 格式模型。因此，我们需要从 [RWKV - GGUF 仓库](https://hf-mirror.com/latestissue) 下载 gguf 格式的 RWKV 模型。
+可从 [Ollama 官网](https://ollama.com/) 下载 Ollama 的安装程序。
+
+下载完成后，双击 exe 文件进行安装。安装完成后 `Ollama` 会自动启动，启动后可在系统任务栏看到 `Ollama` 图标。
+
+![ollama-icon](./imgs/ollama-icon.png)
+
+## 运行 RWKV 模型[#run-rwkv-model]
+
+以下两种方法可以在 Ollama 中运行 gguf 格式的 RWKV 模型：
+
+- **从 [Ollama 的 RWKV-6 仓库](https://ollama.com/mollysama/rwkv-6-world)下载**：操作简单，但 Ollama 提供的 RWKV 模型**只有 `q4_k_m` 量化版本**
+- **自定义 RWKV 模型**：需要手动下载 `gguf` 格式的 RWKV 模型并创建 `Modelfile` 配置文件，但是可以**自由运行任意量化的 RWKV 模型**
+
+<Tabs items={['从 Ollama 仓库下载', '自定义 RWKV 模型']}>
+<Tabs.Tab>
+[Ollama 的 RWKV-6 仓库](https://ollama.com/mollysama/rwkv-6-world) 提供了 1.6B、3B、7B、14B 四种参数规模的 RWKV-6-World 模型。
+
+![ollama-rwkv-6-model-repo](./imgs/ollama-rwkv-6-model-repo.png)
+
+在你的终端执行 `ollama run mollysama/rwkv-6-world:1.6b` 命令，即可自动**下载并运行** `q4_k_m` 量化版本的 RWKV-6-World 1.6B 模型。
+
+![ollama-run-rwkv-6-world-1.6b](./imgs/ollama-run-rwkv-6-world-1.6b.png)
+
+<Callout type="info" emoji="ℹ️">
+可以把 `1.6b` 换成 `3b`、`7b` 或 `14b`，以运行其他参数规模的 RWKV-6-World 模型。
+</Callout>
+</Tabs.Tab>
+<Tabs.Tab>
+
+<Steps>
+### 下载 RWKV gguf 模型[#download-rwkv-gguf-model]
+
+要自定义 RWKV 模型，需要先从 [RWKV - GGUF 仓库](https://huggingface.co/latestissue) 或 [Hugging Face 镜像站](https://hf-mirror.com/latestissue)下载 `gguf` 格式的 RWKV-6-World 模型。
 
 <Callout type="warning" emoji="⚠️">
 RWKV gguf 模型有各种量化版本，建议使用 `Q5_1`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变得很差。
 </Callout>
 
-## 创建模型的 Modelfile 文件
+### 创建模型的 Modelfile 文件[#create-model-modelfile]
 
 在存放 RWKV gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
 
@@ -70,15 +103,7 @@ PARAMETER stop "\nUser:"
 
 ![Modelfile](./imgs/ollama-Modelfile-content.png)
 
-## Ollama 的下载与安装
-
-可从 [Ollama 官网](https://ollama.com/) 下载 Ollama 的安装程序。
-
-下载完成后，双击 exe 文件进行安装。安装完成后 `Ollama` 会自动启动，启动后可在系统任务栏看到 `Ollama` 图标。
-
-![ollama-icon](./imgs/ollama-icon.png)
-
-## Ollama 运行 RWKV 模型
+### 运行自定义 RWKV 模型[#run-custom-rwkv-model]
 
 在 RWKV gguf 模型文件夹下打开终端，并执行 `ollama create` 命令：
 
@@ -101,7 +126,11 @@ ollama run rwkv-6-world-1.6b-Q8_0
 
 ![ollama-chat](./imgs/ollama-chat.png)
 
-## Ollama GUI 和桌面程序
+</Steps>
+</Tabs.Tab>
+</Tabs>
+
+## Ollama GUI 和桌面程序[#ollama-gui-and-desktop-program]
 
 Ollama 本身并没有提供 GUI 或 WebUI 服务，但其社区提供了第三方 GUI 和桌面程序。
 
@@ -111,3 +140,4 @@ Ollama 本身并没有提供 GUI 或 WebUI 服务，但其社区提供了第三�
 
 - [Ollama 官网](https://ollama.com/)
 - [RWKV gguf 模型仓库](https://huggingface.co/latestissue)
+- [Ollama 的 GitHub 文档](https://github.com/ollama/ollama?tab=readme-ov-file#web--desktop)
