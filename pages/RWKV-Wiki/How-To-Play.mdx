@@ -63,11 +63,27 @@ User: Please translate I love you into Chinese
  
 Assistant: <think>
 ```
+### Hugging Face（对话模式）[#Hugging-Face-Chat-Mode]
+
+我们也提供了 **RWKV-7 G1 系列推理模型** 的在线对话 Demo：
+
+<Cards>
+  <Card  icon={< LinkToSvg />} title="RWKV-7 G1 系列推理模型" href="https://huggingface.co/spaces/RWKV-Red-Team/RWKV-LatestSpace" />
+</Cards>
+
+可在此 Demo 体验已完成训练的 RWKV-7 G1 0.1B 模型，也可以切换到其他**正在训练中的 G1 模型**，如训练中的 G1 1.5B/2.9B 模型。
+
+![chat-demo](./imgs/rwkv-chat-demo.png)
+
+<Callout type="info" emoji="ℹ️">
+这个精美的 RWKV 对话界面由 RWKV 社区成员 [@Leon](https://leoncat.top/) 开源，仓库地址：[web-rwkv-realweb](https://github.com/Leon-Leo-Leo/RWKV-Chat-UI)。
+</Callout>
+
 ### RWKV WebGPU Demo[#RWKV-WebGPU-Demo]
 
 基于 [web-rwkv](https://github.com/cryscan/web-rwkv "web-rwkv") 的 [RWKV WebGPU Demo](https://cryscan.github.io/web-rwkv-puzzles/#/chat "RWKV WebGPU Demo") 由社区开发。
 
-**无需下载任何应用**，RWKV WebGPU Demo 在浏览器中本地运行 RWKV-7 模型，支持**聊天**、**解 15 谜题**、**音乐作曲**，以及**可视化查看 state 变化**等功能！
+**无需下载任何应用**，RWKV WebGPU Demo 在浏览器中**本地运行 RWKV-7 模型**，支持**聊天**、**解 15 谜题**、**音乐作曲**，以及**可视化查看 state 变化**等功能！
 
 加载模型后，RWKV 模型将在浏览器中离线运行，不需要任何服务器通信。
 
