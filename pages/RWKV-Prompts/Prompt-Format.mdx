@@ -5,7 +5,25 @@ import { Cards, Card } from 'nextra/components'
 import { Tabs } from 'nextra/components'
 import { LinkToSvg } from '/components/svgs.tsx'
 
-**与基于 Transformer 的模型相比，RWKV 对提示格式更敏感。**
+## 视频介绍[#video-introduction]
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=114159593195042&bvid=BV1XXQ3YoEXW&cid=28857797453&poster=1&p=0&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowfullscreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<Callout type="info" emoji="ℹ️">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1XXQ3YoEXW/)观看。
+</Callout>
+
+---
+
+**RWKV 是 RNN 的变体。出于架构原理，RWKV 对提示词的格式比 Transformer 更敏感。**
 
 RWKV 更适合 QA 和指令问答两种提示格式：
 
