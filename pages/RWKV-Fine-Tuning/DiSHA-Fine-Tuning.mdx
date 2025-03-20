@@ -151,6 +151,7 @@ pip install -r requirements.txt
 | `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
 | `--loss_mask pad` | 在数据末尾进行 padding，可改成 "qa" 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
 | `--peft disha` | 微调训练类型，DiSHA 微调填 disha 即可 |
+| `--op` | 选择算子，支持："cuda","fla","triton"，默认设置为"cuda" |
 | `--quant int8/nf4` | **可选**，RWKV 默认使用 `bf16` 训练精度，但也支持 `int8` 和 `nf4` 两种量化训练，推荐使用精度损失较小的 `int8` |
 | `--wandb RWKV-PEFT-Disha` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 </Steps>

@@ -152,7 +152,7 @@ pip install -r requirements.txt
 | `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
 | `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
 | `--loss_mask pad` | 在数据末尾进行 padding，可改成 "qa" 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
-| `--fla` | 是否启用 fla 以减小显存需求，bsz 小于 8 时建议开启 |
+| `--op` | 选择算子，支持："cuda","fla","triton"，默认设置为"cuda" |
 | `--peft pissa` | 训练类型，PiSSA 微调填 pissa，支持："lora", "state", "pissa", "bone" |
 | `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
 | `--train_parts` | 指定微调的模型区域，如“emb”、“head”、“time”、“ln”。训练时建议移除此参数，以使用默认值 ["time", "ln"]|
@@ -167,12 +167,12 @@ pip install -r requirements.txt
 ### 附录：run_pissa.sh 配置参考
 
 ``` bash copy filename="run_pissa.sh"
-load_model='/home/rwkv/models/basemodel/3b.pth'
-proj_dir='/home/rwkv/RWKV-PEFT/output_pissa'
-data_file='/home/rwkv/RWKV-PEFT/data/lora-test'
+load_model='/home/rwkv/RWKV-PEFT/model/RWKV-x070-World-0.4B-v2.9-20250107-ctx4096.pth'
+proj_dir='/home/rwkv/RWKV-PEFT/output-manjuan/pissa'
+data_file='/home/rwkv/RWKV-PEFT/data/test-1'
 
-n_layer=32
-n_embd=2560
+n_layer=24
+n_embd=1024
 
 micro_bsz=8
 epoch_save=1
@@ -184,19 +184,20 @@ pissa_config='{"pissa_load":"","pissa_init":"","pissa_r":32,"svd_niter":4}'
 
 python train.py --load_model $load_model \
 --proj_dir $proj_dir --data_file $data_file \
---data_type binidx --vocab_size 65536 \
---ctx_len $ctx_len --epoch_steps $epoch_steps --epoch_count 1 --epoch_begin 0 --epoch_save $epoch_save --micro_bsz $micro_bsz \
+--vocab_size 65536 \
 --n_layer $n_layer --n_embd $n_embd \
---pre_ffn 0 --head_qk 0 --lr_init 2e-5 --lr_final 2e-5 --warmup_steps 0 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
+--data_type binidx --dataload pad --loss_mask pad \
+--ctx_len $ctx_len --micro_bsz $micro_bsz \
+--epoch_steps $epoch_steps --epoch_count 1 --epoch_begin 0 --epoch_save $epoch_save \
+--lr_init 2e-5 --lr_final 2e-5 --warmup_steps 0 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
 --accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
---my_testing "x060" \
---dataload pad --loss_mask pad \
+--my_testing "x070" \
 --peft pissa --pissa_config $pissa_config \
-
-# 以下是可选参数
-# --wandb RWKV-PEFT-PiSSA
-# --fla （是否开启 fla 加快训练）
+# 以下是可选项
+# --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
+# --wandb RWKV-PEFT-LoRA （是否使用 wandb 监控训练过程）
 # --quant int8/nf4 （是否量化训练）
+# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay 
 ```
 
 ## 开始训练
