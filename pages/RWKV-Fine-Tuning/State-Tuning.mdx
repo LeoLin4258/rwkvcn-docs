@@ -153,7 +153,7 @@ pip install -r requirements.txt
 | `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
 | `--dataload pad` | 数据加载选项，pad 支持 bsz>1，only 限制 bsz=1 |
 | `--train_type "state"` | 训练类型 state tuning ，保持默认|
-| `--fla` | 是否启用 fla，bsz < 8 时建议开启以减小显存需求 |
+| `--op` | 选择算子，支持："cuda","fla","triton"，默认设置为"cuda" |
 | `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
 | `--wandb PEFT-State-tuning` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 
