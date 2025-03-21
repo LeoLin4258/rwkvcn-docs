@@ -455,12 +455,22 @@ RWKV-V7 的架构代号是 “Goose（雁）” 。RWKV-V7 **超越了 attention
 
 RWKV-V7 的研究始于 2024 年 9 月，其预览版 `RWKV-V7 "Goose" x070.rc2-2409-2r7a-b0b4a` 的训练代码首次提交于 RWKV-LM 仓库的 [commit](https://github.com/BlinkDL/RWKV-LM/commit/e1d143f526e28be61fc06571034dda179101a683) 中。
 
+<Callout type="info" emoji="ℹ️">
+RWKV-V7 架构论文《RWKV-7 "Goose" with Expressive Dynamic State Evolution》于 2025 年 3 月 18 日正式发布。
+
+论文地址：[https://arxiv.org/abs/2503.14456](https://arxiv.org/abs/2503.14456)
+</Callout>
+
 ![RWKV-V7 完整架构图](./images/RWKV-Architecture/rwkv-7-architecture.jpg)
 
 #### RWKV-V7 架构优化细节[#rwkv-7-optimization-details]
 
 <Callout type="info" emoji="ℹ️">
-RWKV-V7 采用了**动态状态演化**（Dynamic State Evolution），超越了 attention / linear attention 范式 $TC0$ 表达能力的根本限制。RWKV-V7 拥有 $NC1$ 的表达能力，使其可以解决许多 attention 无法解决的问题。
+RWKV-V7 采用了**动态状态演化**（Dynamic State Evolution）。通过一系列创新（例如广义 Delta Rule），RWKV-7 在计算效率、任务表现和模型表达力全面超越 Transformer 和过去的 RWKV-6 架构。
+
+在训练数据远低于 Qwen2.5、Llama3.2 等开源模型的前提下，RWKV-7-World 模型的**语言建模能力**在所有开源 3B 规模模型中达到 SoTA 水平。
+
+通过引入广义 Delta Rule，RWKV-7 使用 **2 层即可实现 $NC^1$ 复杂度的 $S_5$ 状态跟踪问题**，**使用 4 层即可识别所有正则语言**，表达力显著超越了 Transformers 的 $TC^0$ 限制。
 </Callout>
 
 简单地说，传统注意力机制（如 Transformer 的 QKV-softmax-attention）会将多个 ${k, v}$（key 和 value 的向量对）存储起来，通过 $q$（query，查询向量）去匹配 key，得到对应的 value 输出。
@@ -535,9 +545,6 @@ def ref_fwd(r, w, k, v, a, b):
     return out.view((B, T, C))
 
 ```
-<Callout type="warning" emoji="⚠️">
-RWKV-V7 论文由 RWKV 作者彭博和社区成员共同撰写。截至 2024 年 12 月，论文仍处于撰写阶段，暂无具体发布计划。
-</Callout>
 
 #### RWKV-V7 的模型发布[#rwkv-v7-model-release]
 
@@ -590,10 +597,13 @@ RWKV 架构由一系列堆叠的残差块组成，每个残差块由具有循环
 
 有关 RWKV-6 架构的代码解读，可以参考这篇博客：[介绍 RWKV-6 的模型设计，代码带注释](https://zhuanlan.zhihu.com/p/694593540) 。
 
+有关 RWKV-7 架构设计，可以参考博客：[RWKV-7：极先进的大模型架构，长文本能力极强](https://rwkv.cn/news/read?id=15) 。
+
 或者，你可以通过阅读 RWKV 论文学习：
 
 - [RWKV-4 架构论文 | arXiv（2305.13048）](https://arxiv.org/abs/2305.13048)
 - [RWKV 5 /6 架构论文 | arXiv（2404.05892）](https://arxiv.org/abs/2404.05892)
+- [RWKV-7 架构论文 | arXiv（2503.14456）](https://arxiv.org/abs/2503.14456)
 
 如果你对基础有了掌握，可以开始在[RWKV 主仓库](https://github.com/BlinkDL/RWKV-LM)中研究 RWKV 的训练和 CUDA 代码。
 

@@ -1,7 +1,7 @@
 ---
-title: SillyTraven 推理教程 - RWKV推理
-description: 本教程将介绍如何使用 SillyTraven 运行 RWKV 模型推理，并与模型聊天对话。
-keywords: SillyTraven RWKV,RWKV SillyTraven教程,SillyTraven中使用RWKV模型
+title: SillyTavern 推理教程 - RWKV推理
+description: 本教程将介绍如何使用 SillyTavern 运行 RWKV 模型推理，并与模型聊天对话。
+keywords: SillyTavern RWKV,RWKV SillyTavern教程,SillyTavern中使用RWKV模型
 ---
 
 import { Callout } from 'nextra/components'
@@ -14,26 +14,26 @@ import { Tabs } from 'nextra/components'
 SillyTavern 不具备模型推理功能，它需要与 LLM 推理服务器（例如 [llama.cpp](https://github.com/ggerganov/llama.cpp)、text-generation-webui 等）配合使用。
 </Callout>
 
-本文将介绍如何在 SillyTraven 中使用 RWKV 模型进行角色扮演任务。
+本文将介绍如何在 SillyTavern 中使用 RWKV 模型进行角色扮演任务。
 
-## SillyTraven 下载与安装[#download-and-install]
+## SillyTavern 下载与安装[#download-and-install]
 
 <Callout type="info" emoji="ℹ️">
 该教程以 Windows 系统为例，macOS 与 Linux 的安装方法请参考 SillyTavern 的[安装指导文档](https://docs.sillytavern.app/installation/linuxmacos/)。
 </Callout>
 
-首先，我们需要下载并安装 SillyTraven。安装步骤如下:
+首先，我们需要下载并安装 SillyTavern。安装步骤如下:
 
 1. 安装 [NodeJS](https://nodejs.org/)（建议使用最新的 LTS 版本）
-2. 从 SillyTraven Github 仓库的 [Releases](https://github.com/SillyTavern/SillyTavern/releases) 界面下载压缩包
+2. 从 SillyTavern Github 仓库的 [Releases](https://github.com/SillyTavern/SillyTavern/releases) 界面下载压缩包
 3. 压缩包解压后，双击运行 `Start.bat`，此脚本会自动安装 SillyTavern 所需的依赖项
 4. 安装完毕后，SillyTavern 会在你的浏览器中打开一个新标签页
 
-![SillyTraven-start](./imgs/SillyTraven-start.png)
+![SillyTavern-start](./imgs/SillyTavern-start.png)
 
 ## 连接本地 LLM 服务器[#connect-local-llm-server]
 
-SillyTavern 不具备模型推理功能，这里我们使用 [llama.cpp](https://github.com/ggerganov/llama.cpp) 作为 RWKV 模型的推理服务器，并使用 SillyTraven 进行聊天。
+SillyTavern 不具备模型推理功能，这里我们使用 [llama.cpp](https://github.com/ggerganov/llama.cpp) 作为 RWKV 模型的推理服务器，并使用 SillyTavern 进行聊天。
 
 <Callout type="info" emoji="ℹ️">
 请阅读 [llama.cpp 推理方法](https://rwkv.cn/llamacpp)，在本地安装并启动 llama.cpp 应用。
@@ -53,19 +53,19 @@ llama.cpp 服务器启动后，在 SillyTavern 中执行以下步骤，连接到
 4. 将服务器 URL 设置为 http://127.0.0.1:8080 
 5. 点击 Connect，即可连接到本地搭建的 llama.cpp 服务
 
-![SillyTraven-llamacpp](./imgs/SillyTraven-llamacpp.gif)
+![SillyTavern-llamacpp](./imgs/SillyTavern-llamacpp.gif)
 
 成功连接到本地的 llama.cpp 服务后，就可以与 AI 进行聊天了。
 
-![SillyTraven-bubble-sort-chat](./imgs/SillyTraven-bubble-sort.png)
+![SillyTavern-bubble-sort-chat](./imgs/SillyTavern-bubble-sort.png)
 
-## SillyTraven 角色扮演[#role-play]
+## SillyTavern 角色扮演[#role-play]
 
 SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与其进行对话。
 
 在 SillyTavern 中，点击 "角色管理" 按钮，可以看到 SillyTavern 自带的一个角色卡 Seraphina， 点击她的头像即可与该角色进行对话，并查看她的基本信息。
 
-![SillyTraven-seraphina](./imgs/SillyTraven-seraphina.png)
+![SillyTavern-seraphina](./imgs/SillyTavern-seraphina.png)
 
 除了自带的角色卡外，我们也可以[导入现成的角色卡文件](#import-role-card)或者[自己创建角色卡](#create-role)。
 
@@ -79,15 +79,15 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 
 然后在 SillyTavern 中，点击 `角色管理` 按钮，点击 `从文件导入角色`，选择下载好的角色卡文件导入即可。
 
-![SillyTraven-import-role-card](./imgs/SillyTraven-import-role-card.png)
+![SillyTavern-import-role-card](./imgs/SillyTavern-import-role-card.png)
 
 导入之后，可以在角色管理中看到导入的角色卡。
 
-![SillyTraven-import-role-card-success](./imgs/SillyTraven-import-role-card-success.png)
+![SillyTavern-import-role-card-success](./imgs/SillyTavern-import-role-card-success.png)
 
 之后点击导入的角色卡，即可与角色进行对话，并查看角色基本信息。
 
-![SillyTraven-import-role-card-chat](./imgs/SillyTraven-import-role-card-chat.png)
+![SillyTavern-import-role-card-chat](./imgs/SillyTavern-import-role-card-chat.png)
 
 ### 创建角色卡[#create-role]
 
@@ -95,7 +95,7 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 
 首先点击"角色管理"，然后点击"新建角色"。
 
-![SillyTraven-create-role](./imgs/SillyTraven-create-role.png)
+![SillyTavern-create-role](./imgs/SillyTavern-create-role.png)
 
 在这里我们输入**角色的名称和描述**，以及每次聊天时角色发送的**第一句话**，之后点击"创建角色"。
 
@@ -105,13 +105,13 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 
 创建角色描述的示例：
 
-![SillyTraven-role-description-demo](./imgs/SillyTraven-role-description-demo.png)
+![SillyTavern-role-description-demo](./imgs/SillyTavern-role-description-demo.png)
 
 创建完成后，点击创建的角色头像，即可与角色进行对话，并查看角色的基本信息。
 
-![SillyTraven-create-role-chat](./imgs/SillyTraven-create-role-chat.png)
+![SillyTavern-create-role-chat](./imgs/SillyTavern-create-role-chat.png)
 
-更多创建 SillyTraven 角色卡的教程，请查看：
+更多创建 SillyTavern 角色卡的教程，请查看：
 
 - Trappu's PLists + Ali:Chat guide: https://wikia.schneedc.com/bot-creation/trappu/creation
 - AliCat's Ali:Chat guide: https://rentry.co/alichat

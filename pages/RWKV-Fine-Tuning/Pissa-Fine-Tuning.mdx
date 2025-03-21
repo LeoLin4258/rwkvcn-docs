@@ -133,29 +133,28 @@ pip install -r requirements.txt
 | 参数 | 描述 |
 | --- | --- |
 | `--data_type binidx` | 训练语料的文件格式，支持："utf-8", "utf-16le", "numpy", "binidx", "dummy", "wds_img", "uint16" |
-| `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
+| `--vocab_size 65536` | 词表大小，默认为 `65536`，设置为 `0` 表示模型自动确定词汇表大小 |
 | `--epoch_count 10` | 总训练轮次 |
 | `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，通常保持默认值 0 |
 | `--head_qk 0` | 通常保持默认值 0，即关闭状态 |
-| `--lr_init 2e-5` | 初始学习率，PiSSA 建议 2e-5 ，最大不超过 1e-4 |
+| `--lr_init 2e-5` | 初始学习率，PiSSA 建议 `2e-5` ，最大不超过 `1e-4` |
 | `--lr_final 2e-5` | 最终学习率，建议和初始学习率保持一致 |
-| `--warmup_steps 0` | 预热步骤数，默认 0，加载模型时可尝试改成 50 |
+| `--warmup_steps 0` | 预热步骤数，默认 `0`，加载模型时可尝试改成 `50` |
 | `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
 | `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
 | `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
-| `--accelerator gpu` | 使用的加速器类型，目前主要支持 gpu， cpu 基本不支持训练 |
-| `--devices 1` | 显卡数量，单显卡填 1，多卡按实际数量填写 |
-| `--precision bf16` | 训练精度，建议保持默认值 bf16，支持："fp32", "tf32", "fp16", "bf16" |
-| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 deepspeed_stage_1，设备显存太小可将 1 改成 2 |
-| `--grad_cp 1` | 梯度累积步数，0 训练更快但需更多显存，1 训练较慢但节省显存 |
-| `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
-| `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
-| `--loss_mask pad` | 在数据末尾进行 padding，可改成 "qa" 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
-| `--op` | 选择算子，支持："cuda","fla","triton"，默认设置为"cuda" |
-| `--peft pissa` | 训练类型，PiSSA 微调填 pissa，支持："lora", "state", "pissa", "bone" |
-| `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
-| `--train_parts` | 指定微调的模型区域，如“emb”、“head”、“time”、“ln”。训练时建议移除此参数，以使用默认值 ["time", "ln"]|
+| `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`，`cpu` 基本不支持训练 |
+| `--devices 1` | 显卡数量，单显卡填 `1`，多卡按实际数量填写 |
+| `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
+| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
+| `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
+| `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 `x052`，v6 选 `x060` |
+| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
+| `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
+| `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
+| `--peft pissa` | 训练类型，PiSSA 微调填 `pissa`，支持：`lora`、`state`、`pissa`、`bone` |
+| `--quant int8/nf4` | RWKV 默认使用 `bf16` 训练精度，但支持 `int8` 和 `nf4` 两种量化训练类型，推荐使用精度损失较小的 `int8` |
 | `--wandb RWKV-PEFT-Pissa` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 
 <Callout type="warning" emoji="⚠️">

@@ -20,31 +20,39 @@ RWKV 项目最初由彭博（Bo Peng ，BlinkDL）提出，随着项目被外界
 
 RWKV 模型架构有 RWKV-4、RWKV-5（代号 Eagle）、RWKV-6（代号 Finch）、RWKV-7（代号 Goose） **四个正式版本**，更早以前的 RWKV 1/2/3 为实验版本。
 
-RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2023 年 5 月 22 日。同年 10 月，RWKV-4 架构论文被顶级会议 [EMNLP 2023](https://2023.emnlp.org/program/accepted_findings/) 收录。
+<Tabs items={['RWKV-7 架构', 'RWKV-6 架构', 'RWKV-4 架构']}>
+  <Tabs.Tab>
 
-- **RWKV-4 论文**：《RWKV: Reinventing RNNs for the Transformer Era》
-- **论文地址**：[arXiv:2305.13048](https://arxiv.org/abs/2305.13048)
+RWKV-7 架构是 RWKV 的最新版本，架构论文于 2025 年 3 月 18 日正式发布。
 
-RWKV 5/6 两个架构在 RWKV-4 架构的基础上进行了若干改进。因此，这两个架构在同一篇论文中发布。
+- **RWKV-7 论文**：RWKV-7 "Goose" with Expressive Dynamic State Evolution
+- **论文地址**：[arXiv:2503.14456](https://arxiv.org/abs/2503.14456)
 
-- RWKV 5/6 论文：《Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence》
-- 论文地址：[arXiv:2404.05892](https://arxiv.org/abs/2404.05892)
+通过一系列创新（例如广义 Delta Rule），RWKV-7 在计算效率、任务表现和模型表达力全面超越 Transformer 和过去的 RWKV-6 架构。
+
+在训练数据远低于 Qwen2.5、Llama3.2 等开源模型的前提下，RWKV-7-World 模型的**语言建模能力**在所有开源 3B 规模模型中达到 SoTA 水平。
+
+通过引入广义 Delta Rule，RWKV-7 使用 **2 层即可实现 $NC^1$ 复杂度的 $S_5$ 状态跟踪问题**，**使用 4 层即可识别所有正则语言**，表达力显著超越了 Transformers 的 $TC^0$ 限制。
 
 <Callout type="info" emoji="ℹ️">
-有关 RWKV5/6 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=382345)。
+有关 RWKV-7 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=20250320)。
 </Callout>
 
-RWKV-7 架构是 RWKV 的最新版本，架构的训练和推理代码均已定稿，架构论文正在由彭博和社区成员联合撰写。
-
-RWKV-7 采用了动态状态演化（Dynamic State Evolution），超越了 attention / linear attention 范式 $TC$0 表达能力的根本限制。
-<Tabs items={['RWKV-7 架构图', 'RWKV-6 架构图']}>
-  <Tabs.Tab>
 RWKV-7 架构图如下： 
 
 ![RWKV-7-architecture](./imgs/rwkv-7-architecture.jpg)
 
 </Tabs.Tab>
   <Tabs.Tab>
+RWKV-5/6 两个架构在 RWKV-4 架构的基础上进行了若干改进。因此，这两个架构在同一篇论文中发布。
+
+- **RWKV 5/6 论文**：《Eagle and Finch: RWKV with Matrix-Valued States and Dynamic Recurrence》
+- **论文地址**：[arXiv:2404.05892](https://arxiv.org/abs/2404.05892)
+
+<Callout type="info" emoji="ℹ️">
+有关 RWKV-5/6 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=382345)。
+</Callout>
+
 RWKV-6 架构图如下： 
 
 ![RWKV-6-architecture](./imgs/rwkv-6-architecture.png)
@@ -52,6 +60,12 @@ RWKV-6 架构图如下：
 <Callout type="info" emoji="ℹ️">
 RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在 [rwkv-wiki.fandom](https://rwkv.fandom.com/zh/wiki/RWKV-6%E6%9E%B6%E6%9E%84) 上找到原始版本。
 </Callout>
+</Tabs.Tab>
+<Tabs.Tab>
+RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2023 年 5 月 22 日。同年 10 月，RWKV-4 架构论文被顶级会议 [EMNLP 2023](https://2023.emnlp.org/program/accepted_findings/) 收录。
+
+- **RWKV-4 论文**：《RWKV: Reinventing RNNs for the Transformer Era》
+- **论文地址**：[arXiv:2305.13048](https://arxiv.org/abs/2305.13048)
 </Tabs.Tab>
 </Tabs>
 ## RWKV 模型的版本状态
@@ -62,7 +76,7 @@ RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在
 
 | 版本 | RWKV-V4 | RWKV-v5-Eagle | RWKV-v6-Finch | RWKV-v7-Goose |
 | --- | --- | --- | --- | --- |
-| 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | **✍️ 撰写中** |
+| 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2503.14456) |
 | 总体状态 | **⚠ EOL** | **⚠ EOL**| **✨ 稳定版本** | **⚙️ 模型训练中** |
 | 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) |
 | 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) |

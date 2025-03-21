@@ -139,22 +139,22 @@ pip install -r requirements.txt
 | `--epoch_begin 0` | 初始训练轮次，即从第 N 个 epoch 开始加载 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，有时可能有益 |
 | `--head_qk 0` | 通常保持默认值 0，即关闭状态 |
-| `--lr_init 1` | 初始学习率，state tuning 建议为 1，其他微调建议不超过 1e-4 |
-| `--lr_final 0.01` | 最终学习率，state tuning 建议为 0.01，其他微调建议不超过 1e-4  |
-| `--warmup_steps 10` | 预热步骤数，state tuning 建议为 10 |
+| `--lr_init 1` | 初始学习率，state tuning 建议为 `1`，其他微调建议不超过 `1e-4` |
+| `--lr_final 0.01` | 最终学习率，state tuning 建议为 `0.01`，其他微调建议不超过 `1e-4`  |
+| `--warmup_steps 10` | 预热步骤数，state tuning 建议为 `10` |
 | `--beta1 0.9` | Adam 优化器的 beta1 参数 |
 | `--beta2 0.99` | Adam 优化器的 beta2 参数 |
 | `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数 |
-| `--accelerator gpu` | 使用的加速器类型，目前主要支持 gpu， cpu 基本不支持训练 |
-| `--devices 1` | 单显卡填 1，多卡按实际数量填写 |
-| `--precision bf16` | 训练精度，默认为 bf16，支持："fp32", "tf32", "fp16", "bf16" |
-| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 deepspeed_stage_1 |
-| `--grad_cp 1` | 梯度累积步数，0 训练更快但需更多显存，1 训练较慢但节省显存 |
-| `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 x052，v6 选 x060 |
-| `--dataload pad` | 数据加载选项，pad 支持 bsz>1，only 限制 bsz=1 |
+| `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`， `cpu` 基本不支持训练 |
+| `--devices 1` | 单显卡填 `1`，多卡按实际数量填写 |
+| `--precision bf16` | 训练精度，默认为 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
+| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1` |
+| `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
+| `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 `x052`，v6 选 `x060` |
+| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
 | `--train_type "state"` | 训练类型 state tuning ，保持默认|
-| `--op` | 选择算子，支持："cuda","fla","triton"，默认设置为"cuda" |
-| `--quant int8/nf4` | RWKV 默认使用 bf16 训练精度，但支持 int8 和 nf4 两种量化训练类型，推荐使用精度损失较小的 int8 |
+| `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为`cuda` |
+| `--quant int8/nf4` | RWKV 默认使用 `bf16` 训练精度，但支持 `int8` 和 `nf4` 两种量化训练类型，推荐使用精度损失较小的 `int8` |
 | `--wandb PEFT-State-tuning` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 
 量化训练可以降低显存需求，但会导致模型精度损失。如果不需要量化训练，可以删除 `quant` 相关的参数。

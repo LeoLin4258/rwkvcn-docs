@@ -10,7 +10,7 @@ keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv�
 
 但为了保持泛化能力和通用性，RWKV 基底模型并未针对某一类任务作优化。因此，RWKV 模型在某些特定任务上的表现可能不够理想。
 
-而对 RWKV 模型进行微调，通俗地说，指的是使用特定领域（如法律、文学、医学等）或任务（材料总结、小说续写等）的高质量数据集对 RWKV 模型进行再次训练。微调过的 RWKV 模型在对应任务的表现会更高质量且稳定。
+而对 RWKV 模型进行微调，通俗地说，是**使用特定领域（如法律、文学、医学等）或任务（材料总结、小说续写等）的高质量数据集对 RWKV 模型进行再次训练**。微调过的 RWKV 模型在对应任务的表现会更高质量且稳定。
 
 相比于从头训练一个全新的模型，微调只需要调整预训练模型的参数就能达到满意的任务效果，需要的训练周期和计算资源更少。
 
@@ -24,16 +24,16 @@ keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv�
 
 最后，你需要准备用于微调训练的**数据集**。
 
-## 消费级显卡可以微调什么模型？
+## 消费级显卡可以微调什么模型？[#vram-of-fine-tuning]
 
 以下是消费级显卡（4090 或以下）的微调模型参考：
 
-|   模型尺寸         | 全参微调 | lora/pissa  | Qlora/Qpissa | State tuning |
+|   模型尺寸         | 全参微调 | DiSHA/LoRA/PISSA  | QLoRA/QPissa | State tuning |
 | --------- | ---- | ---- | ---- | ---- |
 | RWKV6-1.6B | 爆显存 | 7.4GB GPU | 5.6GB GPU | 6.4GB GPU |
 | RWKV6-3B | 爆显存  | 12.1GB GPU | 8.2GB GPU | 9.4GB GPU |
 | RWKV6-7B | 爆显存  | 23.7GB GPU(bsz 8 爆显存) | 14.9GB GPU(bsz 8 需要 19.5GB) | 18.1GB GPU |
 
-如你所见，消费级级显卡无法进行 RWKV-V6 的全参微调，即使是对最小尺寸的 RWKV6-1.6B 模型，全参微调也需要 A100 或更强大的 GPU 。
+{/* 如你所见，消费级显卡无法全参微调 RWKV 模型，即使是对最小尺寸的 RWKV7-1.6B 模型，全参微调也需要 A100 或更强大的 GPU 。
 
-但 24GB 显存可以尝试全参微调 [RWKV-V5 0.4B](https://huggingface.co/BlinkDL/rwkv-5-world/blob/main/RWKV-5-World-0.4B-v2-20231113-ctx4096.pth) ，本地跑通 RWKV 训练流程。
+但 24GB 显存可以尝试全参微调 [RWKV-7-World 0.4B](https://huggingface.co/BlinkDL/rwkv-7-world/tree/main) ，本地跑通 RWKV 训练流程。 */}
