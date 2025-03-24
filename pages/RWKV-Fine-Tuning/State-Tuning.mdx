@@ -189,10 +189,11 @@ python train.py --load_model $load_model \
 --my_testing "x060" \
 --train_type "state"  --dataload pad --wandb PEFT-State-tuning
 
-# 以下为可选项
-# --fla 
+# 以下是可选项
+# --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
+# --wandb RWKV-PEFT-LoRA （是否使用 wandb 监控训练过程）
 # --quant int8/nf4 （是否量化训练）
-# --wandb PEFT-State-tuning （是否使用 wandb 监控训练过程）
+# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay
 ```
 
 </Steps>
