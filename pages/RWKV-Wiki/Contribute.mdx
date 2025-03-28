@@ -11,86 +11,97 @@ import { Steps } from 'nextra/components'
 
 <Callout  emoji="🎁">
 我们将不定期为 RWKV 生态的贡献者赠送礼品，或提供开发资源帮助。
+
+此外，我们正在举办 [RWKV 2025 生态内容大赛](https://rwkv.cn/news/read?id=16)，提供海量现金奖励，且所有投稿均可获得 RWKV 周边一套！
 </Callout>
 
+## 社区成员的贡献方向
 
-## 帮助我们将 RWKV.cpp 库移植到 X 语言绑定
+根据您的兴趣和技能点选择一个贡献方向，并加入对应的社区群聊，以参与贡献。
 
-在某种你最熟悉的编程语言中实现 RWKV.cpp 库，可帮助我们将 RWKV 集成到新的领域。详情请参阅 [RWKV.cpp](https://github.com/saharNooby/rwkv.cpp)项目。
+### 帮助我们改进文档[#docs]
 
-语言绑定的示例请参见 NodeJS 项目 [rwkv-cpp-node](https://www.npmjs.com/package/rwkv-cpp-node) 。
+<Callout type="info" emoji="ℹ️">
+RWKV 中文文档[已经开源](https://github.com/LeoLin4258/rwkvcn-docs)，请帮助我们**改进文档**，使其他用户可以更轻松地使用 RWKV 模型/应用。
+</Callout>
 
-## 帮助我们改进 RWKV.cpp / rwkv-cpp-cuda 库
+我们欢迎各种形式的文档贡献，包括但不限于：
 
-我们通常会推荐用户通过 RWKV.cpp / rwkv-cpp-cuda 来使用 RWKV 模型，请帮助我们提高 RWKV.cpp / rwkv-cpp-cuda 库的性能，或提升该库的易用性。
+- 为文档提供更好的表达方法
+- 撰写 RWKV 相关的教程或用户案例
+- 录制 RWKV 的在线视频教程
+- 设计全新的文档形式
 
-## 帮助我们处理数据集
+可以加入 RWKV 社区文档贡献与交流组（QQ 群 1022164805），沟通并参与文档贡献。
 
-RWKV 的长期目标是为每个人制作一个适用于每种语言的 AI 模型。请帮助我们构建多语言（非英语）数据集，使之成为可能。
+### 试用 RWKV 模型和应用[#test]
 
-可以在 discord 的 [#dataset channel](https://discord.gg/uMpzuDwcu5) 频道或中参与此工作。
+试用**最新的 RWKV 模型和处于内测阶段的应用**，并提供真实的用户反馈，帮助我们改进模型和应用。
 
-## 帮助我们进行基准测试评估
+加入 RWKV 应用/项目内测群（QQ 群 332381861），以了解并体验 RWKV 的最新产品/项目。
 
-RWKV 可以通过更一致、更容易复制的基准测试得到改进，帮助我们构建并运行这样的基准测试，以便更好地将 RWKV 与现有的开源模型进行比较。
+### 开发 RWKV 应用
 
-一个示例是由 RWKV 社区成员 @Jellyfish042 构建的 [Uncheatable Eval](https://github.com/Jellyfish042/uncheatable_eval)，这是一项“无法作弊的 LLM 基准测试”，尝试使用新的 arXiv 论文和 BBC 新闻来评估语言模型的建模能力。
+开发基于 RWKV 的 应用，比如 ChatBot、推理工具、训练方法等。
 
-## 只需使用 RWKV
+以下是社区开发的 RWKV 应用，仅供参考：
 
-找到 RWKV 的用例并尝试它，以帮助我们找到并修复 RWKV 的错误。
+- [00ffcc/conRWKV](https://github.com/00ffcc/conRWKV)：一个高并发的 RWKV 云端推理引擎
+- [Jellyfish042/Sudoku-RWKV](https://github.com/Jellyfish042/Sudoku-RWKV)：一个解决数独谜题的专用 RWKV 模型
 
-或帮助我们改进文档，使其他人更容易使用 RWKV。
+在 RWKV 技术研发群（QQ 群 332381861）中讨论并分享您的 RWKV 应用。
 
-## 帮助我们开展多模型工作
+### 进行 RWKV 基准测试[#benchmark]
 
-我们欢迎大家探究 RWKV 语言模型之外的多模态工作，比如图像、音乐、时序预测，或其他类型的工作。
+<Callout type="info" emoji="ℹ️">
+想要让 RWKV 变得更好，则需要有可靠的测试方法来评估它的表现。
+</Callout>
+如果你能帮我们**设计全新的基准测试**，或者**运行一些常见的模型测试**，就能更清楚地看出 RWKV 和其他开源模型相比有什么优势和不足。
 
- RWKV 现有的多模态的工作可以在以下链接找到：
+一个示例是由 RWKV 社区成员 [@Jellyfish042](https://github.com/Jellyfish042) 构建的 [Uncheatable Eval](https://github.com/Jellyfish042/uncheatable_eval)，这是一项“无法作弊的 LLM 基准测试”，尝试使用新的 arXiv 论文和 BBC 新闻来评估语言模型的建模能力。
 
-- RWKV Music 
-    - [GitHub 仓库](https://github.com/BlinkDL/ChatRWKV/tree/main/music)
-    - [模型下载](https://huggingface.co/BlinkDL/rwkv-5-music/tree/main)
+在 RWKV 技术研发群（QQ 群 332381861）中讨论并分享您关于 RWKV 的基准测试结果。
 
-- Vision-RWKV 
-    - 相关论文：Vision-RWKV: Efficient and Scalable Visual Perception with RWKV-Like Architectures
-    - [论文地址](https://arxiv.org/abs/2403.02308)
-    - [GitHub 仓库](https://github.com/OpenGVLab/Vision-RWKV)
-    - [模型下载](https://huggingface.co/OpenGVLab/Vision-RWKV/tree/main) 
+### 提供多语言数据集[#dataset]
+
+<Callout type="info" emoji="ℹ️">
+RWKV 的目标是训练适用于**全球所有语言**的 AI 模型。
+</Callout>
+
+请帮助我们构建多语言（非英语）数据集，使 RWKV 模型能更好地支持全球语言。
+
+可以在 RWKV discord 的 [#dataset channel](https://discord.gg/uMpzuDwcu5) 频道或 RWKV技术研发群（QQ 群 332381861）中参与此工作。
+
+### 帮助我们开展多模态工作[#multimodal]
+
+<Callout type="info" emoji="ℹ️">
+欢迎大家探究 RWKV 语言模型之外的多模态工作，比如图像（Visual、Diffusion）、语音（TTS、ASR），或其他类型的工作。
+
+RWKV 现有的多模态等学术研究可以在 [RWKV 生态](https://rwkv.cn/eco) 中找到：
+</Callout>
+
+一些代表性的 RWKV 多模态研究工作：
 
 - VisualRWKV
     - [GitHub 仓库](https://github.com/howard-hou/VisualRWKV)
     - [模型下载](https://huggingface.co/howard-hou/visualrwkv-5)
     - [在线 Demo](https://huggingface.co/spaces/howard-hou/VisualRWKV-Gradio-1) 
 
-- Diffusion-RWKV
-  
-    - 相关论文：Diffusion-RWKV: Scaling RWKV-Like Architectures for Diffusion Models
-    - [论文地址](https://arxiv.org/abs/2404.04478)
-    - [GitHub 仓库](https://github.com/feizc/Diffusion-RWKV)
-    - [模型下载](https://huggingface.co/feizhengcong/Diffusion-RWKV/tree/main )
-
-- RWKV-TS（时间序列）
-
-    - 相关论文： RWKV-TS: Beyond Traditional Recurrent Neural Network for Time Series Tasks
-    - [论文地址](https://arxiv.org/abs/2404.04478)
-    - [GitHub 仓库](https://github.com/howard-hou/RWKV-TS )
-
 - RWKV ASR（自动语音识别）
 
     - 相关论文：Exploring RWKV for Memory Efficient and Low Latency Streaming ASR
     - [论文地址](https://arxiv.org/abs/2309.14758 )
-
-- RWKV OAD（在线动作检测）
-
-    - 相关论文：TLS-RWKV: Real-Time Online Action Detection with Temporal Label Smoothing
-    - [论文地址](https://link.springer.com/article/10.1007/s11063-024-11540-0)
 
 - pointRWKV（基于 RWKV 的 3D 点云学习框架）
 
     - 相关论文：PointRWKV: Efficient RWKV-Like Model for Hierarchical Point Cloud Learning 
     - [论文地址](https://arxiv.org/pdf/2405.15214)
     - [GitHub 仓库](https://github.com/hithqd/PointRWKV)
+
+- RWKV-UI: 用户界面（UI）理解
+
+    - 相关论文：UI Understanding with Enhanced Perception and Reasoning
+    - [论文地址](https://arxiv.org/abs/2502.03971)
 
 
 ## RWKV 贡献者公约

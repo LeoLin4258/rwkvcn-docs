@@ -5,6 +5,7 @@ keywords: RWKV LoRA微调,rwkv lora微调教程,rwkv微调参数
 ---
 
 import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
 import { Steps } from 'nextra/components'
 
 <Callout type="info" emoji="ℹ️">
@@ -28,17 +29,31 @@ PiSSA 与 LoRA 微调的架构一致，只是初始化 Adapter 的方式不同�
 
 RWKV PiSSA 微调的显存（GPU VRAM）需求可参考下表：
 
-|   模型参数 | bf16  | int8 | nf4 |
+<Tabs items={["RWKV7 模型", "RWKV6 模型"]}>
+<Tab>
+| 模型参数 | bf16  | int8 | nf4 |
 | --------- | ---- | ---- | ---- |
-| RWKV-6-1.6B | 7.3GB  | 5.9GB  | 5.4GB  |
-| RWKV-6-3B  | 11.8GB  | 9.4GB  | 8.1GB  |
-| RWKV-6-7B | 23.7GB| 17.3GB | 14.9GB  |
+| RWKV7-0.1B | 2.6GB GPU | 2.4GB GPU  | 2.5GB GPU  |
+| RWKV7-0.4B | 3.4GB GPU  | 3GB GPU  | 2.7GB GPU  |
+| RWKV7-1.5B | 5.6GB GPU  | 4.6GB GPU  | 3.9GB GPU  |
+| RWKV7-3B | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  |
+</Tab>
+<Tab>
+| 模型参数 | bf16  | int8 | nf4 |
+| --------- | ---- | ---- | ---- |
+| RWKV6-1.6B | 7.3GB GPU  | 5.9GB GPU  | 5.4GB GPU  |
+| RWKV6-3B  | 11.8GB GPU  | 9.4GB GPU  | 8.1GB GPU  |
+| RWKV6-7B | 23.7GB GPU | 17.3GB GPU | 14.9GB GPU  |
+</Tab>
+</Tabs>
 
 上表的数据基于以下训练参数：
 
 - ctxlen=1024 
 - micro_bsz=1
 - strategy=deepspeed_stage_1
+- pissa_r=32
+- svd_niter=4
 
 随着训练参数的变更，RWKV PiSSA 微调所需显存会发生改变。
 

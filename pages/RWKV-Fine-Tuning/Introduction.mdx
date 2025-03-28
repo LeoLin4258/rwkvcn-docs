@@ -4,6 +4,9 @@ description: RWKV微调文档提供RWKV的LoRA、State tuning、Pissa、Lisa等�
 keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv方法
 ---
 
+import { Tabs, Tab } from 'nextra/components'
+import { Callout } from 'nextra/components'
+
 ## 为什么要微调 RWKV 模型？
 
 目前开源发布的 RWKV 模型均为基底模型（base model ，又称预训练模型），基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
@@ -26,14 +29,61 @@ keywords: RWKV微调, rwkv微调教程, RWKV模型微调,RWKV微调实验,rwkv�
 
 ## 消费级显卡可以微调什么模型？[#vram-of-fine-tuning]
 
-以下是消费级显卡（4090 或以下）的微调模型参考：
+<Callout type="info" emoji="ℹ️">
+以下是 RWKV-PEFT 各类微调方法搭配不同训练精度的显存需求，我们的测试基于 24GB 显存的 4090 显卡。
+</Callout>
+
+### RWKV-7 模型微调显存需求[#vram-of-rwkv-7-fine-tuning]
+
+<Tabs items={["State tuning", "LoRA 微调", "DiSHA 微调", "PiSSA 微调"]}>
+<Tab>
+**RWKV-7 模型进行 [State tuning](./State-Tuning.mdx) 的显存需求：**
+
+| 模型参数 | bf16  | int8 量化 | nf4 量化 |
+|------------|---------|--------|--------|
+| RWKV7-0.1B | 2.6GB GPU   | 2.4GB GPU  | 2.5GB GPU  | 
+| RWKV7-0.4B | 3.1GB GPU  | 2.9GB GPU  | 2.8GB GPU  | 
+| RWKV7-1.5B | 5.3GB GPU  | 4.1GB GPU  | 3.7GB GPU  | 
+| RWKV7-3B   | 8.2GB GPU  | 5.7GB GPU  | 4.7GB GPU  | 
+</Tab>
+<Tab>
+**RWKV-7 模型进行 [LoRA 微调](./LoRA-Fine-Tuning.mdx) 的显存需求：**
+
+| 模型参数 | bf16  | int8 量化 | nf4 量化 |
+|------------|---------|--------|--------|
+| RWKV7-0.1B | 2.7GB GPU   | 2.5GB GPU  | 2.4GB GPU  | 
+| RWKV7-0.4B | 3.4GB GPU  | 2.9GB GPU  | 2.7GB GPU  | 
+| RWKV7-1.5B | 5.6GB GPU  | 4.6GB GPU  | 3.9GB GPU  | 
+| RWKV7-3B   | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  | 
+</Tab>
+<Tab>
+**RWKV-7 模型进行 [DiSHA 微调](./DiSHA-Fine-Tuning.mdx) 的显存需求：**
+
+| 模型参数 | bf16  | int8 量化 | nf4 量化 |
+|------------|---------|--------|--------|
+| RWKV7-0.1B | 2.7GB GPU   | 2.5GB GPU  | 2.4GB GPU  | 
+| RWKV7-0.4B | 3.1GB GPU  | 2.9GB GPU  | 2.7GB GPU  | 
+| RWKV7-1.5B | 5.6GB GPU  | 4.5GB GPU  | 3.9GB GPU  | 
+| RWKV7-3B   | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  | 
+</Tab>
+<Tab>
+**RWKV-7 模型进行 [PiSSA 微调](./Pissa-Fine-Tuning.mdx) 的显存需求：**
+
+| 模型参数 | bf16  | int8 量化 | nf4 量化 |
+|------------|---------|--------|--------|
+| RWKV7-0.1B | 2.6GB GPU   | 2.5GB GPU  | 2.4GB GPU  | 
+| RWKV7-0.4B | 3.4GB GPU  | 3.0GB GPU  | 2.7GB GPU  | 
+| RWKV7-1.5B | 5.6GB GPU  | 4.6GB GPU  | 3.9GB GPU  | 
+| RWKV7-3B   | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  | 
+</Tab>
+</Tabs>
+
+### RWKV-6 模型微调显存需求[#vram-of-rwkv-6-fine-tuning]
+
+RWKV-6 模型微调的显存需求比 RWKV-7 略高，以下显存需求仅供参考：
 
 |   模型尺寸         | 全参微调 | DiSHA/LoRA/PISSA  | QLoRA/QPissa | State tuning |
 | --------- | ---- | ---- | ---- | ---- |
 | RWKV6-1.6B | 爆显存 | 7.4GB GPU | 5.6GB GPU | 6.4GB GPU |
 | RWKV6-3B | 爆显存  | 12.1GB GPU | 8.2GB GPU | 9.4GB GPU |
 | RWKV6-7B | 爆显存  | 23.7GB GPU(bsz 8 爆显存) | 14.9GB GPU(bsz 8 需要 19.5GB) | 18.1GB GPU |
-
-{/* 如你所见，消费级显卡无法全参微调 RWKV 模型，即使是对最小尺寸的 RWKV7-1.6B 模型，全参微调也需要 A100 或更强大的 GPU 。
-
-但 24GB 显存可以尝试全参微调 [RWKV-7-World 0.4B](https://huggingface.co/BlinkDL/rwkv-7-world/tree/main) ，本地跑通 RWKV 训练流程。 */}
