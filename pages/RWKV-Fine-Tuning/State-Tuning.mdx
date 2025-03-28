@@ -5,6 +5,7 @@ keywords: rwkv State Tuning微调,state tuning微调步骤,rwkv微调参数
 ---
 
 import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
 import { Steps } from 'nextra/components'
 
 <Callout type="info" emoji="ℹ️">
@@ -18,18 +19,29 @@ RWKV 是纯 RNN，因此可以做 transformer 难以做到的事情。例如，�
 
 State tuning 的显存需求可参考下表：
 
-| 模型参数 | fp16  | int8  | nf4  |
+<Tabs items={["RWKV7 模型", "RWKV6 模型"]}>
+<Tab>
+| 模型参数 | bf16  | int8  | nf4  |
+|------------|---------|--------|--------|
+| RWKV7-0.1B | 2.6GB GPU   | 2.4GB GPU  | 2.5GB GPU  | 
+| RWKV7-0.4B      | 3.1GB GPU  | 2.9GB GPU  | 2.8GB GPU  | 
+| RWKV7-1.5B      | 5.3GB GPU  | 4.1GB GPU  | 3.7GB GPU  | 
+| RWKV7-3B      | 8.2GB GPU  | 5.7GB GPU  | 4.7GB GPU  | 
+</Tab>
+<Tab>
+| 模型参数 | bf16  | int8  | nf4  |
 |------------|---------|--------|--------|
 | RWKV6-1.6B | 5.8GB GPU   | 4.5GB GPU  | 3.9GB GPU  | 
 | RWKV6-3B      | 8.7GB GPU  | 6.2GB GPU  | 4.9GB GPU  | 
 | RWKV6-7B      | 17.8GB GPU    | 11.9GB GPU  | 8.5GB GPU  | 
+</Tab>
+</Tabs>
 
 上表的数据基于以下测试参数:
 
 - ctxlen=1024 
 - micro_bsz=1
 - strategy=deepspeed_stage_1
-
 
 ## 整理训练数据
 
