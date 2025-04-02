@@ -98,6 +98,27 @@ Assistant: <think
 这个精美的 RWKV 对话界面由 RWKV 社区成员 [@Leon](https://leoncat.top/) 开源，仓库地址：[web-rwkv-realweb](https://github.com/SolomonLeon/web-rwkv-realweb)。
 </Callout>
 
+
+### RWKV APP Demo[#RWKV-App-Demo]
+
+RWKV 社区已经完成了 Android 和 iOS 端的 APP 开发，现在大家可以在手机上体验本地部署的 RWKV -7 系列模型了！！！
+
+加载模型后，RWKV 模型可以在本地运行
+
+<Cards>
+  <Card  icon={< LinkToSvg />} title="Android 端下载地址" href="https://www.pgyer.com/rwkvchat" />
+  <Card  icon={< LinkToSvg />} title="iOS 端下载地址" href="https://testflight.apple.com/join/DaMqCNKh" />
+</Cards>
+以下是搭载高通骁龙 8Gen2 芯片的手机的实测效果：
+
+![App-demo](./imgs/App-demo.png)
+ 
+RWKV7-G1 0.4B 可以在这台中端机上稳定达到 30token/s 的输出速度！
+
+<Callout type="info" emoji="ℹ️">
+这两个 APP 由 RWKV 社区成员 [@MollySophia](https://github.com/MollySophia) 和 [@HaloWang](https://github.com/HaloWang) 开源，仓库地址：[rwkv_mobile_flutter](https://github.com/MollySophia/rwkv_mobile_flutter)
+</Callout>
+
 ### RWKV WebGPU Demo[#RWKV-WebGPU-Demo]
 
 基于 [web-rwkv](https://github.com/cryscan/web-rwkv "web-rwkv") 的 [RWKV WebGPU Demo](https://cryscan.github.io/web-rwkv-puzzles/#/chat "RWKV WebGPU Demo") 由社区开发。
@@ -170,7 +191,7 @@ RWKV Runner 的具体用法可以参考 [RWKV Runner 使用教程](https://rwkv.
 
 ### AI00 RWKV Server
 
-Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 语言模型推理 API 服务器。它本身也是一个基于 MIT 协议的开源软件，由 RWKV 开源社区成员 @cryscan 和@顾真牛牵头成立的 Ai00-x 开发组开发。
+Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 语言模型推理 API 服务器。它本身也是一个基于 MIT 协议的开源软件，由 RWKV 开源社区成员 @cryscan 和 @顾真牛 牵头成立的 Ai00-x 开发组开发。
 
 Ai00 Server 支持 Vulkan 作为推理后端，支持 Vulkan 并行和并发批量推理，可以在所有支持 Vulkan 的 GPU 上运行。事实上， Ai00 Server 支持大部分 NVIDIA、AMD、Intel 的显卡（包括集成显卡）。
 

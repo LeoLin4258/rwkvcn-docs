@@ -18,12 +18,14 @@ import { Cards, Card } from 'nextra/components'
 
 ## 官方 RWKV 链接
 
+- RWKV 各种模块的 torch 实现：[https://github.com/RWKV/RWKV-block](https://github.com/RWKV/RWKV-block)
 - RWKV 官方仓库: [https://github.com/BlinkDL/RWKV-LM](https://github.com/BlinkDL/RWKV-LM)
 - [RWKV pip 包](https://pypi.org/project/rwkv/)：RWKV 的 pip 包，具体用法可以查看 [RWKV pip 使用指南](https://rwkv.cn/RWKV-Developer/RWKVpip)
 - [RWKV-CUDA](https://github.com/BlinkDL/RWKV-CUDA)：RWKV 的官方 CUDA 算子
 - [Hugging face 文档](https://huggingface.co/docs/transformers/model_doc/rwkv)：Hugging Face 关于 RWKV 的介绍
 - RWKV-4 架构论文 ：[arXiv（2305.13048）](https://arxiv.org/abs/2305.13048)
 - RWKV 5 /6 架构论文：[arXiv（2404.05892）](https://arxiv.org/abs/2404.05892)
+- RWKV-7 架构论文：[arXiv（2503.14456）](https://arxiv.org/abs/2503.14456)
 
 ## RWKV 微调/训练工具
 
@@ -50,6 +52,7 @@ import { Cards, Card } from 'nextra/components'
 
 ###  Pytorch 原生实现
 
+- [RWKV_Explained](https://github.com/SmerkyG/RWKV_Explained)：RWKV 的pytorch实现和代码解释
 - [RWKV_Pytorch](https://github.com/yuunnn-w/RWKV_Pytorch)：用纯 Pytorch 原生实现的 RWKV 模型推理框架
 - [rwkv-kit](https://github.com/TorchRWKV/rwkv-kit)：RWKV 模型推理框架，支持批量推理、并行推理训练等各种功能
 
@@ -81,6 +84,12 @@ import { Cards, Card } from 'nextra/components'
 - [RWKV-Infer](https://github.com/OpenMOSE/RWKV-Infer)：使用 FLA 进行 RWKV-V6 推理，支持组合多个状态进行推理
 - [MLC LLM](https://github.com/mlc-ai/mlc-llm)：机器学习编译器和高性能部署引擎，支持 RWKV 模型
 
+### C# 实现
+- [RWKVSharp](https://github.com/imxcstar/RWKVSharp/)：使用 C# 封装的 RWKV 模型推理，支持多版本 RWKV 
+
+### 纯 C 语言实现
+- [rwkv7.c](https://github.com/ggml-org/llama.cpp/blob/master/convert_hf_to_gguf.py)：使用纯 C 语言实现 RWKV-V7 的推理
+
 ## RAG （知识检索增强）系统
 
 - [RWKV-RAG](https://github.com/AIIRWKV/RWKV-RAG)：基于 RWKV 模型的一键 RAG 部署系统，可轻松搭建和管理本地知识库，同时提供了基于本地知识库的问答机器人和 RWKV 一键微调功能
@@ -111,8 +120,13 @@ import { Cards, Card } from 'nextra/components'
 多模态指除了文本任务以外的其他任务。
 </Callout>
 
+### 全模态 
+
+- **（开发中）**[WorldRWKV](https://github.com/JL-er/WorldRWKV): 使用纯 RWKV7 架构实现任意模态的训练推理
+
 ### 图像/图形相关
 
+- [RwkvCompress](https://github.com/sjtu-medialab/RwkvCompress)：基于 RWKV 的图像压缩模型，可以对图像进行高效压缩和重建
 - [VisualRWKV](https://github.com/howard-hou/VisualRWKV) ：基于 RWKV 的视觉语言模型，可处理视觉任务
 - [Vision-RWKV](https://github.com/OpenGVLab/Vision-RWKV)：基于 RWKV 的视觉感知模型，能平滑处理高分辨率图像
 - [Diffusion-RWKV](https://github.com/feizc/Diffusion-RWKV)：基于 RWKV 的图像生成任务模型，擅长处理高分辨率图像
@@ -129,6 +143,7 @@ import { Cards, Card } from 'nextra/components'
 
 ### 时间序列
 
+- [BlackGoose Rimer](https://github.com/Alic-Li/BlackGoose_Rimer)：速度和性能均超越 Transformer 的纯 RWKV 时间序列任务模型
 - [RWKV-TS](https://github.com/howard-hou/RWKV-TS)：基于 RWKV 的时间序列任务模型，低延迟和内存占用
 
 ### 机器人/具身智能
