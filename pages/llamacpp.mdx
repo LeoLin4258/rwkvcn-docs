@@ -60,7 +60,7 @@ llama.cpp 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` �
 
 <Tabs items={[' 下载现成 gguf 模型（推荐）', '从 HF 格式转换成 .gguf']}>
   <Tabs.Tab> 
-可以从 [RWKV-6-World-GGUF 仓库](https://modelscope.cn/collections/RWKV-6-World-GGUF-f06d2c9def1349) 下载已量化并转化成 gguf 格式的 RWKV 模型。
+可以从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载已量化并转化成 gguf 格式的 RWKV 模型。
 
 <Callout type="info" emoji="ℹ️">
 请在 llama.cpp 目录下新建一个 models 文件夹，将下载的 gguf 模型放入 models 文件夹中。
@@ -76,13 +76,18 @@ RWKV gguf 模型有多种量化类型，精度越高模型的回复效果越好�
   <Tabs.Tab> 
   首先，从 [RWKV - HF 仓库](https://huggingface.co/RWKV) 或[镜像仓库](https://hf-mirror.com/RWKV)（国内可访问）下载一个 Hugging Face 格式的 RWKV 模型，如 `RWKV/v6-Finch-1B6-HF`。
 
+接着到使用下列命令，下载 `llama.cpp` 的源码：
+```bash copy
+git clone https://github.com/ggml-org/llama.cpp.git
+```
+
 然后在 llama.cpp 目录运行此命令，将 Hugging Face 模型转成 gguf 格式： 
 
 ``` bash copy
 python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 ```
 <Callout type="warning" emoji="⚠️">
- 请将上述命令中的 `./v6-Finch-1B6-HF` 改成你下载的 RWKV HF 模型目录。
+ 请将上述命令中的 `llama.cpp/convert_hf_to_gguf.py` 和 `./v6-Finch-1B6-HF` 改成你下载的代码和 RWKV HF 模型目录。
 </Callout>
 <Callout type="info" emoji="ℹ️">
  如果你已经下载了 `.pth` 格式的模型，可以使用附录中的 [pth-to-HF 脚本](#appendix-code) 将模型转为 HF 格式，再从 HF 格式转为 gguf 格式。
@@ -95,7 +100,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 在 llama.cpp 目录运行以下命令，可以开启 llama.cpp 的命令行**对话模式**：
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv7-0.4B-world-F16.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
 ```
 这条命令通过 `llama-cli` 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、并根据给定的初始 prompt `You are a helpful assistant` 开启对话，每次生成最多 500 个 token。
 
@@ -104,7 +109,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 **参数解释：**
 
 - `./llama-cli`：启动编译好的 llama-cli 程序
-- `-m models/rwkv-6-world-7b-Q8_0.gguf`：模型的路径参数
+- `-m models/rwkv7-0.4B-world-F16.gguf`：模型的路径参数
 - `-p "You are a helpful assistant"`：初始 prompt 参数，模型根据该提示词开启对话
 - `-cnv`：开启对话模式，此参数为默认参数，可以省略
 - `-t 8`：指定线程数，建议根据可用的物理 CPU 核心数调整
@@ -126,7 +131,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 </Callout>
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -no-cnv -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv7-0.4B-world-F16.gguf -p "User: What's mbti?tell me in chinese.\n\nAssistant:" -no-cnv -t 8 -ngl 99 -n 500
 ```
 
 ![RWKV 模型续写推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.png)
@@ -153,7 +158,7 @@ python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
 在 llama.cpp 目录运行 `./llama-quantize [input_model] [output_model] [quantization_type]` 命令，可以对 `fp32` 和 `fp16` 的 `.gguf` 模型进行量化，例如：
 
 ``` bash copy
-./llama-quantize models/rwkv-6-world-1.6b-F16.gguf models/rwkv-6-world-1b6-Q8_0.gguf Q8_0
+./llama-quantize models/rwkv7-0.4B-world-F16.gguf models/rwkv-6-world-1b6-Q8_0.gguf Q8_0
 ```
 <Callout type="warning" emoji="⚠️">
 输入模型的精度限制为 `fp32` 和 `fp16`，推荐使用 `Q5_1`、 `Q8_0` 两种量化精度。
