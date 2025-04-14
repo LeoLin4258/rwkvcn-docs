@@ -1,0 +1,35 @@
+---
+title: RWKV 高级教程
+description: 训练环境的配置、训练数据集的准备，以及各种具体的微调和训练方法
+---
+
+import { CardContainer } from 'components-docs/card/card-container.tsx'
+import { Card } from 'components-docs/card/card.tsx'
+import { LibraryBig, Wrench, Database, Dumbbell, Sparkles, Puzzle, Layers, Brain, FlaskRound } from "lucide-react";
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type='info'>
+欢迎来到 RWKV 的高级教程，高级教程包含 RWKV 模型的**微调和 RLHF 等训练方法**，包含：
+
+- 训练环境的配置、训练数据集的准备工作
+- 各种具体的微调方法
+</CallOut>
+
+### 微调简介和准备工作
+<CardContainer>
+<Card image="color-13.png" icon={LibraryBig} iconColor='text-red-400'    title="微调简介" description="为什么要微调 RWKV 模型？微调之前需要准备什么？" link="/tutorials/advanced/Fine-Tune/Introduction" />
+<Card image="color-11.png" icon={Wrench}     iconColor='text-blue-500'   title="配置训练环境" description="配置 Pytorch 等 RWKV 微调训练所需的软件环境" link="/tutorials/advanced/Fine-Tune/FT-Environment" />
+<Card image="color-10.png" icon={Database}   iconColor='text-red-400'  title="准备训练数据" description="根据你的目标任务，收集特定格式的训练数据，将其处理为 binidx 格式" link="/tutorials/advanced/Fine-Tune/FT-Dataset" />
+</CardContainer>
+
+### 微调方法的详细教程
+
+推荐使用 RWKV 官方微调仓库 [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT)，RWKV-PEFT 包含常见的 `LoRA` 微调、`PiSSA` 微调方法，也有 RWKV 模型特有的 `State-Tuning` 和 RWKV 社区成员 [@JL-er](https://github.com/JL-er) 开发的 `DiSHA` 等独特的微调方法。
+
+<CardContainer>
+{/* <Card image="color-4.png" icon={Dumbbell}  iconColor='text-yellow-500'  title="全参微调"           description="RWKV 模型的全参微调方法，使用社区魔改的 RWKV-LM 仓库" link="/tutorials/advanced/Fine-Tune/Full-ft-Simple" /> */}
+<Card image="color-5.png" icon={Sparkles}  iconColor='text-red-400'    title="State Tuning 微调"  description="RWKV 模型独特的 State Tuning 微调方法" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/State-Tuning" />
+<Card image="color-19.png" icon={Puzzle}    iconColor='text-purple-500'  title="LoRA 微调"          description="RWKV 模型的 LoRA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/LoRA-Fine-Tuning" />
+<Card image="color-18.png" icon={Dumbbell}  iconColor='text-orange-500'   title="DiSHA 微调"         description="RWKV 模型的 DiSHA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/DiSHA-Fine-Tuning" />
+<Card image="color-17.png" icon={FlaskRound}     iconColor='text-yellow-600'    title="PiSSA 微调"    description="RWKV 模型的 PiSSA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/Pissa-Fine-Tuning" />
+</CardContainer>

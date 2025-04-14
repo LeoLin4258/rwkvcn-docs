@@ -1,0 +1,37 @@
+---
+title: AMD 硬件
+
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { RadarChartComponent } from '../../../components-docs/radar-charts'
+import { HeatMap } from '../../../components-docs/heat-map'
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type="info">
+RWKV 模型在 AMD 硬件上的推理性能，当前包括 AMD Radeon-Pro-W7900，后续会添加其他 AMD 硬件的性能表现。
+</CallOut>
+
+## AMD Radeon-Pro-W7900
+
+RWKV 模型在 AMD Radeon-Pro-W7900 上的性能表现：
+
+| Model | Precision | 每秒生成的 Token 数 | 显存用量 （GB） | 
+|:---:|:---:|:---:| :----------:|
+| RWKV-6-1B6-v2.1 | fp16 | 22.14 | 3.59 |
+| RWKV-6-1B6-v2.1 | fp32 | 18.40 | 6.40 |
+| RWKV-6-3B-v2.1 | fp16 | 21.14 | 6.44 |
+| RWKV-6-3B-v2.1 | fp32 | 16.14 | 12.17 |
+| RWKV-6-7B-v2.1 | fp16 | 18.64 | 14.60 |
+| RWKV-6-7B-v2.1 | fp32 | 10.91 | 28.92 |
+| RWKV-6-14B-v2.1 | fp16 | 14.91 | 26.66 |
+
+表格中的参数解释：
+
+- Model：代表不同参数量的 RWKV-6 模型。
+- Precision：代表不同量化策略或计算精度。
+
+
+<CallOut type="info">
+测试的性能数据基于项目：[https://github.com/yuunnn-w/RWKV_Pytorch](https://github.com/yuunnn-w/RWKV_Pytorch)
+</CallOut>

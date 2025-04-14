@@ -1,93 +1,139 @@
-# RWKV.CN 文档
-![docs](./docs.png)
-## 背景
+<p align="center">
+  <!-- <img src="https://github.com/rwkvcn/rwkv-v2/assets/logo.png" alt="RWKV Logo" width="200" /> -->
+</p>
 
-- **Web 框架**：[Next.js](https://nextjs.org/) 14，用于构建 RWKV.CN 的前端架构。
-- **文档框架**：[Nextra](https://nextra.site/docs/docs-theme/start)，快速搭建文档的解决方案。
+<h1 align="center">RWKV中文社区文档中心</h1>
 
-## 本地启动
+<p align="center">
+  <strong>基于Next.js和Fumadocs构建的RWKV中文社区文档平台</strong>
+</p>
 
-> [!NOTE]
-> 请确保你的`Node.js`的版本是**18**或者更新
+<p align="center">
+  <a href="https://rwkvcn.com">访问官网</a> •
+  <a href="https://rwkvcn.com/docs">文档中心</a> •
+  <a href="https://rwkvcn.com/tutorials">学习资源</a>
+</p>
 
-### 1. 克隆仓库
+---
+
+## 🌐 关于本项目
+
+RWKV文档中心是RWKV中文社区官方网站的文档部分，采用Fumadocs构建，为用户提供全面的RWKV相关技术文档和学习资源。
+
+## 🛠️ 本地开发指南
 
 ```bash
-git clone git@github.com:LeoLin4258/rwkvcn-docs.git
-cd rwkvcn-docs
-```
-
-### 2. 安装依赖
-
-```bash
+# 安装依赖
 npm install
-```
 
-### 3. 启动服务
-
-```bash
+# 启动开发服务器
 npm run dev
 ```
 
-在浏览器中打开 `http://localhost:3000/docs`。
+访问 [http://localhost:3001](http://localhost:3001) 查看文档效果。
 
-> [!IMPORTANT]
-> 请注意访问 `http://localhost:3000/docs`，而不是 `http://localhost:3000/`。
+## 📂 文档目录结构
 
-## 修改文档
+```
+/content            - 所有文档内容
+├── /docs           - 技术文档内容
+│   ├── _meta.json  - 文档导航配置
+│   └── ...         - 文档MDX文件
+│
+├── /tutorials      - 学习教程内容
+    ├── _meta.json  - 教程导航配置
+    └── ...         - 教程MDX文件
 
-### 文档编辑
+/components-docs    - 文档专用UI组件
+/app/docs           - 文档页面路由
+/app/tutorials      - 教程页面路由
+```
 
-所有文档文件都保存在 `pages` 目录下。你可以直接前往该目录进行内容修改。
+## ✍️ 文档编写指南
 
-### 添加自定义组件
+### 基本规范
 
-我们支持在 MDX 文件中引入自定义的 React 组件。你可以在 `components/docs/` 目录下创建新的组件，并在文档中引用它们。
+- 文档使用MDX格式编写（Markdown + React组件）
+- 使用`_meta.json`文件配置导航结构和文档顺序
+- 新增文档后需要在相应的`_meta.json`中添加配置
 
-> [!IMPORTANT]
-> 所有新建组件请使用 TypeScript 编写。
+### MDX文件格式
 
-### 添加新的首页卡片
+```mdx
+---
+title: 文档标题
+description: 文档描述
+---
 
-如需修改或添加首页的卡片，请前往 `components/docs/card.tsx` 进行修改。卡片的封面图片请放置在 `public/images/` 目录下。
+import {组件名称} from '@components-docs/组件名称'
 
-## 贡献指南
+# 文档内容
 
-**❤️ 感谢并欢迎社区的贡献！❤️**
+正文内容...
 
-在提交 Pull Request (PR) 之前，请确保遵循以下规则：
+<组件名称 prop1="值" />
 
-### PR 规则
+## 小节标题
 
-1. **提前创建 Issue**
-   - 在提交 PR 之前，请务必创建一个相应的 Issue，说明你的问题或建议。
-   - 在 PR 描述中引用 Issue 编号，如 `Fixes #123`，以关联相关问题。
+更多内容...
+```
 
-2. **保持 PR 简洁**
-   - 请保持每个 PR 聚焦于一个问题或功能。避免在一个 PR 中提交过多不相关的更改，以减少审查的复杂度。
+### 数学公式支持
 
-3. **避免引入不必要的依赖**
-   - 除非绝对必要，否则请不要引入新的依赖。如果你认为新的依赖是必需的，请在 PR 中详细说明原因，并在 Issue 中讨论可行性。
+文档支持KaTeX数学公式：
 
-4. **同步更新文档**
-   - 如果你的 PR 涉及功能变更或接口更新，请确保文档（如 `README.md` 或项目中的文档文件）也进行了相应的更新。
+```
+行内公式: $E=mc^2$
 
-5. **确保构建通过**
-   - 提交 PR 前，请确保项目通过了 Next.js 的 `build` 检查：
-     ```bash
-     npm run build
-     ```
+独立公式:
+$$
+f(x) = \int_{-\infty}^{\infty} \hat{f}(\xi) e^{2\pi i \xi x} d\xi
+$$
+```
 
-### 审查流程
+## 📋 注意事项
 
-- 提交 PR 后，维护者将进行审查，请及时响应审查意见。
-- 审查通过后，PR 会合并到主分支。
-- 主分支的更新将会自动同步至 [RWKV.CN/Docs](https://rwkv.cn/docs)。
+- 运行`npm run postinstall`或`npx fumadocs-mdx`以更新文档索引
+- 添加新文档后需要重启开发服务器以应用更改
+- 图片资源请放置在`public/images/docs/`目录下
+- 对于复杂图表，推荐使用Mermaid语法或ECharts组件
+- 所有文档页面都继承自`/app/docs/layout.tsx`中的布局设置
 
-## 常见问题
+## 🤝 贡献指南
 
-- **Q: 修改文档后，左侧导航标签出现异常，点击后显示错误的文档**
-  - 这通常发生在你修改了文档结构（如添加/删除文件）后。原因是 Nextra 没有正确处理 Next.js 的缓存机制。解决方法是删除 `.next` 文件夹，然后重新运行 `npm run dev`。
+我们欢迎社区成员对RWKV文档进行贡献，帮助我们不断完善和提升文档质量。
 
-- **Q: 我可以安装新的依赖吗？**
-  - 通常我们不会接受引入新依赖的 PR。如果你认为新依赖是必要的，请在 PR 中详细描述其必要性。
+### 问题反馈
+
+如果你发现文档中存在问题：
+- 在GitHub仓库中提交Issue，清晰描述问题所在
+- 标注问题类型：错误修正、内容缺失、功能建议等
+- 尽可能提供问题的具体位置（文件路径、章节名称）
+
+### 提交修改
+
+1. Fork本仓库到你的GitHub账户
+2. 创建新的分支 `git checkout -b fix-doc-typo`
+3. 在本地进行文档修改
+4. 提交变更 `git commit -m "docs: 修正xxx文档中的错误"`
+5. 推送到你的Fork仓库 `git push origin fix-doc-typo`
+6. 创建Pull Request到主仓库的`main`分支
+
+### PR规范
+
+- 每个PR应专注于单一目标（如修复特定文档错误、添加特定主题内容）
+- 提交信息遵循[约定式提交](https://www.conventionalcommits.org/zh-hans/v1.0.0/)规范
+  - `docs: 更新xxx文档`
+  - `fix: 修正xxx文档中的错误`
+  - `feat: 添加xxx新文档`
+- PR描述中请简要说明变更内容和原因
+
+### 审核流程
+
+所有贡献将由维护者审核，可能会要求进行修改或提供额外信息。审核通过后，贡献将被合并到主分支。
+
+---
+
+<p align="center">
+  <sub>RWKV中文社区 | 版权所有</sub>
+</p>

@@ -1,0 +1,30 @@
+{
+  "title": "文档",
+  "description": "了解 RWKV 的基础知识",
+  "icon": "Building2",
+  "root": true,
+  "pages": [
+    "index",
+    "---RWKV 的基础知识---",
+    "RWKV-Wiki/Introduction",
+    "RWKV-Wiki/RWKV-Architecture",
+    "RWKV-Wiki/Vram",
+    "RWKV-Wiki/Dataset",
+    "RWKV-Wiki/FAQ",
+    "---RWKV 的提示词---",
+    "RWKV-Prompts/RWKV-Parameters",
+    "RWKV-Prompts/Prompt-Format",
+    "RWKV-Prompts/Chat-Prompts",
+    "RWKV-Prompts/Completion-Prompts",
+    "---RWKV 的评测数据---",
+    "RWKV-Eval-Data/RWKV-Evals",
+    "RWKV-Eval-Data/RWKV-Long-Evals",
+    "---RWKV 的端侧推理性能---",
+    "RWKV-Performance-Data/amd",
+    "RWKV-Performance-Data/mthread",
+    "RWKV-Performance-Data/mobile",
+    "---如何加入 RWKV 社区---",
+    "RWKV-Wiki/Links",
+    "RWKV-Wiki/Contribute"
+  ]
+}
