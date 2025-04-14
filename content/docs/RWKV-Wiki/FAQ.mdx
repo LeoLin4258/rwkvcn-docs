@@ -1,0 +1,102 @@
+---
+title: RWKV 常见问题
+
+---
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+## 下一个 RWKV 模型什么时候发布？
+
+RWKV 没有固定的发布计划，也不承诺何时发布下一个模型。一般来说，负责 RWKV 项目的 BlinkDL（Bo） 会在模型准备好的第一时间发布新模型。
+
+所以下一个版本的发布时间可能是接下来的几天，或者接下来的几个月。
+
+通常情况下，当我们发布最新版本的模型时，下一个版本模型的训练/准备过程已经在进行中。
+
+## RWKV 模型名的 v2 / v2.1 /v3 是什么意思？
+
+v2 / v2.1 / v3 代表 RWKV 模型训练数据集的版本。
+
+- v1 ≈ 0.59T tokens
+- v2 ≈ 1.1T tokens
+- v2.1 ≈ 1.42T tokens，v2.1 模型的总训练数据 ≈ 2.5T tokens
+- v3 ≈ 3T tokens，v3 模型的总训练数据  ≈  5.5T tokens 
+
+如果模型名称中未带有 v2 或以上版本，默认基于 v1 数据集。
+<CallOut type="info">
+如果想深入了解 RWKV 的训练数据集，请前往[RWKV 的训练数据集](./Dataset)查看。
+</CallOut>
+
+## 为什么 RWKV 在模型名称中列出了上下文长度（4k / 8k）？
+
+虽然 RWKV 在技术层面上具有 “无限”的上下文长度，但它需要一定上下文长度的训练数据，才能有效执行任务。
+
+列出的模型 “上下文长度” 是模型已经训练过的 “有效上下文长度”。对超过这个长度的内容，模型的性能预计会小幅下降。
+
+如果你有训练数据，是可以训练/微调 RWKV 模型到更长的上下文长度的。
+
+## RWKV 根据什么开源许可证发布？
+
+RWKV 及其模型根据 Apache 2.0 开源许可证发布，这意味着它适用于商业和非商业用途。
+
+## RWKV 使用什么分词器（Tokenizer）？
+
+RWKV-World 系列模型使用 `rwkv_vocab_v20230424` 分词器，具体的文件是 `rwkv_vocab_v20230424.txt`，可以在 RWKV-主库的 [RWKV-v5/tokenizer](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/tokenizer/rwkv_vocab_v20230424.txt)
+ 目录中找到 。
+
+`rwkv_vocab_v20230424` 分词器合并了以下分词器的词汇表，并手动为非欧洲语言选择了 token：
+
+- [GPT-NeoX-20B](https://huggingface.co/EleutherAI/gpt-neox-20b)
+- [GPT2](https://huggingface.co/openai-community/gpt2)
+- [cl100k_base of tiktoken](https://github.com/openai/tiktoken)
+- [Llama2](https://huggingface.co/meta-llama/Llama-2-7b-hf)
+- [Bloom](https://huggingface.co/bigscience/bloom)
+
+分词器通过 Trie（前缀树）实现，在提高速度的同时保持简洁性。编码过程是通过从左到右匹配词汇表中最长的元素与输入字符串进行的。
+
+分词器的词汇量大小为 V = 65536，编号从 0 到 65535，token 按其在字节中的长度排列。
+
+以下是简要概述：
+
+- token 0：表示文本文档之间的边界，称为 `<EOS>` 或 `<SOS>`。此 token 不编码任何特定内容，仅用于文档分隔。
+
+- token 1-256：由字节编码组成（tokenk 编码字节 k−1），其中 token 1-128 对应于标准 ASCII 字符。
+
+- token 257-65529：至少具有 2 个 UTF-8 字节长度的 token，包括单词、前缀和后缀、带重音的字母、汉字、韩文、平假名、片假名和表情符号。例如，汉字被分配在 token 10250 至 18493 之间。
+
+- token 65530-65535：预留 token，供将来使用。
+
+## 从头开始训练超过 20B 的 RWKV 需要多少成本？能不能给我一个简单的答案，需要多少钱？
+
+<CallOut type="info">
+简而言之：如果你没有接近 100 万美元的 GPU 资源，不要考虑这个任务。
+</CallOut>
+
+虽然训练模型的成本不断下降，但大多数人低估了从头开始训练一个模型的任务成本。
+
+训练模型涉及许多因素，最重要的是数据集的大小、模型参数的大小。你可能需要为训练过程中发生的错误买单，每次调整训练设置和训练的过程也涉及人力成本预算，这些因素使得整个训练过程难以准确预测。（更不用说涉及到那么多钱，你可能会对训练模型使用的数据集有要求，所有额外的数据集需求又需要更多时间和劳动力来进行准备。）
+
+例如，预计 [从头开始训练 LLaMA2-70B 基础模型](https://twitter.com/moinnadeem/status/1681393075367841792) 需要 260 万美元 GPU 资源。虽然在理论上 RWKV 作为 RNN，训练起来应该比 transformer 更便宜。但即使是削减成 50 万美元成本，大多数个人或公司也无法承受。
+
+因此，作为基本原则，除非你有接近 100 万美元的 GPU 资源和足够的人力预算来准备数据集，否则不建议从头开始训练任何超过 14B 的模型。
+
+此时，有些人可能会问：是否可能只在一台单卡机器上训练？而不是昂贵的 GPU 集群？
+
+理论上，只要你有训练 RWKV 模型所需的最小 vram（比如一张 A100）就可以在一台机器上训练。然而，对于较大的数据集。比如在 70B LLaMA2 / 2T token 的情况下 ，单张 A100 总共需要 1,720,320 小时，即 196 年。
+
+没有人想等待 190 多年才能完成模型训练，因此我们通常在多个训练节点之间分担工作负载。很不幸，这不是一个完美的可扩展过程。因为每一个添加的节点都会降低训练效率，这涉及到 GPU 之间的高通信开销。
+
+最终结果变成了一个非常复杂的数学问题：“你想要模型多快”与“你能支付多少钱”之间的平衡，更快的训练时间通常意味着总体上增加的成本。
+
+**总结：根据训练速度的快/慢，从头训练超过 20B 的 RWKV 大概需要 100 到 500 万美元。**
+
+> 如果你有 GPU 算力可以捐赠给 RWKV ，用于训练开源的软件模型，请通过你的研究机构等渠道请与我们联系 😉（不需要是 100 万美元的量级，即使是小量捐赠也能大有帮助）
+
+## RWKV 支持 “训练并行化” 吗？为什么 RetNet 论文声称不支持？
+
+RWKV 通过 deepspeed 支持跨多个 GPU 的 “训练并行化”。在许多情况下，在类似参数计数的训练速度上超过了 Transformer。
+
+这与 [huggingface](https://huggingface.co/docs/transformers/v4.15.0/parallelism) 或其他[论文](https://www.researchgate.net/figure/Different-Training-Parallelization-Strategies_fig2_334821612)采用的定义一致。
+
+RetNet 将 “训练并行化” 定义为在不等待前一个 token 训练完成的情况下对后一个 token 进行训练的能力，RWKV 在这个定义上失败了。
+
+实际上，RetNet 论文作者已经[承认](https://web.archive.org/web/20230916013316/https://github.com/microsoft/unilm/issues/1243) RWKV 支持 “训练并行化”，他们分别承认 RWKV 在跨多个 GPU 的高吞吐量方面没有问题（根据实际测试）。

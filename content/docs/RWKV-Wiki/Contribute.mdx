@@ -1,0 +1,159 @@
+---
+title: 为 RWKV 作贡献
+---
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+我们期待你为 RWKV 作出贡献，无论是开展 RWKV 相关的研究、协助我们改进文档，或是提供 RWKV 的建议。
+
+<CallOut  type="info">
+我们将不定期为 RWKV 生态的贡献者赠送礼品，或提供开发资源帮助。
+
+此外，我们正在举办 [RWKV 2025 生态内容大赛](https://rwkv.cn/news/read?id=16)，提供海量现金奖励，且所有投稿均可获得 RWKV 周边一套！
+</CallOut>
+
+## 社区成员的贡献方向
+
+您可以选择感兴趣的方向参与贡献：
+
+- [改进文档](#docs)
+- [试用模型和应用](#test)
+- [开发应用](#develop)
+- [进行基准测试](#benchmark)
+- [提供数据集](#dataset)
+- [多模态研究](#multimodal)
+
+### 帮助我们改进文档[#docs]
+
+<CallOut type="info">
+RWKV 中文文档[已经开源](https://github.com/LeoLin4258/rwkvcn-docs)，请帮助我们**改进文档**，使其他用户可以更轻松地使用 RWKV 模型/应用。
+</CallOut>
+
+我们欢迎各种形式的文档贡献，包括但不限于：
+
+- 为文档提供更好的表达方法
+- 撰写 RWKV 相关的教程或用户案例
+- 录制 RWKV 的在线视频教程
+- 设计全新的文档形式
+
+可以加入 RWKV 社区文档贡献与交流组（QQ 群 1022164805），沟通并参与文档贡献。
+
+### 试用 RWKV 模型和应用[#test]
+
+试用**最新的 RWKV 模型和处于内测阶段的应用**，并提供真实的用户反馈，帮助我们改进模型和应用。
+
+加入 RWKV 应用/项目内测群（QQ 群 332381861），以了解并体验 RWKV 的最新产品/项目。
+
+### 开发 RWKV 应用
+
+开发基于 RWKV 的 应用，比如 ChatBot、推理工具、训练方法等。
+
+以下是社区开发的 RWKV 应用，仅供参考：
+
+- [00ffcc/conRWKV](https://github.com/00ffcc/conRWKV)：一个高并发的 RWKV 云端推理引擎
+- [Jellyfish042/Sudoku-RWKV](https://github.com/Jellyfish042/Sudoku-RWKV)：一个解决数独谜题的专用 RWKV 模型
+
+在 RWKV 技术研发群（QQ 群 332381861）中讨论并分享您的 RWKV 应用。
+
+### 进行 RWKV 基准测试[#benchmark]
+
+<CallOut type="info">
+想要让 RWKV 变得更好，则需要有可靠的测试方法来评估它的表现。
+</CallOut>
+如果你能帮我们**设计全新的基准测试**，或者**运行一些常见的模型测试**，就能更清楚地看出 RWKV 和其他开源模型相比有什么优势和不足。
+
+一个示例是由 RWKV 社区成员 [@Jellyfish042](https://github.com/Jellyfish042) 构建的 [Uncheatable Eval](https://github.com/Jellyfish042/uncheatable_eval)，这是一项“无法作弊的 LLM 基准测试”，尝试使用新的 arXiv 论文和 BBC 新闻来评估语言模型的建模能力。
+
+在 RWKV 技术研发群（QQ 群 332381861）中讨论并分享您关于 RWKV 的基准测试结果。
+
+### 提供多语言数据集[#dataset]
+
+<CallOut type="info">
+RWKV 的目标是训练适用于**全球所有语言**的 AI 模型。
+</CallOut>
+
+请帮助我们构建多语言（非英语）数据集，使 RWKV 模型能更好地支持全球语言。
+
+可以在 RWKV discord 的 [#dataset channel](https://discord.gg/uMpzuDwcu5) 频道或 RWKV技术研发群（QQ 群 332381861）中参与此工作。
+
+### 帮助我们开展多模态工作[#multimodal]
+
+<CallOut type="info">
+欢迎大家探究 RWKV 语言模型之外的多模态工作，比如图像（Visual、Diffusion）、语音（TTS、ASR），或其他类型的工作。
+
+RWKV 现有的多模态等学术研究可以在 [RWKV 生态](https://rwkv.cn/eco) 中找到：
+</CallOut>
+
+一些代表性的 RWKV 多模态研究工作：
+
+- VisualRWKV
+    - [GitHub 仓库](https://github.com/howard-hou/VisualRWKV)
+    - [模型下载](https://huggingface.co/howard-hou/visualrwkv-6)
+    - [在线 Demo](https://huggingface.co/spaces/howard-hou/VisualRWKV-Gradio-1) 
+
+- RWKV ASR（自动语音识别）
+
+    - 相关论文：Exploring RWKV for Memory Efficient and Low Latency Streaming ASR
+    - [论文地址](https://arxiv.org/abs/2309.14758 )
+
+- pointRWKV（基于 RWKV 的 3D 点云学习框架）
+
+    - 相关论文：PointRWKV: Efficient RWKV-Like Model for Hierarchical Point Cloud Learning 
+    - [论文地址](https://arxiv.org/pdf/2405.15214)
+    - [GitHub 仓库](https://github.com/hithqd/PointRWKV)
+
+- RWKV-UI: 用户界面（UI）理解
+
+    - 相关论文：UI Understanding with Enhanced Perception and Reasoning
+    - [论文地址](https://arxiv.org/abs/2502.03971)
+
+
+## RWKV 贡献者公约
+
+### 我们的承诺
+
+身为社区成员、贡献者和领袖，我们承诺使社区成员不受骚扰，无论其年龄、体型、可见或不可见的缺陷、族裔、性征、性别认同和表达、经验水平、教育程度、社会与经济地位、国籍、相貌、种族、种姓、肤色、宗教信仰、性倾向或性取向
+
+我们承诺以有助于建立开放、友善、多样化、包容、健康社区的方式行事和互动。
+
+### 我们的准则
+
+我们鼓励使社区变得积极健康的行为，包括但不限于：
+
+* 表现出对他人的同情和善意
+* 尊重不同的主张、观点和感受
+* 提出和大方接受建设性意见
+* 承担责任并向受我们错误影响的人道歉
+* 注重社区共同诉求，而非个人得失
+
+禁止影响社区氛围的不当行为，包括：
+
+* 使用情色化的语言或图像，及性引诱或挑逗
+* 嘲弄、侮辱或诋毁性评论，以及人身或政治攻击
+* 公开或私下的骚扰行为
+* 未经他人明确许可，公布他人的私人信息，如物理或电子邮件地址
+* 其他有理由认定为违反职业操守的不当行为
+
+### 责任和权力
+
+社区领袖有责任解释和落实我们所认可的行为准则，并妥善公正地对他们认为不当、威胁、冒犯或有害的任何行为采取纠正措施。
+
+社区领导有权力和责任删除、编辑或拒绝或拒绝与本行为准则不相符的评论（comment）、提交（commits）、代码、维基（wiki）编辑、议题（issues）或其他贡献，并暂时或永久地封禁他们认为不适当、威胁、冒犯或有害行为的贡献者。
+
+### 适用范围
+
+本行为准则适用于所有 RWKV 社区场合，也适用于在公共场所代表 RWKV 社区的个人。
+
+包括使用 RWKV 官方的电子邮件地址、通过 RWKV官方社交媒体帐户发帖或在线上或线下的 RWKV 活动中担任代表的成员。
+
+### 监督
+
+遇到辱骂、骚扰或其他不可接受的行为时，可通过 RWKV 官方 QQ 群或其他渠道向负责监督的社区成员举报。
+
+所有投诉都将得到及时、公平的审查，所有社区领袖都有义务保护举报者的隐私和安全。
+
+### 参见
+
+本行为准则改编自 [Contributor Covenant](https://www.contributor-covenant.org) 2.1 版, 详情参见 [https://www.contributor-covenant.org/version/2/1/code_of_conduct.html](https://www.contributor-covenant.org/version/2/1/code_of_conduct.html)[v2.1]。
+
+
+

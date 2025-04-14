@@ -1,0 +1,31 @@
+{
+    "title": "教程",
+    "description": "从入门到精通 RWKV 的全教程",
+    "icon": "Building2",
+    "root": true,
+    "pages": [
+      "index",
+      "---RWKV 入门教程---",
+      "basic/How-To-Play",
+      "basic/Model-Download",
+      "basic/Prompt-Format",
+      "basic/RWKV-Parameters",
+      "---RWKV 中级教程（推理/本地部署）---",
+      "intermediate/RWKVpip",
+      "intermediate/llamacpp",
+      "intermediate/RWKV-Runner",
+      "intermediate/ai00",
+      "intermediate/RWKV-Inference/Ollama",
+      "intermediate/RWKV-Inference/text-generation-webui",
+      "intermediate/RWKV-Inference/KoboldCpp",
+      "intermediate/RWKV-Inference/SillyTavern",
+      "---RWKV 高级教程（微调/训练）---",
+      "advanced/Fine-Tune/Introduction",
+      "advanced/Fine-Tune/FT-Environment",
+      "advanced/Fine-Tune/FT-Dataset",
+      "advanced/Fine-Tune/RWKV-PEFT/State-Tuning",
+      "advanced/Fine-Tune/RWKV-PEFT/DiSHA-Fine-Tuning",
+      "advanced/Fine-Tune/RWKV-PEFT/LoRA-Fine-Tuning",
+      "advanced/Fine-Tune/RWKV-PEFT/Pissa-Fine-Tuning"
+    ]
+  }

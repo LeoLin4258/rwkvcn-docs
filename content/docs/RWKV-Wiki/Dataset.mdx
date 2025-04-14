@@ -1,0 +1,152 @@
+---
+title: RWKV 的训练数据集
+---
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+RWKV 使用 **World 系列训练数据集**，包含全球一百多种语言。我们正在持续迭代 World 系列训练数据集，不断地提升数据集的规模和质量，使 RWKV 模型拥有强劲的多语言能力。
+
+此章节简要介绍 RWKV World 系列数据集的数据组成、数据来源、数据量等信息。
+
+## RWKV 数据集概况
+
+目前 World 数据集共有以下版本：
+
+| 版本号 | 总数据量 | 对应的 RWKV 基底模型|
+|-------|-----------------|------------------|
+| World v1 | 约 0.59T tokens                     |   RWKV-4 系列（已淘汰）|
+| World v2         | 约 1.1T tokens                      |   RWKV-5 系列（已淘汰）|
+| World v2.1       | 约 1.42T tokens                     |   RWKV-6 系列 |
+| World v2.8       | 从 World v3 中随机采样约 1T tokens                        | RWKV-7-World 0.1B |
+| World v2.9       | 从 World v3 中随机采样约 2T tokens                        | RWKV-7-World 0.4B |
+| World v3         | 约 3.1T tokens                        |  RWKV-6-World 7B v3，RWKV-7-World 1.5B/2.9B   |
+| World v3.5       | 约 5.16T tokens                     |  RWKV7-G1 1.5B/2.9B |
+| World v3.7       | 收集整理中                    |  RWKV7-G1 7B/14B 和更大参数模型 |
+
+<CallOut  type="info">
+RWKV7-G1 0.1B 从 World v3.5 数据集中随机采样 1T tokens 训练
+
+RWKV7-G1 0.4B 从 World v3.5 数据集中随机采样 2T tokens 训练
+</CallOut>
+
+## 各版本数据集的细节
+
+<CallOut  type="info">
+秉持着“开源开放”的精神，我们在 RWKV 的架构论文中开源了 World 系列数据集的组成和来源。
+
+前往论文查看：
+
+- World v2 的详细介绍可以在 [RWKV-5/6 论文](https://arxiv.org/abs/2404.05892)的 `Training Dataset Details` 板块中找到。
+- World v2.1/v3 的详细介绍可以在 [RWKV-7 论文](https://arxiv.org/abs/2503.14456)的 `Training Dataset Details` 板块中找到。
+</CallOut>
+
+以下内容摘录于论文：
+
+### World v2 数据集
+
+RWKV-6 的 v2 训练数据集涉及多个领域，具体包含以下内容：
+
+| Dataset | Domain | Dataset | Domain |
+|---------|--------|---------|--------|
+| [Wikipedia](https://huggingface.co/datasets/olm/wikipedia)$^a$ | Encyclopedia | [SlimPajama](https://huggingface.co/datasets/cerebras/SlimPajama-627B) | Web |
+| [peS2o](https://huggingface.co/datasets/allenai/peS2o) | Academia | [BigPatent](https://huggingface.co/datasets/big_patent) | Patents |
+| [Pile of Law](https://huggingface.co/datasets/pile-of-law/pile-of-law) | Legal, Administrative | [StarCoder](https://huggingface.co/datasets/bigcode/starcoderdata)$^b$ | Code |
+| [OSCAR23.01](https://huggingface.co/datasets/oscar-corpus/OSCAR-2301)$^c$ | Multilingual Web | [TED2020](https://huggingface.co/datasets/wecover/OPUS_TED2020) | Transcripts: TED, TEDx |
+| [PhilPapers](https://github.com/thoppe/The-Pile-PhilPapers) | Academia: Philosophy | [NIH-ExPORTER](https://github.com/thoppe/The-Pile-NIH-ExPORTER) | Grants: NIH |
+| [EuroParl](https://github.com/thoppe/The-Pile-EuroParl) | Multilingual Legal | [Enron-Emails](https://github.com/EleutherAI/pile-enron-emails) | Emails |
+| [Ubuntu IRC](https://github.com/EleutherAI/pile-ubuntu-irc) | Chat | [HackerNews](https://github.com/EleutherAI/hn-scraper) | Forums |
+| [OpenWebText2](https://github.com/EleutherAI/openwebtext2) | Web | [Gutenberg PG-19](https://github.com/deepmind/pg19) | Books |
+| [Books3](https://twitter.com/theshawwn/status/1320282149329784833) | Books | [OpenSubtitles](https://huggingface.co/datasets/suolyer/pile_opensubtitles) | Subtitles |
+| [YTSubtitles](https://huggingface.co/datasets/suolyer/pile_youtubesubtitles) | Subtitles | [ao3_skylion](https://gwern.net/gpt-2#archive-of-our-own-ao3-gpt-2-1-5b) | Stories |
+| [honeyfeed-3600](https://huggingface.co/datasets/RyokoAI/Honeyfeed3600) | Stories |[scribble-17k](https://huggingface.co/datasets/RyokoAI/ScribbleHub17K) | Stories |
+| [syosetu711k](https://huggingface.co/datasets/RyokoAI/Syosetu711K)$^o$  | Stories (Japanese) | [marianna13/fanfics](https://huggingface.co/datasets/marianna13/fanfics) | Stories |
+| [marianna13/gamedev](https://huggingface.co/datasets/marianna13/gamedev) | Forums | [marianna13/ia-books](https://huggingface.co/datasets/marianna13/ia-books) | Books |
+| [marianna13/libgen](https://huggingface.co/datasets/marianna13/libgen) | Textbooks, Books | [marianna13/research_gate](https://huggingface.co/datasets/marianna13/research_gate) | Academia |
+| [marianna13/superuser](https://huggingface.co/datasets/marianna13/superuser) | Forums | [marianna13/the-eye](https://huggingface.co/datasets/marianna13/the-eye) | Books |
+| [marianna13/vault_text](https://huggingface.co/datasets/marianna13/vault_text) | Books | [marianna13/random_quora](https://huggingface.co/datasets/marianna13/random_quora)$^o$ | Forums |
+| [marianna13/zlib](https://huggingface.co/datasets/marianna13/zlib) | Books | [minipile](https://huggingface.co/datasets/JeanKaddour/minipile) | Various |
+| [tatoeba](https://huggingface.co/datasets/Helsinki-NLP/tatoeba_mt) | Multilingual Translations | [poetry-foundation](https://huggingface.co/datasets/shahules786/PoetryFoundationData) | Poetry |
+| [proof-pile](https://huggingface.co/datasets/hoskinson-center/proof-pile) | Academia: Math | [reddit-math](https://huggingface.co/datasets/P1ayer-1/reddit-math) | Forums: Math |
+| [soda](https://huggingface.co/datasets/allenai/soda) | Dialogue | [song_lyrics](https://huggingface.co/datasets/amishshah/song_lyrics) | Lyrics |
+| [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) | Stories | [walkthroughs2020](https://gwern.net/gpt-2#video-game-walkthrough-gpt-2-1-5b) | Game Walkthroughs |
+| [wikihow-qa-16k](https://huggingface.co/datasets/0x22almostEvil/multilingual-wikihow-qa-16k) | How-To | [Alpaca](https://huggingface.co/datasets/tatsu-lab/alpaca) | Various |
+| [camel-ai/math](https://huggingface.co/datasets/camel-ai/math) | Math | [camel-ai/code](https://huggingface.co/datasets/camel-ai/code) | Code |
+| [camel-ai/physics](https://huggingface.co/datasets/camel-ai/physics) | Physics | [camel-ai/chemistry](https://huggingface.co/datasets/camel-ai/chemistry) | Chemistry |
+| [camel-ai/ai_society](https://huggingface.co/datasets/camel-ai/ai_society) | Job Roles | [camel-ai/biology](https://huggingface.co/datasets/camel-ai/biology) | Biology |
+| [Dolly](https://huggingface.co/datasets/databricks/databricks-dolly-15k) | Various | [Evol-Instruct](https://huggingface.co/datasets/WizardLM/WizardLM_evol_instruct_70k) | Various |
+| [gpt4all](https://huggingface.co/datasets/nomic-ai/gpt4all_prompt_generations) | Code | [Guanaco](https://huggingface.co/datasets/JosephusCheung/GuanacoDataset) | Various Multilingual |
+| [LaMini](https://huggingface.co/datasets/MBZUAI/LaMini-instruction) | Various | [oasst1](https://huggingface.co/datasets/OpenAssistant/oasst1) | Multilingual Conversations |
+| [ShareGPT](https://huggingface.co/datasets/RyokoAI/ShareGPT52K) | Conversations | [UltraChat](https://github.com/thunlp/UltraChat) | Conversations |
+| [BELLE 10M Chinese](https://github.com/LianjiaTech/BELLE/tree/main/data/10M) | Various Chinese |
+
+<CallOut  type="info">
+**脚注：** 
+
+- $^a$ 对于维基百科（Wikipedia），我们收集了截至 2023 年 4 月 1 日的所有语言版本，并对某些语言进行了随机子采样。
+- $^b$ 对于 StarCoder，我们仅使用了至少有 10 颗星的数据集。
+- $^c$ 对于 OSCAR23.01，我们仅使用非英语语言的部分，并对某些语言进行了随机子采样。
+- $^o$ 表示该数据的原始仓库链接已失效，但 RWKV 数据集仍在使用这部分数据
+</CallOut>
+
+
+### World v2.1 数据集
+
+World v2.1 数据集基于  World v2 构建。相较于 v2 版本，v2.1 增加了下表中的数据：
+
+| Dataset | Domain | Dataset | Domain |
+|---------|--------|---------|--------|
+| [slimpajama C4](https://huggingface.co/datasets/cerebras/SlimPajama-627B) | Web | [Llama-3-Magpie-Pro-1M-v0.1](https://huggingface.co/datasets/Magpie-Align/Llama-3-Magpie-Pro-1M-v0.1) | Align |
+| [dolma v1.6 (reddit only)](https://huggingface.co/datasets/allenai/dolma/blob/main/urls/v1_6.txt)$^a$ | Forums | [Magpie-Pro-MT-300K-v0.1](https://huggingface.co/datasets/Magpie-Align/Magpie-Pro-MT-300K-v0.1) | Align |
+| [glaive-code-assistant-v3](https://huggingface.co/datasets/glaiveai/glaive-code-assistant-v3) | Code | [Magpie-Air-MT-300K-v0.1](https://huggingface.co/datasets/Magpie-Align/Magpie-Air-MT-300K-v0.1) | Align |
+| [m-a-p_Code-Feedback](https://huggingface.co/datasets/m-a-p/Code-Feedback) | Code | [Magpie-Qwen2-Pro-1M-v0.1](https://huggingface.co/datasets/Magpie-Align/Magpie-Qwen2-Pro-1M-v0.1) | Align |
+| [cosmopedia-v0.1](https://huggingface.co/datasets/HuggingFaceTB/cosmopedia) | Synthetic | [Magpie-Phi3-Pro-300K-Filtered-v1](https://huggingface.co/datasets/Magpie-Align/Magpie-Phi3-Pro-300K-Filtered-v0.1)$^o$ | Align |
+| [SystemChat-2.0](https://huggingface.co/datasets/cognitivecomputations/SystemChat-2.0) | Instruct |  [Magpie-Gemma2-Pro-200K-Filtered-v0.1](https://huggingface.co/datasets/Magpie-Align/Magpie-Gemma2-Pro-200K-Filtered-v0.1)$^o$ | Align |
+| [Tess-v1.5](https://huggingface.co/datasets/migtissera/Tess-v1.5) | Instruct ||  |
+| [UltraInteract_sft](https://huggingface.co/datasets/openbmb/UltraInteract_sft) | Instruct |  |  |
+
+<CallOut  type="info">
+**脚注：** 
+
+- $^a$ 我们仅添加了 dolma v1.6 中的 reddit 数据集
+- $^b$ [DM_math](https://huggingface.co/datasets/timaeus/pile-dm_mathematics) 作为 The Pile 的一部分存在于 World v2 中
+- $^o$ 表示该数据的原始仓库链接已失效，但 RWKV 数据集仍在使用这部分数据
+</CallOut>
+
+### World v3 数据集
+
+World v3 数据集基于 World v2.1 数据集构建，更加全面，在覆盖领域、数据量和质量上都有显著提升。
+
+新增数据如下表所示：
+
+| Dataset | Domain | Dataset | Domain |
+|---------|--------|---------|--------|
+| [REMOVED slimpajama parts](https://huggingface.co/datasets/cerebras/SlimPajama-627B)$^a$ | Web | [StarCoder](https://huggingface.co/datasets/bigcode/starcoderdata)$^c$ | Code |
+| [dclm-baseline-10-of-10](https://huggingface.co/datasets/mlfoundations/dclm-baseline-1.0/tree/main/global-shard_10_of_10)$^b$ | Web | [python-edu](https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus/tree/main/python-edu) | Code |
+| [ccnews](https://huggingface.co/datasets/stanford-oval/ccnews) | Web | [cosmopedia-v0.2](https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus/tree/main/cosmopedia-v2) | Synthetic |
+| [fineweb-edu](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu) | Web Edu | [WebInstructSub](https://huggingface.co/datasets/TIGER-Lab/WebInstructSub) | Forums |
+| [TemplateGSM](https://huggingface.co/datasets/math-ai/TemplateGSM) | Math | [Buzz-v1.2](https://huggingface.co/datasets/H-D-T/Buzz-V1.2) | Instruct |
+| [open-web-math](https://huggingface.co/datasets/EleutherAI/proof-pile-2/tree/main/open-web-math) | Math | [SKGInstruct](https://huggingface.co/datasets/TIGER-Lab/SKGInstruct) | Instruct |
+| [algebraic-stack](https://huggingface.co/datasets/EleutherAI/proof-pile-2/tree/main/algebraic-stack) | Math | [FLAN](https://huggingface.co/datasets/Muennighoff/flan) | Instruct |
+
+<CallOut  type="info">
+**脚注：**  
+- $^a$ 我们从 World v3 的语料库中移除了 SlimPajama 的 CC 和 C4 部分。 
+- $^b$ 对于 DCLM-baseline，我们仅保留了 global-shard_10_of_10。  
+- $^c$ 对于 StarCoder，我们使用了全部的数据集，而非筛选 10 星以上的数据集。
+</CallOut>
+
+World v3 数据集更加全面，覆盖领域更广的同时数据量更大，质量也更高。
+
+**World v3 数据集的具体数据类型和数据量配比**：
+
+| **类别** | **Token 数（B）** |
+|--------------|----------------|
+| 网络（Web） | 1945.2 |
+| 图书（Books） | 337.2 |
+| 代码（Code） | 258.4 |
+| 科学与维基（Science & Wiki） | 222.7 |
+| 小说（Fiction） | 192.6 |
+| 聊天、问答与指令（Chat & QA & Instruction） | 110.0 |
+| 数学（Math） | 32.3 |
+| 法律与政府（Law & Government） | 19.0 |
+| 诗歌与歌词（Poetry & Lyrics） | 1.7 |
+| **总计** | **3119.2**（3.1T tokens） |

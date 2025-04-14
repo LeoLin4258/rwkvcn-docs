@@ -1,0 +1,73 @@
+---
+title: 部署 RWKV 模型的显存需求
+---
+
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+推荐使用 **FP16** 精度在本地部署并推理 RWKV 模型。当你的显存和内存不足时，可以使用 **INT8 或 NF4 等量化方法**运行 RWKV 模型，降低显存和内存需求。
+
+<CallOut type="info">
+从回答质量来说，同参数的模型 FP16 回答质量最好，INT8 与 FP16 质量相当，NF4 回答质量相比 INT8 明显降低。
+
+模型的参数比量化更重要，比如 7B 模型 + INT8 量化，生成效果比 3B 模型 + FP16 更好。
+</CallOut>
+
+以下是本地部署并运行 RWKV 模型的显存需求和生成速度：
+
+<Tabs items={['显存需求', '生成速度']}>
+  <Tab>
+
+以下是不同推理后端和对应量化方式（**默认量化所有层**）的显存/内存需求：
+
+<CallOut type="info">
+测试环境：
+
+- CPU ：i7-10870H
+- GPU： RTX 3080 Laptop ，16G 显存
+- 内存：32G
+</CallOut>
+
+| 推理后端 | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
+| --- | --- | --- | --- | --- |
+| CPU-FP32 | 6.6G内存 | 12G内存 | 21G内存 | OOM（不建议使用） |
+| rwkv.cpp-FP16 | 3.5G内存 | 7.6G内存 | 15.7G内存 | 30G（内存） |
+| rwkv.cpp-Q5_1 | 2G内存 | 3.7G内存 | 7.2G内存 | 12.4G（内存） |
+| CUDA-FP16 | 3.2G显存 | 6.2G显存 | 14.3G显存 | 约28.5G显存 |
+| CUDA-INT8 | 1.9G显存 | 3.4G显存 | 7.7G显存 | 15G显存 |
+| webgpu-FP16 | 3.2G显存 | 6.5G显存 | 14.4G显存 | 约29G显存 |
+| webgpu-INT8 | 2G显存 | 4.4G显存 | 8.2G显存 | 16G显存（量化41层，60层约14.8G） |
+| webgpu-NF4 | 1.3G显存 | 2.6G显存 | 5.2G显存 | 15.1G显存（量化41层，60层约10.4G） |
+| webgpu(python)-FP16 | 3G显存 | 6.3G显存 | 14G显存 | 约28G显存  |
+| webgpu(python)-INT8 | 1.9G显存 | 4.2G显存 | 7.7G显存 | 15G显存（量化41层） |
+| webgpu(python)-NF4  | 1.2G显存 | 2.5G显存 | 4.8G显存 | 14.3G显存（量化41层） |
+  </Tab>
+  <Tab> 
+不同推理后端/量化（**默认量化所有层**）的生成速度（单位：TPS，约等于每秒多少字）。
+
+| 推理后端 | 1B6 模型 | 3B 模型 | 7B 模型 | 14B 模型 |
+| --- | --- | --- | --- | --- |
+| CPU-FP32 | 4.36 | 2.3 | 极慢 | OOM（不建议使用） |
+| rwkv.cpp-FP16 | 8.6 | 4.5 | 2 | 1 |
+| rwkv.cpp-Q5_1 | 14 | 8 | 3.7 | 2.1 |
+| CUDA-FP16 | 25 | 18 | 15 |  |
+| CUDA-INT8  | 22 | 16 | 18 | 7.4 |
+| webgpu-FP16 | 45 | 38 | 21 | OOM，无法测试 |
+| webgpu-INT8  | 60 | 44 | 30 | 18 |
+| webgpu-NF4  | 60 | 47 | 34 | 20 |
+| webgpu(python)-FP16 | 40 | 29 | 17 | OOM，无法测试 |
+| webgpu(python)-INT8  | 45 | 35 | 23 | 15 |
+| webgpu(python)-NF4  | 43 | 32 | 21 | 18 |
+  </Tab>
+</Tabs>
+
+<CallOut type="info">
+表格中的推理后端来自不同的推理工具：
+
+- CUDA、CPU 来自 [RWKV 官方 pip 包](https://pypi.org/project/rwkv/)
+- rwkv.cpp 来自 [rwkv.cpp](https://github.com/RWKV/rwkv.cpp) 项目
+- webgpu 来自 [web-rwkv](https://github.com/cryscan/web-rwkv) 项目，一个基于 webgpu 的 Rust 推理框架
+- webgpu(python) 来自 [web-rwkv-py](https://github.com/cryscan/web-rwkv-py)，web-rwkv 项目的 Python 版本
+</CallOut>
+
+以上参数仅作为 RWKV 端侧推理的入门性能参考，随着量化层数等配置项的变化和显卡架构的新旧程度，模型的性能表现可能会改变。

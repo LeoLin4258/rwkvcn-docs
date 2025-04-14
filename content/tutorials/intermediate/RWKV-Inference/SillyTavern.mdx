@@ -1,0 +1,137 @@
+---
+title: SillyTavern 角色扮演推理教程
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type="info">
+[SillyTavern](https://github.com/SillyTavern/SillyTavern) 是一个 AI 聊天或角色扮演的工具，你可以与自己创建的角色卡或社区提供的角色卡进行角色扮演。
+
+SillyTavern 不具备模型推理功能，它需要与 LLM 推理服务器（例如 [llama.cpp](https://github.com/ggerganov/llama.cpp)、text-generation-webui 等）配合使用。
+</CallOut>
+
+本文将介绍如何在 SillyTavern 中使用 RWKV 模型进行角色扮演任务。
+
+## 视频教程[#video-tutorial]
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=114237993127582&bvid=BV1i6oQYdEK8&cid=29106965092&poster=1&p=0&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowFullScreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<CallOut type="info">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1i6oQYdEK8/)观看。
+</CallOut>
+
+## SillyTavern 下载与安装[#download-and-install]
+
+<CallOut type="info">
+该教程以 Windows 系统为例，macOS 与 Linux 的安装方法请参考 SillyTavern 的[安装指导文档](https://docs.sillytavern.app/installation/linuxmacos/)。
+</CallOut>
+
+首先，我们需要下载并安装 SillyTavern。安装步骤如下:
+
+1. 安装 [NodeJS](https://nodejs.org/)（建议使用最新的 LTS 版本）
+2. 从 SillyTavern Github 仓库的 [Releases](https://github.com/SillyTavern/SillyTavern/releases) 界面下载压缩包
+3. 压缩包解压后，双击运行 `Start.bat`，此脚本会自动安装 SillyTavern 所需的依赖项
+4. 安装完毕后，SillyTavern 会在你的浏览器中打开一个新标签页
+
+![SillyTavern-start](./imgs/SillyTavern-start.png)
+
+## 连接本地 LLM 服务器[#connect-local-llm-server]
+
+SillyTavern 不具备模型推理功能，这里我们使用 [llama.cpp](https://github.com/ggerganov/llama.cpp) 作为 RWKV 模型的推理服务器，并使用 SillyTavern 进行聊天。
+
+<CallOut type="info">
+请阅读 [llama.cpp 推理方法](../../intermediate/llamacpp)，在本地安装并启动 llama.cpp 应用。
+</CallOut>
+
+llama.cpp 安装完毕后，使用以下命令本地搭建一个 llama.cpp 服务：
+
+```bash copy
+./llama-server -m models/rwkv-6-world-1.6b-Q8_0.gguf --port 8080 -ngl 99
+```
+
+llama.cpp 服务器启动后，在 SillyTavern 中执行以下步骤，连接到本地搭建的 llama.cpp 服务：
+
+1. 点击 API Connections
+2. 将 API 设置为文本补全
+3. API Type 设置为 llama.cpp
+4. 将服务器 URL 设置为 http://127.0.0.1:8080 
+5. 点击 Connect，即可连接到本地搭建的 llama.cpp 服务
+
+![SillyTavern-llamacpp](./imgs/SillyTavern-llamacpp.gif)
+
+成功连接到本地的 llama.cpp 服务后，就可以与 AI 进行聊天了。
+
+![SillyTavern-bubble-sort-chat](./imgs/SillyTavern-bubble-sort.png)
+
+## SillyTavern 角色扮演[#role-play]
+
+SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与其进行对话。
+
+在 SillyTavern 中，点击 "角色管理" 按钮，可以看到 SillyTavern 自带的一个角色卡 Seraphina， 点击她的头像即可与该角色进行对话，并查看她的基本信息。
+
+![SillyTavern-seraphina](./imgs/SillyTavern-seraphina.png)
+
+除了自带的角色卡外，我们也可以[导入现成的角色卡文件](#import-role-card)或者[自己创建角色卡](#create-role)。
+
+### 导入现成的角色卡[#import-role-card]
+
+可以从 [Ai Character Cards](https://aicharactercards.com/) 下载现成的角色卡文件。
+
+<CallOut type="info">
+下载好的角色卡文件为 png 格式。
+</CallOut>
+
+然后在 SillyTavern 中，点击 `角色管理` 按钮，点击 `从文件导入角色`，选择下载好的角色卡文件导入即可。
+
+![SillyTavern-import-role-card](./imgs/SillyTavern-import-role-card.png)
+
+导入之后，可以在角色管理中看到导入的角色卡。
+
+![SillyTavern-import-role-card-success](./imgs/SillyTavern-import-role-card-success.png)
+
+之后点击导入的角色卡，即可与角色进行对话，并查看角色基本信息。
+
+![SillyTavern-import-role-card-chat](./imgs/SillyTavern-import-role-card-chat.png)
+
+### 创建角色卡[#create-role]
+
+除了导入现成的角色卡外，我们也可以自己创建角色卡。
+
+首先点击"角色管理"，然后点击"新建角色"。
+
+![SillyTavern-create-role](./imgs/SillyTavern-create-role.png)
+
+在这里我们输入**角色的名称和描述**，以及每次聊天时角色发送的**第一句话**，之后点击"创建角色"。
+
+<CallOut type="info">
+角色的描述是最重要的设置，它会在聊天的过程中持续影响角色。
+</CallOut>
+
+创建角色描述的示例：
+
+![SillyTavern-role-description-demo](./imgs/SillyTavern-role-description-demo.png)
+
+创建完成后，点击创建的角色头像，即可与角色进行对话，并查看角色的基本信息。
+
+![SillyTavern-create-role-chat](./imgs/SillyTavern-create-role-chat.png)
+
+更多创建 SillyTavern 角色卡的教程，请查看：
+
+- Trappu's PLists + Ali:Chat guide: https://wikia.schneedc.com/bot-creation/trappu/creation
+- AliCat's Ali:Chat guide: https://rentry.co/alichat
+- kingbri's minimalistic guide: https://rentry.co/kingbri-chara-guide
+
+## 参考资料[#reference]
+
+- [SillyTavern 官网](https://sillytavern.app/)
+- [SillyTavern 的 GitHub 仓库](https://github.com/SillyTavern/SillyTavern)
+- [llama.cpp 项目仓库](https://github.com/ggerganov/llama.cpp)

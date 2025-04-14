@@ -1,0 +1,37 @@
+---
+title: RWKV 中级教程
+description: RWKV 的各种本地部署方法和推理教程
+---
+
+import { CardContainer } from 'components-docs/card/card-container.tsx'
+import { Card } from 'components-docs/card/card.tsx'
+import { Code2, Terminal, Bot, Cpu, Cloud, Globe2, MessageSquare, GamepadIcon } from "lucide-react";
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type='info'>
+RWKV 的中级教程包含 RWKV 的各种**本地部署方法和推理教程**。
+</CallOut>
+
+### RWKV 模型本地部署工具
+
+**RWKVpip 库**是 RWKV 官方 pip 包，代码开源易用，可用于开发各种 RWKV 应用。
+
+**RWKV Runner** 和 **Ai00** 是 RWKV 社区开发的 RWKV 模型本地运行软件包，无需任何代码基础即可实现 RWKV 模型的本地部署。
+
+<CardContainer>
+<Card image="color-23.png" icon={Code2}      iconColor='text-green-600'   title="RWKVpip 指南"  description="了解 RWKVpip 包如何推理 RWKV 模型，对代码进行分段详解" link="/tutorials/intermediate/RWKVpip" />
+<Card image="color-3.png" icon={Terminal}    iconColor='text-pink-600' title="RWKV Runner 使用教程" description="RWKV 的本地部署软件包，带新手友好的图形化界面" link="/tutorials/intermediate/RWKV-Runner/Introduction" />
+<Card image="color-22.png" icon={Bot}         iconColor='text-purple-600' title="Ai00 使用教程" description="基于 WebGPU（vulkan） 的推理工具，支持大多数 GPU 和集显" link="/tutorials/intermediate/ai00/Introduction" />
+</CardContainer>
+
+### 其他开源模型推理工具
+
+RWKV 模型也适配了其他热门的开源模型部署和推理工具：
+
+<CardContainer>
+<Card image="color-2.png" icon={Cpu}         iconColor='text-sky-600'    title="llama.cpp 推理教程" description="本地部署 llama.cpp 并运行 RWKV 模型" link="/tutorials/intermediate/llamacpp" />
+<Card image="color-5.png" icon={Cloud}        iconColor='text-red-400'    title="Ollama 推理教程" description="本地部署 Ollama 并推理 RWKV 模型" link="/tutorials/intermediate/RWKV-Inference/Ollama" />
+<Card image="color-6.png" icon={Globe2}       iconColor='text-rose-600'  title="Text Generation WebUI 教程" description="RWKV 模型的 Text Generation WebUI 推理方法" link="/tutorials/intermediate/RWKV-Inference/text-generation-webui" />
+<Card image="color-25.png" icon={Terminal}     iconColor='text-purple-600'   title="KoboldCpp 推理教程" description="使用 KoboldCpp 运行 RWKV 模型" link="/tutorials/intermediate/RWKV-Inference/KoboldCpp" />
+<Card image="color-29.png" icon={GamepadIcon}  iconColor='text-pink-600'   title="SillyTavern 角色扮演教程" description="使用 SillyTavern 部署和运行 RWKV 模型，并进行角色扮演" link="/tutorials/intermediate/RWKV-Inference/SillyTavern" />
+</CardContainer>

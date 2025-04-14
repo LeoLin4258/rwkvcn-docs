@@ -1,0 +1,30 @@
+---
+title: RWKV 入门教程
+description: RWKV 模型的种类和下载方法、在线 Demo 体验方法，以及如何改善 RWKV 模型的生成质量。
+---
+
+import { CardContainer } from 'components-docs/card/card-container.tsx'
+import { Card } from 'components-docs/card/card.tsx'
+import { LibraryBig, PanelBottomDashed, PlayCircle, Download, MessageSquare, Sliders } from "lucide-react";
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type='info'>
+RWKV 入门教程主要介绍 RWKV 模型的种类和下载方法、在线体验方法，以及如何改善 RWKV 模型的生成质量。
+</CallOut>
+
+## 在线体验和模型下载
+
+我们提供了 RWKV 模型的在线体验 Demo 和简单易用的模型下载方法，方便大家在线体验和下载多个版本的 RWKV 模型。
+
+<CardContainer>
+<Card image="color-1.png" icon={PlayCircle}    iconColor='text-red-600'   title="在线体验 RWKV 模型"  description="通过在线 Demo 体验各种 RWKV 模型" link="/tutorials/basic/How-To-Play" />
+<Card image="color-2.png" icon={Download}      iconColor='text-blue-600'  title="下载 RWKV 模型" description="了解 RWKV 的模型种类和下载方法" link="/tutorials/basic/Model-Download" />
+</CardContainer>
+
+## 改善 RWKV 模型的生成质量
+
+由于 RWKV 模型的 RNN 架构特质，RWKV 模型对提示词更加敏感，通过**优化提示词格式**和**调整解码参数**，可以提升 RWKV 模型在不同任务的性能表现。
+<CardContainer>
+<Card image="color-4.png" icon={Sliders}       iconColor='text-amber-600'  title="调整 RWKV 的解码参数" description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" link="/tutorials/basic/RWKV-Parameters" />
+<Card image="color-28.png" icon={MessageSquare} iconColor='text-purple-600' title="RWKV 的提示词格式" description="通过使用 RWKV 偏好的提示词格式，可以改善模型的输出质量" link="/tutorials/basic/Prompt-Format" />
+</CardContainer>
