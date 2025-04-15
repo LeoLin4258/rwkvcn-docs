@@ -22,9 +22,9 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 软件提供了开箱即用的聊天功能，你可以与 AI 畅聊、提出问题并获取建议。
 
-![RWKV-Runner-chat](./imgs/RWKV-Runner-chat.png)
+![RWKV-Runner-chat](./imgs/RWKV-Runner-chat.jpg)
 
-![RWKV-Runner-chat](./imgs/RWKV-Runner-chat2.png)
+![RWKV-Runner-chat](./imgs/RWKV-Runner-chat2.jpg)
 
 ### 写作功能
 
