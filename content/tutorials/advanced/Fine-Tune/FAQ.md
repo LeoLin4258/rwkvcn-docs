@@ -15,11 +15,11 @@ title: 微调常见问题
 报错信息：JSONDecodeError:Unmatched '"' when decoding 'string'! 
 ```
 
-![ft-faq-Unmatched](./imgs/ft-faq-Unmatched.png)
+![ft-faq-Unmatched](./imgs/ft-faq-Unmatched.jpg)
 
 解决方法：这是因为你的 jsonl 文件缺少引号，导致转换工具出现解析错误，请检查 jsonl 文件的所有行是否都符合以下引号格式：
 
-![ft-faq-Unmatched-answer](./imgs/ft-faq-Unmatched-answer.png)
+![ft-faq-Unmatched-answer](./imgs/ft-faq-Unmatched-answer.jpg)
 
 ## 克隆 GitHub 仓库时 “unable to access”
 

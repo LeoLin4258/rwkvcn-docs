@@ -20,7 +20,7 @@ A：AI00 暂时不支持多显卡推理。
 
 ## 报错： ERROR [ai00 server::middleware] reload model failed: failed to request adaptor
 
-![alt text](./imgs/Ai00-qa.png)
+![alt text](./imgs/Ai00-qa.jpg)
 
 A：这是因为设备缺少 vulkan 驱动，请安装最新版本驱动。
 

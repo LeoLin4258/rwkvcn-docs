@@ -66,7 +66,7 @@ RWKV-V1 更接近 Linear Transformer 而非 RNN ，因为其每一个时间步�
 
 RWKV-V2 版本首次为 RWKV 实现了 RNN 模式，伪代码图如下：
 
-![RWKV-v2-RNN-Architecture](./imgs/RWKV-Architecture/RWKV-v2-RNN-Architecture.png)
+![RWKV-v2-RNN-Architecture](./imgs/RWKV-Architecture/RWKV-v2-RNN-Architecture.jpg)
 
 **代码图的补充说明：**
 
@@ -165,7 +165,7 @@ RWKV-V4 论文中正式提出 “Token Shift” 概念：将 RWKV 接收的每�
 
 RWKV-V4 语言建模的架构图，演示了 RWKV-V4 的 Token Shift 过程，以及 RWKV 的 state 更新过程：
 
-![RWKV-V4 语言建模的架构](./imgs/RWKV-Architecture/rwkv-architecture-for-language-modeling.png)
+![RWKV-V4 语言建模的架构](./imgs/RWKV-Architecture/rwkv-architecture-for-language-modeling.jpg)
 
 <CallOut type="warning">
 RWKV-V4 版本的一大特点是 state（RNN 的隐藏状态）非常小，这是因为彭博专注于在“最小的 state 下实现最大的性能”。
@@ -569,7 +569,7 @@ World-v2.9 数据集：：从 World v3 数据集中采样 2T tokens 作为训练
 
 而 RWKV 的并行化是 head-wise 和 channel-wise 的，也就是“逐头”和“逐通道”的。在 time mixing 每一层中，不同的头可以独立计算，在 channel mixing 中，不同的通道也可以独立计算，因此 RWKV 模型架构具有较好的并行性。
 
-![RWKV 语言建模的隐藏状态流动图解](./imgs/RWKV-Architecture/rwkv-architecture-for-language-modeling.png)
+![RWKV 语言建模的隐藏状态流动图解](./imgs/RWKV-Architecture/rwkv-architecture-for-language-modeling.jpg)
 
 */}
 

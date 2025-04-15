@@ -15,7 +15,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 PiSSA 与 LoRA 微调的架构一致，只是初始化 Adapter 的方式不同：LoRA 用高斯噪声以及 0 初始化适配器参数、冻结核心模型参数，PiSSA 则是直接对 W 的低秩主成分 A、B 进行微调，冻结次要的修正项。
 
-![different-between-lora-and-pissa](../imgs/different-between-lora-and-pissa.png)
+![different-between-lora-and-pissa](../imgs/different-between-lora-and-pissa.jpg)
 
 因此，PiSSA 比 LoRA 收敛更快、效果更好。
 </CallOut>
@@ -279,7 +279,7 @@ python merge/merge.py --base_model $base_model \
 
 ![pissa-model-usage-of-runner](../imgs/pissa-model-usage.png)
 
-![pissa-model-example](../imgs/pissa-tuning-example.png)
+![pissa-model-example](../imgs/pissa-tuning-example.jpg)
 
 详细用法请参考 [RWKV Runner 教程](../../../intermediate/RWKV-Runner/Introduction) 和 [Ai00 教程](../../../intermediate/ai00/Introduction)。
 
