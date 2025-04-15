@@ -9,7 +9,7 @@ export default function Home() {
 				<p className='mt-4'>太好了! 你已经成功运行了这个应用。现在你可以开始编辑了: </p>
 
 				<p>1. <a href="/docs" className='mt-4 text-blue-500 '>Docs</a> 在 <span className='font-bold'>/content/docs/</span></p>
-				<p>2. <a href="/tutorial" className='text-blue-500'>Tutorial</a> 在 <span className='font-bold'>/content/tutorial/</span></p>
+				<p>2. <a href="/tutorials" className='text-blue-500'>Tutorials</a> 在 <span className='font-bold'>/content/tutorials/</span></p>
 			</div>
 		</div>
 	)
