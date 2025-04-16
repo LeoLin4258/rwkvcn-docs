@@ -121,6 +121,11 @@ pip install -r requirements.txt
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个epoch的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，state tuning 建议从短开始尝试，如 512 |
 </Step>
+
+<CallOut type="warning">
+注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积。
+</CallOut>
+
 <Step>
 ### 调整其他训练参数
 
