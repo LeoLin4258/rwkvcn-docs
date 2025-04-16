@@ -1,48 +1,49 @@
-# name: Sync Pages and Components Directory to RWKVCN
+name: Sync docs to RWKVCN
 
-# on:
-#   push:
-#     branches:
-#       - main  # 监听 RWKVCN-DOCS 仓库的 main 分支
+on:
+  push:
+    branches:
+      - main  # 监听 RWKVCN-DOCS 仓库的 main 分支
 
-# jobs:
-#   sync:
-#     runs-on: ubuntu-latest
+jobs:
+  sync:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout RWKVCN-DOCS repo
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout RWKVCN-DOCS repo
+        uses: actions/checkout@v2
 
-#       - name: Sync Directories to RWKVCN
-#         env:
-#           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-#         run: |
-#           # 克隆 RWKVCN 仓库
-#           git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
-#           cd rwkvcn
+      - name: Sync Directories to RWKVCN
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          # 克隆 RWKVCN 仓库
+          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
+          cd rwkvcn
 
-#           # 确保我们在 rwkvcn-docs 分支上，如果不存在则创建
-#           git fetch origin rwkvcn-docs || true
-#           if git rev-parse --verify origin/rwkvcn-docs >/dev/null 2>&1; then
-#             git checkout rwkvcn-docs
-#             git pull origin rwkvcn-docs
-#           else
-#             git checkout -b rwkvcn-docs
-#           fi
+          # 确保我们在 rwkvcn-docs-v2 分支上，如果不存在则创建
+          git fetch origin rwkvcn-docs-v2 || true
+          if git rev-parse --verify origin/rwkvcn-docs-v2 >/dev/null 2>&1; then
+            git checkout rwkvcn-docs-v2
+            git pull origin rwkvcn-docs-v2
+          else
+            git checkout -b rwkvcn-docs-v2
+          fi
 
-#           # 配置 Git 用户信息
-#           git config user.name "LeoLin4258"
-#           git config user.email "4258leo@gmail.com"
+          # 配置 Git 用户信息
+          git config user.name "LeoLin4258"
+          git config user.email "4258leo@gmail.com"
 
-#           # 同步文件
-#           cd ..
-#           rsync -av --delete --exclude='.git' pages/ rwkvcn/pages/
-#           rsync -av --delete --exclude='.git' components/docs/ rwkvcn/components/docs/
+          # 同步文件
+          cd ..
+          rsync -av --delete --exclude='.git' content/ rwkvcn/content/
+          rsync -av --delete --exclude='.git' components-docs/ rwkvcn/components-docs/
+          rsync -av --delete --exclude='.git' public/docs/ rwkvcn/public/docs/
 
-#           # 提交更改
-#           cd rwkvcn
-#           git add pages/ components/docs/
-#           git commit -m "Sync pages and components/docs directories from RWKVCN-DOCS main to rwkvcn-docs"
+          # 提交更改
+          cd rwkvcn
+          git add content/ components-docs/ public/docs/
+          git commit -m "Sync docs from RWKVCN-DOCS main to rwkvcn-docs"
           
-#           # 使用 force push 来确保更新成功
-#           git push -f origin rwkvcn-docs
+          # 使用 force push 来确保更新成功
+          git push -f origin rwkvcn-docs-v2
