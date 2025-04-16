@@ -120,7 +120,9 @@ pip install -r requirements.txt
 ### 调整重要训练参数
 
 <CallOut type="info">
-以下参数建议根据你的微调数据、设备性能进行调整。
+注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积；
+
+`--my_testing` 必须对应微调模型的版本。
 </CallOut>
 
 | 参数 | 描述 |
@@ -129,6 +131,7 @@ pip install -r requirements.txt
 | `epoch_save=5` | 每隔多少个训练轮次保存一次 LoRA 文件，注意存储空间是否充足 |
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个 epoch 的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，建议根据语料长度修改 |
+| `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 </Step>
 <Step>
 ### 调整 LoRA 相关参数
@@ -168,7 +171,6 @@ pip install -r requirements.txt
 | `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
 | `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
-| `--my_testing "x060"` | 训练的 RWKV 模型版本，v5 选 `x052`，v6 选 `x060` |
 | `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
 | `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
 | `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
