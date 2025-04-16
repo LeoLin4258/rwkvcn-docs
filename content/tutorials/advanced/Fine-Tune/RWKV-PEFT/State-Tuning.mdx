@@ -64,6 +64,11 @@ git clone https://github.com/BlinkDL/RWKV-LM.git # 克隆 RWKV-LM 仓库
 cd RWKV-LM/RWKV-v5 # 进入 RWKV-v5 目录
 python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复制数据并生成 binidx 数据
 ```
+如果 github 无法链接，请使用以下国内仓库：
+```bash
+git clone https://gitee.com/uniartisan2018/RWKV-LM.git
+```
+
 ![state-tuning-make-data](../imgs/state-tuning-make-data.gif)
 
 `/home/rwkv/RWKV-PEFT/data/qaemoji.jsonl` 需要改成你自己的 jsonl 文件路径，10 是数据重复的次数，512 则是训练数据的 ctx_len（上下文长度）。
@@ -83,6 +88,14 @@ python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复�
 ```  bash copy
 git clone https://github.com/JL-er/RWKV-PEFT.git
 ```
+
+<CallOut type='warning'>
+如果 GitHub 无法链接，请使用以下国内仓库：
+
+```  bash copy
+git clone https://gitee.com/uniartisan2018/RWKV-PEFT.git
+```
+</CallOut>
 
 克隆完成后，使用 `cd RWKV-PEFT` 命令进入 `RWKV-PEFT` 目录。并运行以下命令，安装项目所需依赖：
 
