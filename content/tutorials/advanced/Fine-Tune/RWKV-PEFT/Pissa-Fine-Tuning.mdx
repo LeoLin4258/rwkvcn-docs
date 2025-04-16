@@ -136,6 +136,11 @@ pip install -r requirements.txt
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会延长单个 epoch 的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，建议根据语料长度修改 |
 </Step>
+
+<CallOut type="warning">
+注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积。
+</CallOut>
+
 <Step>
 ### 调整 PiSSA 相关参数
 

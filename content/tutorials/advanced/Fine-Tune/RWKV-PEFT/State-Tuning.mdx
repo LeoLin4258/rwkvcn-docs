@@ -49,34 +49,6 @@ State tuning 的显存需求可参考下表：
 
 要 state tuning 微调 RWKV 模型，需要使用收集适合训练 RWKV 的数据（jsonl 格式），具体方法可参考[准备微调数据集](../FT-Dataset)。
 
-为了突出 state tuning 的特性，我们为本教程选取了大量带 emoji 的对话数据作为训练数据：
-
-![state-tuning-dataset-demo](../imgs/state-tuning-dataset-demo.png)
-
-### 转化成 binidx 数据
-
-使用 [`make_data.py`](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v5/make_data.py) 脚本，可以将 jsonl 训练数据乱序重复生成 10 遍，同时转化成可供 RWKV 训练的 binidx 数据。
-
-在 Linux 工作区依次运行以下命令，以使用 `RWKV-LM` 仓库中的 `make_data.py` 脚本生成 binidx 数据：
-
-``` bash copy
-git clone https://github.com/BlinkDL/RWKV-LM.git # 克隆 RWKV-LM 仓库
-cd RWKV-LM/RWKV-v5 # 进入 RWKV-v5 目录
-python make_data.py /home/rwkv/RWKV-PEFT/data/qaemoji.jsonl 10 512 # 乱序复制数据并生成 binidx 数据
-```
-如果 github 无法链接，请使用以下国内仓库：
-```bash
-git clone https://gitee.com/uniartisan2018/RWKV-LM.git
-```
-
-![state-tuning-make-data](../imgs/state-tuning-make-data.gif)
-
-`/home/rwkv/RWKV-PEFT/data/qaemoji.jsonl` 需要改成你自己的 jsonl 文件路径，10 是数据重复的次数，512 则是训练数据的 ctx_len（上下文长度）。
-
-<CallOut type="info">
-在社区的实验中，state tuning 的 ctx_len 应当尽可能小，建议从 512 开始尝试。
-</CallOut>
-
 ## 配置训练环境
 
 请参考[RWKV 微调环境配置](../FT-Environment)板块，配置 Conda 等训练环境。
@@ -149,6 +121,11 @@ pip install -r requirements.txt
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个epoch的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，state tuning 建议从短开始尝试，如 512 |
 </Step>
+
+<CallOut type="warning">
+注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积。
+</CallOut>
+
 <Step>
 ### 调整其他训练参数
 

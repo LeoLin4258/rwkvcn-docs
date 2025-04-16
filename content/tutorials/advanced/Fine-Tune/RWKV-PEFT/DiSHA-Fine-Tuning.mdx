@@ -103,6 +103,10 @@ pip install -r requirements.txt
 - data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
 </Step>
 
+<CallOut type="warning">
+注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积。
+</CallOut>
+
 <Step>
 ### 调整 n_layer 和 n_embd 参数
 
