@@ -1,5 +1,5 @@
 ---
-title: RWKV-FLA：跨平台推理与训练框架
+title: RWKV-FLA 使用教程
 
 ---
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
@@ -10,6 +10,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 RWKV-FLA 是一个专为 RWKV 模型系列提供的高性能推理和训练框架，它利用 Triton 内核来加速 RWKV 模型的性能。
 </CallOut>
 
+以下教程基于 NVIDIA（CUDA）显卡。
 
 ## 特性与优势
 
@@ -19,12 +20,12 @@ RWKV-FLA 是一个专为 RWKV 模型系列提供的高性能推理和训练框�
 - **精度与稳定性**：在 NVIDIA 4090、H100 和 Intel A770 上经过验证
 
 ## 安装指南
-<Tabs items={['消费级显卡（推荐）', '高性能显卡']}>
-<Tab value='消费级显卡（推荐）'>
+<Tabs items={['稳定版 Triton（推荐）', 'Triton nightly 版本']}>
+<Tab value='稳定版 Triton（推荐）'>
 
-对于消费级显卡（4090及以下），我们建议使用稳定版本的 triton；
+对于消费级显卡（4090及以下），我们建议使用稳定版本的 Triton；
 
-使用以下命令可以一键安装 RKWV-FLA 及相关依赖：
+依次运行以下命令安装 RWKV-FLA 及相关依赖：
 ```bash
 # 创建新环境（推荐）
 conda create -n rwkv-fla python=3.12
@@ -40,8 +41,8 @@ pip install --upgrade rwkv-fla
 此处推荐使用主流的 Linux 发行版，Windows 和 Mac 系统有诸多更复杂的配置，不推荐使用。
 </CallOut>
 </Tab>
-<Tab value='高性能显卡'>
-Triton nightly 是 Triton 最新的
+<Tab value='Triton nightly 版本'>
+Triton nightly 是 Triton 最新的测试版，nightly 版本加上新语法在 end to end 速度上提升 13%。但未经过大规模测试，可能会出现 bug。
 
 要使用 Triton nightly 版本，建议按照以下步骤创建一个全新的环境：
 

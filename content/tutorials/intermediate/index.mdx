@@ -5,7 +5,7 @@ description: RWKV 的各种本地部署方法和推理教程
 
 import { CardContainer } from 'components-docs/card/card-container.tsx'
 import { Card } from 'components-docs/card/card.tsx'
-import { Code2, Terminal, Bot, Cpu, Cloud, Globe2, MessageSquare, GamepadIcon } from "lucide-react";
+import { Zap, Code2, Terminal, Bot, Cpu, Cloud, Globe2, MessageSquare, GamepadIcon } from "lucide-react";
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 <CallOut type='info'>
@@ -14,11 +14,14 @@ RWKV 的中级教程包含 RWKV 的各种**本地部署方法和推理教程**�
 
 ### RWKV 模型本地部署工具
 
+**RWKV-FLA** 是一个高性能推理和训练框架，利用 Triton 内核加速 RWKV 模型的性能。
+
 **RWKVpip 库**是 RWKV 官方 pip 包，代码开源易用，可用于开发各种 RWKV 应用。
 
 **RWKV Runner** 和 **Ai00** 是 RWKV 社区开发的 RWKV 模型本地运行软件包，无需任何代码基础即可实现 RWKV 模型的本地部署。
 
 <CardContainer>
+<Card image="color-7.png" icon={Zap}      iconColor='text-sky-600'   title="RWKV-FLA 使用教程"  description="介绍 RWKV-FLA 如何训练和推理 RWKV 模型，提供了可运行的简单示例代码" link="/tutorials/intermediate/RWKV-FLA" />
 <Card image="color-23.png" icon={Code2}      iconColor='text-green-600'   title="RWKVpip 指南"  description="了解 RWKVpip 包如何推理 RWKV 模型，对代码进行分段详解" link="/tutorials/intermediate/RWKVpip" />
 <Card image="color-3.png" icon={Terminal}    iconColor='text-pink-600' title="RWKV Runner 使用教程" description="RWKV 的本地部署软件包，带新手友好的图形化界面" link="/tutorials/intermediate/RWKV-Runner/Introduction" />
 <Card image="color-22.png" icon={Bot}         iconColor='text-purple-600' title="Ai00 使用教程" description="基于 WebGPU（vulkan） 的推理工具，支持大多数 GPU 和集显" link="/tutorials/intermediate/ai00/Introduction" />
