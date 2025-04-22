@@ -11,6 +11,7 @@
       "basic/Prompt-Format",
       "basic/RWKV-Parameters",
       "---RWKV 中级教程（推理/本地部署）---",
+      "intermediate/RWKV-FLA",
       "intermediate/RWKVpip",
       "intermediate/llamacpp",
       "intermediate/RWKV-Runner",
