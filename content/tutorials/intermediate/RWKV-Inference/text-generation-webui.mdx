@@ -68,7 +68,7 @@ https://github.com/oobabooga/llama-cpp-python-cuBLAS-wheels/releases/download/me
 
 Text Generation WebUI 支持多种模型加载器，其中 llama.cpp 模型加载器支持 RWKV 模型。
 
-llama.cpp 仅支持 `gguf` 格式的 RWKV 模型，我们需要从 [RWKV-GGUF 仓库](https://huggingface.co/latestissue) 下载 `gguf`  RWKV 模型。
+llama.cpp 仅支持 `gguf` 格式的 RWKV 模型，我们需要从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf`  RWKV 模型。
 
 <CallOut type="info">
 RWKV-GGUF 仓库为每种参数的 RWKV 模型提供了不同量化精度的 `gguf` 模型文件。
@@ -76,7 +76,7 @@ RWKV-GGUF 仓库为每种参数的 RWKV 模型提供了不同量化精度的 `gg
 量化会影响模型的推理精度，从而影响模型的对话效果，推荐使用损失较低的 `Q5_1`、`Q8_0` 量化精度，保持模型的智商和聊天体验。
 </CallOut>
 
-在 Hugging Face 页面，点击模型文件右侧的下载按钮，以下载模型文件：
+在 RWKV-GGUF 仓库中，选择你要下载的模型：
 
 ![rwkv-model-list](./imgs/text-generation-webui-rwkv-model-list.jpg)
 
