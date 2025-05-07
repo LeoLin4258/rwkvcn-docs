@@ -170,9 +170,9 @@ graph TD;
 ``` bash copy
 # 将 data.jsonl 文件重复三次，并将所有行输出到 repeated-data.jsonl 文件中
 # 此命令也可用于合并多个 jsonl 数据文件
-awk 'NR > 1 && NF == 0 {next} {print}' data.jsonl data.jsonl data.jsonl > repeated-data.jsonl
-# 将 repeated-data.jsonl 文件的行打乱，并将打乱结果输出到 shuffled-data.jsonl 文件中
-shuf repeated-data.jsonl > shuffled-data.jsonl
+awk 'NF > 0 {print}' data.jsonl data.jsonl data.jsonl | head -c -1 > repeated-data.jsonl
+# 将 repeated-data.jsonl 文件的所有行随机打乱，并将结果输出到 shuffled-data.jsonl 文件中
+sort -R repeated-data.jsonl | head -c -1 > shuffled-data.jsonl
 ```
 <CallOut type="warning">
 `data.jsonl` 需要改成你准备好的 jsonl 数据文件名称。
