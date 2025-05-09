@@ -72,6 +72,9 @@ export const HeatMap = ({ name }: { name: string }) => {
                                     blue = Math.round(255 + (107 - 255) * ((percentage - 0.5) * 2));
                                 }
 
+                                // 确保正确的四舍五入，使用Math.round处理浮点数精度问题
+                                const displayValue = (Math.round(value * 100) / 100).toFixed(2);
+
                                 return (
                                     <div
                                         key={index}
@@ -81,7 +84,7 @@ export const HeatMap = ({ name }: { name: string }) => {
                                             color: percentage > 0.25 && percentage < 0.75 ? '#333' : '#fff',
                                         }}
                                     >
-                                        {value.toFixed(2)}
+                                        {displayValue}
                                     </div>
                                 );
                             })}
