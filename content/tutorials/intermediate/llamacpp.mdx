@@ -12,9 +12,9 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 [llama.cpp](https://github.com/ggerganov/llama.cpp) 是一个轻量化的大语言模型运行框架，专门优化了在 CPU 上运行模型的性能。
 </CallOut>
 
-随着 RWKV 社区成员 [@MollySophia](https://github.com/MollySophia) 的工作，llama.cpp 现已适配 RWKV-6 模型。
+随着 RWKV 社区成员 [@MollySophia](https://github.com/MollySophia) 的工作，llama.cpp 现已适配 RWKV-6/7 模型。
 
-本章节介绍如何在 llama.cpp 中使用 RWKV-6 模型进行推理。
+本章节介绍如何在 llama.cpp 中使用 RWKV 模型进行推理。
 
 ## 视频教程
 
@@ -54,43 +54,44 @@ llama.cpp 提供了多种预编译版本，根据你的显卡类型选择合适�
 也可以参照 [llama.cpp 官方构建文档](https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md)，选择适合的方法本地编译构建。
 </Step>
 <Step>
-### 获取 gguf 格式模型
+### 获取 gguf 格式模型[#get-gguf-models]
 
 llama.cpp 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` 格式模型。因此，我们需要使用以下两种方法之一获取 `.gguf` 格式的 RWKV 模型。
 
-<Tabs items={[' 下载现成 gguf 模型（推荐）', '从 HF 格式转换成 .gguf']}>
+<Tabs items={[' 直接下载 gguf 模型（推荐）', '从 pth 转换成 gguf']}>
   <Tab> 
-可以从 [RWKV-6-World-GGUF 仓库](https://modelscope.cn/collections/RWKV-6-World-GGUF-f06d2c9def1349) 下载已量化并转化成 gguf 格式的 RWKV 模型。
+可以从 [RWKV-GGUF 合集](https://modelscope.cn/organization/RWKV?tab=collection) 下载 gguf 格式的 RWKV 模型。
 
 <CallOut type="info">
 请在 llama.cpp 目录下新建一个 models 文件夹，将下载的 gguf 模型放入 models 文件夹中。
 </CallOut>
 
 <CallOut type="warning">
-RWKV gguf 模型有多种量化类型，精度越高模型的回复效果越好，但模型体积和计算要求越高。
+RWKV gguf 模型有**多种量化类型**，精度越高，模型的回复效果越好，但模型体积和计算要求越高。
 
-推荐顺序：`FP16` > `Q8_0` > `Q5_K_M` > `Q4_K_M` ，更低的量化精度（如 `Q3_0`、`Q2_0` 等）可能会大大降低模型的性能，甚至无法正常回答问题。
+推荐顺序：`FP16` > `Q8_0` > `Q5_K_M` > `Q4_K_M` ，更低的量化精度（如 `Q3_0`、`Q2_0` 等）可能会大大降低模型的性能。
 </CallOut>
 
 </Tab>
-  <Tab> 
-  首先，从 [RWKV - HF 仓库](https://huggingface.co/RWKV) 或[镜像仓库](https://hf-mirror.com/RWKV)（国内可访问）下载一个 Hugging Face 格式的 RWKV 模型，如 `RWKV/v6-Finch-1B6-HF`。
+  <Tab id="pth-to-gguf"> 
+1. 首先，从 [Hugging Face](https://huggingface.co/BlinkDL) 或[魔搭平台](https://modelscope.cn/organization/RWKV?tab=model)（国内可访问）下载一个 `pth` 格式的 RWKV 模型
+2. 从 [MollySophia/rwkv-mobile 仓库](https://github.com/MollySophia/rwkv-mobile/blob/master/converter/convert_rwkv_pth_to_gguf.py) 下载 `convert_hf_to_gguf.py` 转换脚本
+3. 下载 RWKV 分词表[rwkv_vocab_v20230424.txt](https://github.com/MollySophia/rwkv-mobile/blob/master/assets/rwkv_vocab_v20230424.txt)，确保分词器和转换脚本放在同一目录下
+4. 运行 `pip install torch gguf` 命令，安装转换脚本所需的依赖项
+5. 在转换脚本目录下运行以下命令，将 `pth` 格式的模型转换为 `gguf` 格式的模型
 
-然后在 llama.cpp 目录运行此命令，将 Hugging Face 模型转成 gguf 格式： 
-
-``` bash copy
-python llama.cpp/convert_hf_to_gguf.py ./v6-Finch-1B6-HF
+```bash
+python convert_rwkv_pth_to_gguf.py [pth模型文件路径] rwkv_vocab_v20230424.txt
 ```
+
 <CallOut type="warning">
- 请将上述命令中的 `./v6-Finch-1B6-HF` 改成你下载的 RWKV HF 模型目录。
-</CallOut>
-<CallOut type="info">
- 如果你已经下载了 `.pth` 格式的模型，可以使用附录中的 [pth-to-HF 脚本](#appendix-code) 将模型转为 HF 格式，再从 HF 格式转为 gguf 格式。
+ 请将上述命令中的 `[pth模型文件路径]`改成你的 pth 格式 RWKV 模型路径。
 </CallOut>
   </Tab>
 </Tabs>
 </Step>
 <Step>
+
 ### 运行 RWKV 模型进行对话
 
 在 llama.cpp 目录运行以下命令，可以开启 llama.cpp 的命令行**对话模式**：
@@ -213,62 +214,12 @@ python convert_rwkv_state_to_llamacpp.py rwkv-x060-chn_single_round_qa-3B-202405
 
 
 </Steps>
-*/}
 
 ## 附录代码[#appendix-code]
 
-### `.pth` 模型转 HF 格式
+### `pth` 转 `gguf` 格式[#pthtogguf]
 
-以下代码可将 `.pth` 模型转化为 HF 格式模型（`.bin`）：
 
-``` python copy
-# Convert the model for the pytoch_model.bin
-import torch
-
-SOURCE_MODEL="./v6-FinchX-14B-pth/rwkv-14b-final.pth"
-TARGET_MODEL="./v6-Finch-14B-HF/pytorch_model.bin"
-
-# delete target model
-import os
-if os.path.exists(TARGET_MODEL):
-    os.remove(TARGET_MODEL)
-
-model = torch.load(SOURCE_MODEL, mmap=True, map_location='cpu')
-# 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
-# Rename all the keys, to include "rwkv."
-new_model = {}
-for key in model.keys():
-
-    # If the keys start with "blocks"
-    if key.startswith("blocks."):
-        new_key = "rwkv." + key
-        # Replace .att. with .attention.
-        new_key = new_key.replace(".att.", ".attention.")
-        # Replace .ffn. with .feed_forward.
-        new_key = new_key.replace(".ffn.", ".feed_forward.")
-        # Replace `0.ln0.` with `0.pre_ln.`
-        new_key = new_key.replace("0.ln0.", "0.pre_ln.")
-    else:
-        # No rename needed
-        new_key = key
-
-        # Rename `emb.weight` to `rwkv.embeddings.weight`
-        if key == "emb.weight":
-            new_key = "rwkv.embeddings.weight"
-
-        # Rename the `ln_out.x` to `rwkv.ln_out.x
-        if key.startswith("ln_out."):
-            new_key = "rwkv." + key
-
-    print("Renaming key:", key, "--to-->", new_key)
-    new_model[new_key] = model[key]
-
-# Save the new model
-print("Saving the new model to:", TARGET_MODEL)
-torch.save(new_model, TARGET_MODEL)
-```
-
-{/*
 ### `.pth` State 文件转成 `.bin`[#state-pthtobin]
 
 
