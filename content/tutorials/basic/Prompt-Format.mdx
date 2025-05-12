@@ -74,6 +74,37 @@ Response:
 RWKV-7 在中国上海漕河泾举办的开发者大会上，来自不同领域的专家、企业和开源社区的人士齐聚一堂，分享了 RWKV-7 及其应用成果。RWKV-7 被认为是 AI 基础设施经济学公式的重新定义，并且在 2025 全球开发者先锋大会上也得到了展示。
 ```
 
+## RWKV7-G1 专用 RAG 格式
+
+RWKV-7-G1 模型专用的提示词格式如下：
+
+```bash copy
+材料文本
+
+Question: 问题? Answer:
+```
+<CallOut type="info">
+这是 RWKV7-G1 系列的 RAG 专用 Prompt 格式。其中 `Question: ` 后面是用户给模型的问题，`Answer:` 后面留空，让模型进行回答。
+</CallOut>
+
+![RWKV7-G1 Prompt](../../docs/RWKV-Prompts/imgs/rwkv-g1-rag-prompt.png)
+
+也可以把 `Question:` 和 `Answer:` 换成 `User:` 和 `Assistant:`:
+
+```bash copy
+材料文本
+
+User: 问题
+
+Assistant:
+```
+
+![RWKV7-G1 Prompt-2](../../docs/RWKV-Prompts/imgs/rwkv-g1-rag-prompt-user-assistant.png)
+
+<CallOut type="info">
+RAG Prompt 是 RWKV-7-G1 模型的专用格式，推荐把 Temperature、Top-p、Penalty 等**解码参数调整为 0**。
+</CallOut>
+
 ## few-shot[#Few-Shot]
 
 对于一些带上下文的问答任务，我们建议在 prompt 前后重复几个同类的问题（few-shot），为模型作示范。如下所示：
