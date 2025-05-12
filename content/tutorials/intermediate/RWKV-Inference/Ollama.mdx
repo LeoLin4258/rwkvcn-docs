@@ -52,34 +52,36 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 <Tabs items={['从 Ollama 仓库下载', '自定义 RWKV-7 模型', '自定义 RWKV-6 模型']}>
 <Tab>
 
-[Ollama 的 RWKV 仓库](https://ollama.com/mollysama) 提供了 RWKV7-G1 0.1B/0.4B 和 RWKV7-World 1.5B/2.9B 四种模型。
-
-RWKV-6 也仍在仓库中保留，大家可以根据需求选择下载。
+[Ollama 的 RWKV 仓库](https://ollama.com/mollysama) 提供了 RWKV7-G1（推荐） 和 RWKV7-World、RWKV-6 模型。
 
 ![ollama-rwkv-7-model-repo](./imgs/ollama-rwkv-7-model-repo.png)
 
-在你的终端执行 `ollama run mollysama/rwkv-7-world:2.9b` 命令，即可自动**下载并运行** `q4_k_m` 量化版本的 RWKV-7-World 2.9B 模型。
+在你的终端执行 `ollama run mollysama/rwkv-7-world:2.9b` 命令，即可**自动下载并运行** `q4_k_m` 量化版本的 RWKV-7-World 2.9B 模型。
 
 ![ollama-run-rwkv-7-world-2.9b](./imgs/ollama-run-rwkv-7-world-2.9b.png)
 
 <CallOut type='info'>
-目前我们尚未完成开启 RWKV7-G1 系列模型的 `think` 功能的 Ollama 配置，因此暂时无法使用该功能。
+Ollama 尚未适配 RWKV7-G1 系列模型的推理功能。
 </CallOut>
 
 </Tab>
-<Tab>
+<Tab id="modify-rwkv-7-gguf-model">
 <Steps>
 <Step>
-### 下载 RWKV gguf 模型[#download-rwkv-gguf-model]
+### 下载 RWKV gguf 模型
 
 要自定义 RWKV 模型，需要先从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf` 格式的 RWKV-7-World 模型。
 
-<CallOut type="warning" >
-RWKV gguf 模型有各种量化版本，建议使用 `Q5_1`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变得很差。
+<CallOut type="warning">
+RWKV gguf 模型有各种量化版本，建议使用 `Q5_K_M`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变差。
+</CallOut>
+<CallOut type="info">
+自己微调了一个 RWKV-7 模型，想从 pth 转 gguf 格式？查看 [llama.cpp 文档 - 从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
 </CallOut>
 </Step>
 <Step>
-### 创建模型的 Modelfile 文件[#create-model-modelfile]
+
+### 创建模型的 Modelfile 文件[#create-7-model-modelfile]
 
 在存放 RWKV gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
 
@@ -111,7 +113,7 @@ PARAMETER stop "<s>"
 ![Modelfile](./imgs/ollama-Modelfile-content-rwkv7.jpg)
 </Step>
 <Step>
-### 运行自定义 RWKV 模型[#run-custom-rwkv-model]
+### 运行自定义 RWKV-7 模型[#run-custom-rwkv-7-model]
 
 在 RWKV gguf 模型文件夹下打开终端，并执行 `ollama create` 命令：
 
@@ -138,16 +140,19 @@ ollama run rwkv-7-world-1.5b-Q8_0
 
 </Tab>
 
-<Tab>
+<Tab id="modify-rwkv-6-gguf-model">
 
 <Steps>
 <Step>
-### 下载 RWKV gguf 模型[#download-rwkv-gguf-model]
+### 下载 RWKV gguf 模型[#download-rwkv-6-gguf-model]
 
 要自定义 RWKV 模型，需要先从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf` 格式的 RWKV-6-World 模型。
 
 <CallOut type="warning" >
 RWKV gguf 模型有各种量化版本，建议使用 `Q5_1`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变得很差。
+</CallOut>
+<CallOut type="info">
+自己微调了一个 RWKV-7 模型，想从 pth 转 gguf 格式？查看 [llama.cpp 文档 - 从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
 </CallOut>
 </Step>
 <Step>
@@ -183,7 +188,7 @@ PARAMETER stop "\nUser:"
 ![Modelfile](./imgs/ollama-Modelfile-content.jpg)
 </Step>
 <Step>
-### 运行自定义 RWKV 模型[#run-custom-rwkv-model]
+### 运行自定义 RWKV-6 模型[#run-custom-rwkv-model]
 
 在 RWKV gguf 模型文件夹下打开终端，并执行 `ollama create` 命令：
 
