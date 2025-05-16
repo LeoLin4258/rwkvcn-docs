@@ -24,9 +24,12 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 微调方法的详细教程
 
+**预训练教程**基于 [RWKV-LM](https://github.com/BlinkDL/RWKV-LM) 仓库，训练流程和 RWKV 官方模型完全一致。
+
 推荐使用 RWKV 官方微调仓库 [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT)，RWKV-PEFT 包含常见的 `LoRA` 微调、`PiSSA` 微调方法，也有 RWKV 模型特有的 `State-Tuning` 和 RWKV 社区成员 [@JL-er](https://github.com/JL-er) 开发的 `DiSHA` 等独特的微调方法。
 
 <CardContainer>
+<Card image="color-4.png" icon={Dumbbell}  iconColor='text-purple-500'  title="RWKV 预训练教程"           description="基于 RWKV-LM 的预训练方法，训练过程和 RWKV 官方模型完全一致" link="/tutorials/advanced/pretrain" />
 {/* <Card image="color-4.png" icon={Dumbbell}  iconColor='text-yellow-500'  title="全参微调"           description="RWKV 模型的全参微调方法，使用社区魔改的 RWKV-LM 仓库" link="/tutorials/advanced/Fine-Tune/Full-ft-Simple" /> */}
 <Card image="color-5.png" icon={Sparkles}  iconColor='text-red-400'    title="State Tuning 微调"  description="RWKV 模型独特的 State Tuning 微调方法" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/State-Tuning" />
 <Card image="color-19.png" icon={Puzzle}    iconColor='text-purple-500'  title="LoRA 微调"          description="RWKV 模型的 LoRA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/LoRA-Fine-Tuning" />
