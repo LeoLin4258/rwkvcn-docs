@@ -21,6 +21,7 @@
       "intermediate/RWKV-Inference/KoboldCpp",
       "intermediate/RWKV-Inference/SillyTavern",
       "---RWKV 高级教程（微调/训练）---",
+      "advanced/pretrain",
       "advanced/Fine-Tune/Introduction",
       "advanced/Fine-Tune/FT-Environment",
       "advanced/Fine-Tune/FT-Dataset",
