@@ -66,7 +66,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 
 请参考[准备训练数据](./Fine-Tune/FT-Dataset.mdx) 文档，准备一个 `jsonl` 格式的预训练数据集，并将其放在 `RWKV-LM/RWKV-v5` 目录下。
 
-在 `RWKV-LM/RWKV-v5` 目录中运行以下命令，将 `data` 文件夹中的 `jsonl` 文件转成 `binidx` 文件 ：
+在 `RWKV-LM/RWKV-v5` 目录中运行以下命令，将 `jsonl` 数据文件转成 `binidx` 格式：
 
 ``` bash 
 python make_data.py demo.jsonl 3 4096
@@ -101,7 +101,7 @@ python make_data.py demo.jsonl 3 4096
 | 参数                               | 参数解释                                                                                                       |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `MODEL_TYPE="x070"`                | 训练的**模型版本**，建议使用 RWKV-7 架构，训练 RWKV-6 则填 x060                                                    |
-| `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数。 |
+| `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数 |
 | `CTX_LEN="4096"`                   | 预训练的**上下文长度**，必须是 512 的倍数。为了更好地支持多轮对话，建议使用 4096                                   |
 | `data_file`                        | 预训练的**数据路径**，使用已转换的 bin 和 idx 数据，无需文件名后缀                                                 |
 | `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 make_data.py 中计算得到                                    |
@@ -122,7 +122,7 @@ python make_data.py demo.jsonl 3 4096
 | 参数                               | 参数解释                                                                                                       |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `MODEL_TYPE="x070"`                | 训练的**模型版本**，建议使用 RWKV-7 架构，训练 RWKV-6 则填 x060                                                    |
-| `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数。 |
+| `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数 |
 | `CTX_LEN="4096"`                   | 预训练的**上下文长度**，必须是 512 的倍数。为了更好地支持多轮对话，建议使用 4096                                   |
 | `data_file`                        | 预训练的**数据路径**，使用已转换的 bin 和 idx 数据，无需文件名后缀                                                 |
 | `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 make_data.py 中计算得到                                    |
@@ -176,9 +176,7 @@ python make_data.py demo.jsonl 3 4096
 
 预训练完成后，在 `RWKV-LM/RWKV-v7/train_temp/out` 目录中可以找到训练的中间检查点 `rwkv-0/1/2/...pth` 和最终模型文件 `rwkv-final.pth`。
 
-<div class="text-center">
 ![pretrain-get-model](./imgs/pretrain/pretrain-get-model.png)
-</div>
 
 可以使用 [RWKV Runner](../intermediate/RWKV-Runner/Introduction.md) 或者 [RWKV pip - API_DEMO_CHAT.py](../intermediate/RWKVpip.mdx) 脚本测试预训练模型。除了最终模型文件 `rwkv-final.pth`，还可以测试最后几个模型检查点。
 

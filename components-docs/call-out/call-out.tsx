@@ -1,15 +1,16 @@
 import * as React from "react";
-import { InfoIcon, AlertTriangle, AlertCircle, XCircle } from 'lucide-react';
+import { InfoIcon, AlertTriangle, AlertCircle, XCircle, Lightbulb } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const calloutVariants = {
+    tips: 'my-4 bg-green-50 border-green-200 text-green-800 dark:bg-green-950/50 dark:border-green-800 dark:text-green-300',
     info: 'my-4 bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950/50 dark:border-blue-800 dark:text-blue-300',
     warning: 'my-4 bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-950/50 dark:border-yellow-800 dark:text-yellow-300',
     alert: 'my-4 bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-950/50 dark:border-orange-800 dark:text-orange-300',
     error: 'my-4 bg-red-50 border-red-200 text-red-800 dark:bg-red-950/50 dark:border-red-800 dark:text-red-300'
 };
 
-type CallOutType = 'info' | 'warning' | 'alert' | 'error';
+type CallOutType = 'tips' | 'info' | 'warning' | 'alert' | 'error';
 
 interface CallOutProps extends React.HTMLAttributes<HTMLDivElement> {
     type: CallOutType;
@@ -21,7 +22,8 @@ const CallOut = React.forwardRef<HTMLDivElement, CallOutProps>(
             info: <InfoIcon className="w-5 h-5" />,
             warning: <AlertTriangle className="w-5 h-5" />,
             alert: <AlertCircle className="w-5 h-5" />,
-            error: <XCircle className="w-5 h-5" />
+            error: <XCircle className="w-5 h-5" />,
+            tips: <Lightbulb className="w-5 h-5" />
         };
 
         return (
