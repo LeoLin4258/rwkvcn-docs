@@ -26,8 +26,8 @@
       "advanced/Fine-Tune/FT-Environment",
       "advanced/Fine-Tune/FT-Dataset",
       "advanced/Fine-Tune/RWKV-PEFT/State-Tuning",
-      "advanced/Fine-Tune/RWKV-PEFT/DiSHA-Fine-Tuning",
-      "advanced/Fine-Tune/RWKV-PEFT/LoRA-Fine-Tuning",
-      "advanced/Fine-Tune/RWKV-PEFT/Pissa-Fine-Tuning"
+      "advanced/Fine-Tune/RWKV-PEFT/DiSHA",
+      "advanced/Fine-Tune/RWKV-PEFT/PiSSA",
+      "advanced/Fine-Tune/RWKV-PEFT/LoRA"
     ]
   }

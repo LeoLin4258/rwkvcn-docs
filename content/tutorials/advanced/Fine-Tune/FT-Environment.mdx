@@ -51,26 +51,22 @@ conda activate rwkv
 
 ## 安装训练所需的软件
 
-要获得 RWKV 模型的**最佳训练性能**，推荐安装如下软件：
-
-- torch 2.1.2+cu121（或最新版本的 torch）
-- 最新的 deepspeed
-- pytorch-lightning ==1.9.5
-
 在终端的 Conda 环境中依次运行以下命令，安装 RWKV 训练环境：
 
 ``` bash copy
-# 通过指定 url 安装 CUDA 12.1 版本的 torch
+# 通过指定 url 安装 CUDA 12.1 版本的 torch, 也可以选择最新版本的 torch + CUDA 版本
 pip install torch --upgrade --extra-index-url https://download.pytorch.org/whl/cu121
-# 指定安装 1.9.5 版本的 PyTorch Lightning 和其他常用的机器学习工具包
-# --upgrade 参数意味着如果环境中已经安装了对应的软件包，则将其升级到最新版本
-pip install pytorch-lightning==1.9.5 deepspeed wandb ninja --upgrade
+# 安装 PyTorch Lightning 和其他常用的机器学习工具包，--upgrade 参数将软件升级到最新版本
+pip install lightning deepspeed wandb ninja --upgrade
 # 以下是使用 RWKV-PEFT 微调时会用到的一些其他工具包，建议提前安装
-pip install bitsandbytes einops triton rwkv-fla rwkv transformers GPUtil plotly gradio datasets
+pip install bitsandbytes einops triton rwkv-fla rwkv transformers GPUtil plotly datasets --upgrade
 ```
 
 <CallOut type="info">
-推荐的软件版本为 RWKV 训练的最佳实践，也可以选择安装其他版本的软件，保证兼容性即可。
+推荐的软件版本为 RWKV 微调的最佳实践，也可以选择安装其他版本的软件，保证兼容性即可。
+</CallOut>
+<CallOut type="warning">
+下载缓慢？尝试在命令后添加 `-i https://mirrors.aliyun.com/pypi/simple` 参数，使用阿里源加快下载速度。
 </CallOut>
 
 ## 检查 CUDA 环境
