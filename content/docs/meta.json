@@ -20,6 +20,7 @@
     "RWKV-Eval-Data/RWKV-Evals",
     "RWKV-Eval-Data/RWKV-Long-Evals",
     "---RWKV 的端侧推理性能---",
+    "RWKV-Performance-Data/nvidia",
     "RWKV-Performance-Data/amd",
     "RWKV-Performance-Data/mthread",
     "RWKV-Performance-Data/mobile",

@@ -8,6 +8,10 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 预训练教程基于 [RWKV-LM](https://github.com/BlinkDL/RWKV-LM) 仓库，训练流程和 RWKV 官方模型完全一致。
 
+## 预训练案例
+
+- [RWKV-7-Arithmetic-0.1B](https://huggingface.co/shoumenchougou/RWKV-7-Arithmetic-0.1B)：基于 RWKV-7 架构预训练的 0.1B 模型，实现基础加减法运算和加减法方程求解功能。
+
 ## 硬件需求
 
 预训练需要的显存**比微调训练要高得多**。
@@ -181,8 +185,6 @@ python make_data.py demo.jsonl 3 4096
 可以使用 [RWKV Runner](../intermediate/RWKV-Runner/Introduction.md) 或者 [RWKV pip - API_DEMO_CHAT.py](../intermediate/RWKVpip.mdx) 脚本测试预训练模型。除了最终模型文件 `rwkv-final.pth`，还可以测试最后几个模型检查点。
 
 ![test-pretrain-model](./imgs/pretrain/pretrain-test-result.png)
-
-
 
 ## 附录
 
