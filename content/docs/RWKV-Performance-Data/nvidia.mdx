@@ -1,0 +1,44 @@
+---
+title: NVIDIA 硬件
+---
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { RadarChartComponent } from 'components-docs/radar-charts'
+import { HeatMap } from 'components-docs/heat-map'
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+<CallOut type="info">
+RWKV 模型在 NVIDIA 硬件上的推理性能，包含 RTX 5090、RTX 4090 等显卡的性能数据。
+</CallOut>
+
+## NVIDIA RTX 5090
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [RWKV pip](https://pypi.org/project/rwkv/) | RWKV7-G1 2.9B | fp16 | 39.55 TPS | 5.52 GB |
+
+{/* | [llama.cpp](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 84 TPS | 5.52 GB |  */}
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD EPYC 7302
+- GPU：NVIDIA GeForce RTX 5090
+</CallOut>
+
+## NVIDIA RTX 4090
+
+RWKV 模型在 NVIDIA RTX 4090 上的性能表现：
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [RWKV pip](https://pypi.org/project/rwkv/)  | RWKV7-G1 2.9B | fp16 | 5.5 | 5.52 GB |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | fp16 | 5.7 | 5.75GB |
+|  [llama.cpp](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | Q8 | 89.16 |3.47GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 | 61 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8  |  68.75 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp32 | 77.76  | 2.4GB |
+
+<CallOut type="info">
+测试环境：
+- CPU：Intel(R) Core(TM) Ultra 5 125H
+- GPU：NVIDIA GeForce RTX 4090
+</CallOut>
