@@ -24,6 +24,11 @@ DiSHA 微调框架通过引入两种核心计算结构：块仿射高效计算�
 
 在开始 DiSHA 微调之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
+## DiSHA 微调案例
+
+- [Seikaijyu/rwkv7-g1-1.5b-Lonely-Neko](https://huggingface.co/Seikaijyu/rwkv7-g1-1.5b-Lonely-Neko)：基于 RWKV-7 G1 1.5B 模型微调的猫娘模型，拥有较为优秀的单角色扮演能力
+- [keepzmy/RWKV-V7-Soothe](https://huggingface.co/keepzmy/RWKV-V7-Soothe)：基于 RWKV-7 G1 2.9B 模型微调的心理咨询师模型
+
 ## 视频教程
 
 <div className="iframe-container">
@@ -51,7 +56,7 @@ RWKV DiSHA 微调的显存（GPU VRAM）需求可参考下表：
 | RWKV7-0.1B | 2.7GB GPU  | 2.5GB GPU  | 2.4GB GPU  |
 | RWKV7-0.4B | 3.1GB GPU  | 2.9GB GPU  | 2.7GB GPU  |
 | RWKV7-1.5B | 5.6GB GPU  | 4.5GB GPU  | 3.9GB GPU  |
-| RWKV7-3B | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  |
+| RWKV7-2.9B | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  |
 </Tab>
 <Tab>
 | 模型参数 | bf16  | int8 | nf4 |
