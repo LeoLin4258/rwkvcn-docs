@@ -4,6 +4,7 @@ title: RWKV 架构及历史
 
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { TabsCN, TabsContentCN, TabsListCN, TabsTriggerCN } from "components-docs/tabs/tabs.tsx"
 
 以下是 RWKV 架构相关的知识，包括 RWKV 架构名称的由来、RWKV 架构特性、架构历史、以及每个架构的模型发布等内容。
 
@@ -546,21 +547,109 @@ def ref_fwd(r, w, k, v, a, b):
 
 #### RWKV-V7 的模型发布[#rwkv-v7-model-release]
 
-RWKV-V7 发布了 Pile 和 World 数据集的预训练模型。**[RWKV-7-Pile](https://hf-mirror.com/BlinkDL/rwkv-7-pile)** 属于实验模型，基于 [EleutherAI/pile](https://huggingface.co/datasets/EleutherAI/pile) 数据集预训练而来。
+RWKV-V7 发布了 Pile、World 和 G1 三个系列的预训练模型。
 
-RWKV-7-World 模型基于 World V3 数据集预训练而来，有 0.1B/0.4B/1.5B/2.9B 四种参数版本。
+- **[RWKV-7-Pile](https://hf-mirror.com/BlinkDL/rwkv-7-pile)** 属于实验模型，基于 [EleutherAI/pile](https://huggingface.co/datasets/EleutherAI/pile) 数据集预训练
+- RWKV-7 "Goose" World 模型是支持全球语言的预训练模型，基于 World V3 数据集和其采样子集预训练
+- RWKV7-G1（"GooseOne"）系列属于推理模型，基于 World v3.5 数据集继续训练 RWKV-7 "Goose" World 系列模型
+
+<TabsCN defaultValue="g1" className="">
+  <TabsListCN>
+    <TabsTriggerCN value="g1">RWKV7-G1 模型</TabsTriggerCN>
+    <TabsTriggerCN value="world">RWKV-7-World 模型</TabsTriggerCN>
+    <TabsTriggerCN value="pile">RWKV-7-Pile 模型</TabsTriggerCN>
+  </TabsListCN>
+  <TabsContentCN value="g1" >
+RWKV7-G1 系列模型基于最新的 World v3.5 数据集训练而来，拥有较强的推理、代码和数学能力。
+
+| 模型名称         | 模型描述          | 
+| ----------------- | -------- | 
+| rwkv7-g1-0.1b     | 从 World v3.5 数据集中随机采样了 1T token 的数据训练            | 
+| rwkv7-g1-0.4b      | 从 World v3.5 数据集中随机采样了 2T token 的数据训练         |
+| rwkv7-g1-1.5b     | 从 World v3.5 数据集中随机采样了 5T token 的数据训练         |
+| rwkv7-g1-2.9b     | 从 World v3.5 数据集中随机采样了 10T token 的数据训练         |
+
+可以在 [RWKV7-G1 模型仓库](https://huggingface.co/BlinkDL/rwkv7-g1/tree/main) 查看所有 RWKV7-G1 系列模型。
+<CallOut type="info" >
+World v3.5 数据集是 World V3 数据集的扩充版本，包含更多小说、网页、数学、代码和 reasoning 数据，总数据为 5.16T tokens。
+</CallOut>
+  </TabsContentCN>
+  <TabsContentCN value="world" >
+RWKV-7-World 模型基于 World V3 数据集和其采样子集预训练而来，有 0.1B/0.4B/1.5B/2.9B 四种参数版本。
 
 | 模型类别          | 模型描述          | 
 | ----------------- | -------- | 
-| RWKV-7-World-v2.8      | 基于 World-v2.8 数据集的多语言预训练模型，只发布了 0.1B 参数版本            | 
-| RWKV-7-World-v2.9     | 基于 World-v2.9 数据集的多语言预训练模型，只发布了 0.4B 参数版本         |
-| RWKV-7-World-v3   | 基于 World V3 数据集的多语言预训练模型，有 1.5B 和 2.9B 两种参数    |
+| RWKV-7-World-0.1B-v2.8      | 基于 World-v2.8 数据集的多语言预训练模型，只发布了 0.1B 参数版本            | 
+| RWKV-7-World-0.4B-v2.9     | 基于 World-v2.9 数据集的多语言预训练模型，只发布了 0.4B 参数版本         |
+| RWKV-7-World-1.5B/2.9B-v3   | 基于完整 World V3 数据集的预训练模型，有 1.5B 和 2.9B 两种参数    |
+
+可以在 [RWKV-7-World 模型仓库](https://huggingface.co/BlinkDL/rwkv-7-world/tree/main) 查看所有 RWKV-7-World 系列模型。
 
 <CallOut type="info" >
 World-v2.8 数据集：：从 World v3 数据集中采样 1T tokens 作为训练数据
 
 World-v2.9 数据集：：从 World v3 数据集中采样 2T tokens 作为训练数据
 </CallOut>
+  </TabsContentCN>
+  <TabsContentCN value="pile" >
+RWKV-7-Pile 是基于 Pile 数据集进行实验的模型，因此存在各种不同的层数和维度设计：
+
+- RWKV-x070-Pile-1.47B
+- RWKV-x070-Pile-164M-L33-D512
+- RWKV-x070-Pile-165M-L25-D576
+- RWKV-x070-Pile-168M
+- RWKV-x070-Pile-421M
+
+可以在 [RWKV-7-Pile 模型仓库](https://huggingface.co/BlinkDL/rwkv-7-pile/tree/main) 查看所有 RWKV-7-Pile 系列模型。
+  </TabsContentCN>
+</TabsCN>
+
+### RWKV-V8
+
+RWKV-V8 的架构代号是 "Heron"（鹭）。
+RWKV-V8 首个特性 `DeepEmbed` 在 2025 年 5 月[公布](https://rwkv.cn/news/read?id=20250527)。`DeepEmbed` 可以实现类似 MoE 的优秀推理性能，同时无需占用显存，甚至无需占用内存，可以让稀疏的大模型真正部署到所有端侧设备。
+
+#### RWKV-V8 的 DeepEmbed
+
+DeepEmbed 在模型的每一层 FFN 中为词表中的每个 token 训练一个可学习的高维向量，这可以写成 Embed 层。这些向量在训练阶段可被学习，而在推理阶段可存储于 RAM/SSD 中，对于每个 token 只需预读极少量参数，从而显著减少显存占用。
+
+推理时，模型根据 token index 可提前预读本层的 embedding 向量，用于对 FFN 输出进行逐通道的乘性调制（channelwise scaling）。
+
+这些基于 token 的 embedding 向量构成了一个规模庞大但稀疏的知识库，能够显著提升模型存储和调用世界知识的能力。尽管这些向量看似增加了模型参数量，但**不需要占用显存**，且在训练过程中可通过 TP（Tensor Parallelism）避免 DP（Data Parallelism）中梯度同步的带宽开销，并可进一步 offload 至 RAM 或 SSD。
+
+在端侧推理场景下，这些向量同样可存储于内存中，或通过 `mmap` 等机制直接从硬盘按需加载。每个 token 仅引入几十 KB 的额外访存开销，使该机制非常适合在边缘设备上部署。
+
+**DeepEmbed 代码示例：**
+
+原始 ReLuSq FFN：
+
+```
+x = torch.relu(self.key(x)) ** 2  
+return self.value(x)
+```
+
+DeepEmbed_1x ReLuSq FFN：
+
+```
+self.deepemb = nn.Embedding(d_vocab, d_emb)
+...
+x = torch.relu(self.key(x)) ** 2
+return self.value(x) * self.deepemb(idx)
+```
+
+DeepEmbed_4x ReLuSq FFN（效果更佳，参数更多）： 
+
+```
+self.deepemb = nn.Embedding(d_vocab, d_emb * 4)
+...
+x = torch.relu(self.key(x)) ** 2
+return self.value(x * self.deepemb(idx))
+```
+
+<CallOut type="info" >
+由于查表操作在推理时不占用 VRAM，这些向量在参数量层面几乎是"免费的"。因此，还可以进一步引入 n-gram（如 `bigram`、`trigram`），提升模型对词组/片段的建模能力。如果词表规模较大，也可结合 LoRA 技术降低显存和训练开销。
+</CallOut>
+
 
 {/*
 ## RWKV 与经典 RNN 的区别
