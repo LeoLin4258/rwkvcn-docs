@@ -17,12 +17,14 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ## 官方 RWKV 链接
 
-- RWKV 官方仓库: [https://github.com/BlinkDL/RWKV-LM](https://github.com/BlinkDL/RWKV-LM)
+- [RWKV-LM](https://github.com/BlinkDL/RWKV-LM)： RWKV 的官方代码仓库，提供了 RWKV v1 至 v7 各版本的架构代码，以及配套的大语言模型训练实现
 - [RWKV pip 包](https://pypi.org/project/rwkv/)：RWKV 的 pip 包，具体用法可以查看 [RWKV pip 使用指南](../../tutorials/intermediate/RWKVpip)
 - [RWKV-CUDA](https://github.com/BlinkDL/RWKV-CUDA)：RWKV 的官方 CUDA 算子
 - [Hugging face 文档](https://huggingface.co/docs/transformers/model_doc/rwkv)：Hugging Face 关于 RWKV 的介绍
 - RWKV-4 架构论文 ：[arXiv（2305.13048）](https://arxiv.org/abs/2305.13048)
 - RWKV 5 /6 架构论文：[arXiv（2404.05892）](https://arxiv.org/abs/2404.05892)
+- RWKV-7 架构论文：[arXiv（2503.14456）](https://arxiv.org/abs/2503.14456)
+
 
 ## RWKV 微调/训练工具
 
@@ -35,7 +37,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - **(可能过时)** [RWKV-LoRA](https://github.com/Blealtan/RWKV-LM-LoRA)：RWKV LoRA 微调实现，不支持微调 RWKV-6 或更新的版本
 
 ### 训练项目
-
+- [wind_rwkv](https://github.com/johanwind/wind_rwkv)：一个包含 RWKV 优化算子的存储库。目前专注于 RWKV-7
+- [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7)：RWKV-LM-V7 是一个专注于易用性的 RWKV-7 多类模型训练项目，让开发者能够在15分钟内快速上手 RWKV-7 模型训练
 - [RWKV-infctx-trainer](https://github.com/RWKV/RWKV-infctx-trainer/)：RWKV 无限上下文训练器，支持训练 10k 及以上长度的上下文
 - [RWKV-Ouroboros](https://github.com/neromous/RWKV-Ouroboros)：基于 API 的 rwkv-trainer 项目，支持交替运行训练和推理
 - [nanoRWKV](https://github.com/Hannibal046/nanoRWKV)：RWKV 模型的 nanoGPT 风格实现
@@ -44,8 +47,16 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ## RWKV 推理框架
 
+### rwkv7.c
+
+- [rwkv7.c](https://github.com/KevlarKanou/rwkv7.c)：RWKV-7 的 C 语言实现，支持 RWKV-7 模型的推理
+
 ### rwkv.cpp
 - [rwkv.cpp](https://github.com/RWKV/rwkv.cpp)：在 CPU 上推理 RWKV 模型，支持 FP16 、量化 INT4、INT5 和 INT8 推理
+
+### RWKVSharp
+
+- [RWKVSharp](https://github.com/imxcstar/RWKVSharp)：使用 C# 封装的 RWKV 推理工具，基于 rwkv.cpp ，支持运行 RWKV4/RWKV5/RWKV6/RWKV7 World 模型。
 
 ###  Pytorch 原生实现
 
@@ -77,7 +88,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 其他支持 RWKV 的推理引擎
 - [rwkv-by-hand-excel](https://github.com/playaswd/rwkv-by-hand-excel)：使用 excel 实现 RWKV，帮助开发者探索 RWKV 原理
-- [RWKV-Infer](https://github.com/OpenMOSE/RWKV-Infer)：使用 FLA 进行 RWKV-V6 推理，支持组合多个状态进行推理
+- [RWKV-Infer](https://github.com/OpenMOSE/RWKV-Infer)：使用 FLA 进行 RWKV-V6/V7 推理，支持组合多个状态进行推理
 - [MLC LLM](https://github.com/mlc-ai/mlc-llm)：机器学习编译器和高性能部署引擎，支持 RWKV 模型
 
 ## RAG （知识检索增强）系统
@@ -113,6 +124,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 ### 图像/图形相关
 
 - [VisualRWKV](https://github.com/howard-hou/VisualRWKV) ：基于 RWKV 的视觉语言模型，可处理视觉任务
+- [Vision-RWKV (New Generation)](https://github.com/xforcevesa/new-vrwkv)：全新一代 RWKV for Vision，基于 RWKV-7 实现
 - [Vision-RWKV](https://github.com/OpenGVLab/Vision-RWKV)：基于 RWKV 的视觉感知模型，能平滑处理高分辨率图像
 - [Diffusion-RWKV](https://github.com/feizc/Diffusion-RWKV)：基于 RWKV 的图像生成任务模型，擅长处理高分辨率图像
 - [RWKV-CLIP](https://github.com/deepglint/RWKV-CLIP)：RWKV 驱动的 CLIP （视觉 - 语言表示学习）模型
@@ -124,10 +136,11 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 音频相关
 
+- [RWKV-TTS](https://github.com/yynil/RWKVTTS)：RWKV 语音合成模型，支持多种语言的文本转语音
 - [RWKV-ASR](https://github.com/AGENDD/RWKV-ASR)：使用预训练的 RWKV 语言模型进行**语音识别**
 
 ### 时间序列
-
+- [BlackGoose_Rimer](https://github.com/Alic-Li/BlackGoose_Rimer)：基于 RWKV-7 的时间序列预测模型，支持多种时间序列任务
 - [RWKV-TS](https://github.com/howard-hou/RWKV-TS)：基于 RWKV 的时间序列任务模型，低延迟和内存占用
 
 ### 机器人/具身智能
