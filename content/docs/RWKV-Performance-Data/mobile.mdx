@@ -9,45 +9,40 @@ import { HeatMap } from '../../../components-docs/heat-map'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 <CallOut type="info">
-RWKV 模型在移动端芯片的推理性能，当前包括高通骁龙 8 Gen3、MTK 天玑 9300 ，后续会添加其他移动端芯片的性能表现。
+RWKV 模型在移动端芯片的推理性能，当前包括高通骁龙 8 Gen3、8 Elite ，后续会添加其他移动端芯片的性能表现。
 </CallOut>
 
 ## 高通骁龙 8 Gen3
 
-在 Qualcomm Snapdragon SM8650（骁龙 8 Gen3，具体机型为小米 14）上的性能表现：
+在 骁龙 8 Gen3（小米 14）上的性能表现：
 
-| Model        | Precision             | 每秒生成的 Token 数 | LAMBADA ppl， acc |
-| ------------ | --------------------- | ------------------- | ---------------- |
-| RWKV v6 1.6B | att-a16w8 + ffn-a16w4 | 42.4368             | 5.09183，65.4182% |
-| RWKV v6 1.6B | a16w8                 | 31.6564             | 4.75009，66.3497% |
-| RWKV v6 1.6B | fp16                  | 15.0434             | 4.63598，67.2618% |
-| RWKV v6 3B   | att-a16w8 + ffn-a16w4 | 21.3172             | 4.46606，68.8725% |
-| RWKV v6 3B   | a16w8                 | 16.2146             | 3.9039，71.3647%  |
+| Model        | Precision             | 每秒生成的 Token 数 |
+| ------------ | --------------------- | ------------------- | 
+| RWKV-7 G1 2.9B | A16W4 | 31.3             | 
+| RWKV-7 G1 2.9B | A16W8 | 18.7           | 
 
-## MTK 联发科天玑 9300 
+## 高通骁龙 8 Elite
+
+在 高通骁龙 8 Elite (小米 15) 上的性能表现：
+
+| Model        | Precision             | 每秒生成的 Token 数 |
+| ------------ | --------------------- | ------------------- | 
+| RWKV-7 G1 2.9B | A16W4 | 30.26             | 
+| RWKV-7 G1 2.9B | A16W8 | 19.34         | 
+
+{/* ## MTK 联发科天玑 9300 
 
 RWKV 模型在天玑 9300 上的性能表现：
 
-| Model        | Precision | 每秒生成的 Token 数 | LAMBADA ppl， acc |
-| ------------ | --------- | ------------------- | ---------------- |
-| RWKV v6 1.6B | fp16i8    | 26.2743             | 4.65207，67.223%            |
+| Model        | Precision | 每秒生成的 Token 数 |
+| ------------ | --------- | ------------------- |
+| RWKV v6 1.6B | fp16i8    | 26.2743             |
 | RWKV v6 3B   | fp16i8    | 13.0599             | 3.89911，71.2206%           |
-| RWKV v6 7B   | fp16i8    | out of memory       | TODO             |
-
-
-**表格中的参数解释：**
-
-- Model：代表不同参数量的 RWKV-6 模型。
-- Precision：代表不同量化策略或计算精度。
-  - att：注意力机制（RWKV 的 time-mixing 部分）
-  - ffn：前馈网络（RWKV 的 channel-mixing 部分）
-  - a16：激活值被量化为 16 位(int16)
-  - w8/w4：权重（weights）被量化为 8 位/4 位（per-channel 线性量化）
-  - fp16：16 位浮点数
-  - fp16i8：16 位浮点数的 8 位整数量化（int8）
-- LAMBADA ppl：基于 LAMBADA 数据集来计算语言模型的困惑度。困惑度越低，说明语言模型对该数据集的理解和预测能力越强，即模型能够更准确地根据给定的前文预测出后续的文本内容。
-- LAMBADA acc：准确率，即模型在 LAMBADA 任务上的准确程度。
+| RWKV v6 7B   | fp16i8    | out of memory       | TODO             | */}
 
 <CallOut type="info">
-性能数据来源：[https://github.com/MollySophia/rwkv-qualcomm](https://github.com/MollySophia/rwkv-qualcomm)
+**表格中的参数解释：**
+- Precision：代表不同量化策略或计算精度。
+  - a16：激活值被量化为 16 位(int16)
+  - w8/w4：权重（weights）被量化为 8 位/4 位（per-channel 线性量化）
 </CallOut>
