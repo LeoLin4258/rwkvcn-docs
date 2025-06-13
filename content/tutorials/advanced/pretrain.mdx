@@ -73,11 +73,11 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 在 `RWKV-LM/RWKV-v5` 目录中运行以下命令，将 `jsonl` 数据文件转成 `binidx` 格式：
 
 ``` bash 
-python make_data.py demo.jsonl 3 4096
+python make_data.py demo.jsonl 30 4096
 ```
-命令中的 `3` 表示复制次数，`4096` 表示上下文长度。`make_data.py` 将执行以下操作：
+命令中的 `30` 表示复制次数，`4096` 表示上下文长度。`make_data.py` 将执行以下操作：
 
-- 对 `demo.jsonl` 进行 3 次复制和打乱
+- 对 `demo.jsonl` 进行 30 次复制和打乱
 - 加载复制后的 `demo.jsonl` 并基于 `rwkv_vocab_v20230424` 词表进行分词
 - 把数据保存为 `binidx` 格式文件：`demo.bin` 和 `demo.idx`
 - 针对 4096 上下文长度，计算出预训练所需的 `my_exit_tokens` 和 `magic_prime` 参数
@@ -108,8 +108,8 @@ python make_data.py demo.jsonl 3 4096
 | `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数 |
 | `CTX_LEN="4096"`                   | 预训练的**上下文长度**，必须是 512 的倍数。为了更好地支持多轮对话，建议使用 4096                                   |
 | `data_file`                        | 预训练的**数据路径**，使用已转换的 bin 和 idx 数据，无需文件名后缀                                                 |
-| `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 make_data.py 中计算得到                                    |
-| `--magic_prime`                    | 训练数据集的**magic_prime 值**，在 make_data.py 中计算得到                                                        |
+| `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 `make_data.py` 中计算得到                                    |
+| `--magic_prime`                    | 训练数据集的**magic_prime 值**，在 `make_data.py` 中计算得到                                                        |
 
 其余参数请**保持默认值**，修改完毕保存 `demo-training-prepare.sh` 文件，并在终端运行 `sh demo-training-prepare.sh` 命令初始化 RWKV 模型。
 
@@ -129,8 +129,8 @@ python make_data.py demo.jsonl 3 4096
 | `N_LAYER="12"` `N_EMBD="768"` | **模型层数和维度**，维度和层数决定预训练模型的参数大小，建议参考[硬件需求](#硬件需求)修改，N_EMBD 必须 64 的倍数 |
 | `CTX_LEN="4096"`                   | 预训练的**上下文长度**，必须是 512 的倍数。为了更好地支持多轮对话，建议使用 4096                                   |
 | `data_file`                        | 预训练的**数据路径**，使用已转换的 bin 和 idx 数据，无需文件名后缀                                                 |
-| `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 make_data.py 中计算得到                                    |
-| `--magic_prime`                    | 训练数据集的**magic_prime 值**，在 make_data.py 中计算得到                                                        |
+| `--my_exit_tokens`                 | 训练数据集的**总 token 数**，会在全部 token 训练完毕后退出，在 `make_data.py` 中计算得到                                    |
+| `--magic_prime`                    | 训练数据集的**magic_prime 值**，在 `make_data.py` 中计算得到                                                        |
 
 **其他训练参数的解释和参考值如下：**
 <CallOut type="warning">
