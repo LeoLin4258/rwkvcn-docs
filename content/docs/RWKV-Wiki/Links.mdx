@@ -33,12 +33,11 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - **(推荐)** [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT) ：RWKV 高效微调仓库，包含 LoRA、Pissa、Lisa、State 等多种微调方法
 - [RWKV-PEFT-Simple](https://github.com/Seikaijyu/RWKV-PEFT-Simple)：RWKV-PEFT 的简化版本，提供便捷脚本和微调说明
 - **（开发中）**[RWKV-LM-RLHF](https://github.com/OpenMOSE/RWKV-LM-RLHF)：RWKV 强化学习（RLHF）工具包，含 SFT、对齐（DPO、ORPO）等
-- [RWKV-LM-RLHF-DPO](https://github.com/Triang-jyed-driung/RWKV-LM-RLHF-DPO)：RWKV 的 DPO 实现（直接偏好优化 - Direct Preference Optimization）
-- **(可能过时)** [RWKV-LoRA](https://github.com/Blealtan/RWKV-LM-LoRA)：RWKV LoRA 微调实现，不支持微调 RWKV-6 或更新的版本
 
 ### 训练项目
 - [wind_rwkv](https://github.com/johanwind/wind_rwkv)：一个包含 RWKV 优化算子的存储库。目前专注于 RWKV-7
 - [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7)：RWKV-LM-V7 是一个专注于易用性的 RWKV-7 多类模型训练项目，让开发者能够在15分钟内快速上手 RWKV-7 模型训练
+- [RWKV-LM-V7-AMD-ROCm](https://github.com/Alic-Li/RWKV-LM-V7-AMD-ROCm)：RWKV-LM-V7 的 AMD ROCm 版本，支持在 AMD GPU 上训练 RWKV-7 模型
 - [RWKV-infctx-trainer](https://github.com/RWKV/RWKV-infctx-trainer/)：RWKV 无限上下文训练器，支持训练 10k 及以上长度的上下文
 - [RWKV-Ouroboros](https://github.com/neromous/RWKV-Ouroboros)：基于 API 的 rwkv-trainer 项目，支持交替运行训练和推理
 - [nanoRWKV](https://github.com/Hannibal046/nanoRWKV)：RWKV 模型的 nanoGPT 风格实现
@@ -77,7 +76,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### JAX 实现
 
-- [rwkv-jax](https://github.com/saran-gangster/rwkv-jax)： RWKV 语言模型的 JAX 实现，适合 TPU 训练
+- [jaxrwkv](https://github.com/bsarkar321/jaxrwkv)：RWKV 模型的 JAX 实现,支持 RWKV-4/5/6/7
+- **（可能过时）** [rwkv-jax](https://github.com/saran-gangster/rwkv-jax)
 - **（可能过时）** [RWKV-LM-jax](https://github.com/mrsteyk/RWKV-LM-jax)
 - **（可能过时）** [tpu_rwkv](https://github.com/tensorpro/tpu_rwkv)
 
@@ -126,6 +126,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - [VisualRWKV](https://github.com/howard-hou/VisualRWKV) ：基于 RWKV 的视觉语言模型，可处理视觉任务
 - [Vision-RWKV (New Generation)](https://github.com/xforcevesa/new-vrwkv)：全新一代 RWKV for Vision，基于 RWKV-7 实现
 - [Vision-RWKV](https://github.com/OpenGVLab/Vision-RWKV)：基于 RWKV 的视觉感知模型，能平滑处理高分辨率图像
+- [U-RWKV](https://github.com/hbyecoding/U-RWKV)：基于 RWKV 的图像分割模型。 
 - [Diffusion-RWKV](https://github.com/feizc/Diffusion-RWKV)：基于 RWKV 的图像生成任务模型，擅长处理高分辨率图像
 - [RWKV-CLIP](https://github.com/deepglint/RWKV-CLIP)：RWKV 驱动的 CLIP （视觉 - 语言表示学习）模型
 - [RWKV-SAM](https://github.com/HarborYuan/ovsam)：基于 RWKV 的图像分段切割方法“RWKV-SAM”
@@ -133,9 +134,11 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - [Restore-RWKV](https://github.com/Yaziwel/Restore-RWKV)：使用 RWKV 进行高效且有效的医学图像恢复（PyTorch 实现）
 - [LION](https://github.com/happinesslz/LION)：用于点云中 3D 对象检测的 Linear Group RNN（支持 RWKV ）
 - [LineRWKV](https://github.com/diegovalsesia/linerwkv)：LineRWKV 是一种对高光谱图像进行无损和有损压缩的方法
+- [RWKV-VG](https://github.com/nianfd/RWKV-VG)：基于 RWKV 的编解码结构目标检测框架
 
 ### 音频相关
 
+- [MIDI-RWKV](https://github.com/christianazinn/MIDI-RWKV)：基于 RWKV 的 MIDI 音乐生成模型
 - [RWKV-TTS](https://github.com/yynil/RWKVTTS)：RWKV 语音合成模型，支持多种语言的文本转语音
 - [RWKV-ASR](https://github.com/AGENDD/RWKV-ASR)：使用预训练的 RWKV 语言模型进行**语音识别**
 
@@ -162,6 +165,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ## 其他 RWKV 项目
 
+- [RWKV-IF](https://github.com/Lyttr/RWKVInverseFolding)：RWKV 逆折叠模型，使用 RWKV 模型进行 RNA 折叠预测
+- [Muon-RMS-Norm](https://github.com/xTimeCrystal/Muon-RMS-Norm)：使用另一种归一化方法训练 RWKV 
 - [SpikeGPT](https://github.com/ridgerchu/SpikeGPT): 一款受 RWKV 启发的新模型
 - [JSONL to binidx](https://github.com/Abel2076/json2binidx_tool)：这个工具用于将 `.jsonl` 文件转成适合 RWKV 训练的  `.bin /.idx` （binidx）数据
 - [AI Town - RWKV Proxy](https://github.com/recursal/ai-town-rwkv-proxy?tab=readme-ov-file)：通过 RWKV 在本地运营一个大型 AI 城镇！
