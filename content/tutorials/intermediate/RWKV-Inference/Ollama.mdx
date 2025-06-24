@@ -42,14 +42,14 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ![ollama-icon](./imgs/ollama-icon.png)
 
-## 运行 RWKV 模型
+接下来，我们将在 Ollama 中运行 `gguf` 格式的 RWKV 模型。从以下两种方法中选择一种：
 
-以下两种方法可以在 Ollama 中运行 gguf 格式的 RWKV 模型：
+| 方法 | 描述 | 优点 | 缺点 |
+|------|------|------|------|
+| **[运行 Ollama 提供的 RWKV 仓库](#run-ollama-provided-rwkv-model)** | 从 Ollama 提供的 RWKV 仓库中下载并运行模型 | 操作简单 | Ollama 提供的 RWKV 模型**只有 `Q8_0` 和 `Q6_K` 等量化版本** |
+| **[运行自定义 RWKV 模型](#run-custom-rwkv-model)** | 需要手动下载 `gguf` 格式的 RWKV 模型并创建 `Modelfile` 配置文件 | 可以**运行任意量化**的 RWKV 模型，包括**微调的 RWKV 模型** | 需要手动配置 |
 
-- **从 [Ollama 的 RWKV 仓库](https://ollama.com/mollysama)下载**：操作简单，但 Ollama 提供的 RWKV 模型**只有 `Q6_K` 和 `q4_k_m` 等量化版本**
-- **自定义 RWKV 模型**：需要手动下载 `gguf` 格式的 RWKV 模型并创建 `Modelfile` 配置文件，但是可以**运行任意量化**的 RWKV 模型，包括自己微调的 RWKV 模型
-
-### 运行 Ollama 提供的 RWKV 模型[#run-ollama-provided-rwkv-model]
+## 运行 Ollama 提供的 RWKV 模型[#run-ollama-provided-rwkv-model]
 
 <CallOut type="info">
 Ollama 的 RWKV 仓库提供了 [RWKV7-G1](https://ollama.com/mollysama/rwkv-7-g1)（推荐使用） 和 [RWKV7-World](https://ollama.com/mollysama/rwkv-7-world) 模型。
@@ -57,21 +57,45 @@ Ollama 的 RWKV 仓库提供了 [RWKV7-G1](https://ollama.com/mollysama/rwkv-7-g
 <CallOut type="error">
 RWKV-6 World 模型已过时，不再推荐使用。
 </CallOut>
-<Tabs items={['RWKV-7 G1 模型', 'RWKV-7-World 模型']}>
+<Tabs items={['RWKV7-G1 模型(推荐)', 'RWKV-7-World 模型']}>
 <Tab>
-在终端中运行 `ollama run mollysama/rwkv-7-g1:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-G1 2.9B 模型。您可以在终端中与 RWKV 模型进行对话
+
+在终端中运行 `ollama run mollysama/rwkv-7-g1:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-G1 2.9B 模型。您可以在终端中与 RWKV 模型进行对话。
 
 ![ollama-run-rwkv-7-g1-2.9b](./imgs/ollama-run-rwkv-7-g1-2.9b.png)
 
-Ollama 的 RWKV7 G1 模型默认开启思考模式，可以通过 `/set nothink` 和 `/set think` 命令灵活地开关思考模式。
+<CallOut type="info">
+Ollama 的 RWKV7-G1 模型默认开启思考模式，可以通过 `/set nothink` 和 `/set think` 命令灵活地开关思考模式。
+</CallOut>
+
+所有可选的 Ollama/RWKV7-G1 模型：
+
+- `mollysama/rwkv-7-g1:2.9b`：量化精度为 `Q8_0`
+- `mollysama/rwkv-7-g1:2.9b-q6_k`：量化精度为 `Q6_K`
+- `mollysama/rwkv-7-g1:2.9b-thinkdisabled`：禁用思考模式，量化精度为 `Q8_0`
+- `mollysama/rwkv-7-g1:2.9b-thinkdisabled-q6_k`：禁用思考模式，量化精度为 `Q6_K`
+- `mollysama/rwkv-7-g1:1.5b`：量化精度为 `Q8_0`
+- `mollysama/rwkv-7-g1:1.5b-q6_k`：量化精度为 `Q6_K`
+- `mollysama/rwkv-7-g1:1.5b-thinkdisabled`：禁用思考模式，量化精度为 `Q8_0`
+- `mollysama/rwkv-7-g1:1.5b-thinkdisabled-q6_k`：禁用思考模式，量化精度为 `Q6_K`
+
 <CallOut type="info">
 若您曾经下载过 `mollysama/rwkv-7-g1:2.9b` 模型，请运行 `ollama pull mollysama/rwkv-7-g1:2.9b` 命令，拉取最新的变更。
 </CallOut>
 </Tab>
 <Tab>
+<CallOut type="warning">
+RWKV7-G1 模型是 RWKV-7-World 模型的全面升级，推荐使用 RWKV7-G1 模型。
+</CallOut>
+
 在终端中运行 `ollama run mollysama/rwkv-7-world:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-World 2.9B 模型。您可以在终端中与 RWKV 模型进行对话，如下图所示：
 
 ![ollama-run-rwkv-7-world-2.9b](./imgs/ollama-run-rwkv-7-world-2.9b.png)
+
+所有可选的 Ollama/RWKV-7 World 模型：
+
+- `mollysama/rwkv-7-world:1.5b`：量化精度为 `Q4_K_M`
+- `mollysama/rwkv-7-world:2.9b`：量化精度为 `Q4_K_M`
 
 <CallOut type="info">
 若您曾经下载过 `mollysama/rwkv-7-world:2.9b` 模型，请运行 `ollama pull mollysama/rwkv-7-world:2.9b` 命令，拉取最新的变更。
@@ -79,22 +103,20 @@ Ollama 的 RWKV7 G1 模型默认开启思考模式，可以通过 `/set nothink`
 </Tab>
 </Tabs>
 
-### 运行自定义 RWKV 模型[#run-custom-rwkv-model]
+## 运行自定义 RWKV 模型[#run-custom-rwkv-model]
 
-运行自定义 RWKV 模型需要先下载 gguf 格式的模型文件，并创建 Modelfile 文件。
+要运行一个自定义的 RWKV 模型，你需要一个 `.gguf` 格式的模型文件，和一个用于配置**聊天模板和解码参数**的 `Modelfile` 文件。然后使用 `ollama create` 命令创建一个自定义 Ollama 模型。
 
-RWKV-7 G1 和 RWKV-7 World 模型的 Modelfile 内容不同，另外 RWKV-7 World 模型不支持思考模式。
+创建完毕后，即可使用 `ollama run` 命令运行自定义模型。
 
-<Tabs items={['创建自定义 RWKV-7 G1 模型', '创建自定义 RWKV-7 World 模型']}>
-<Tab id="modify-rwkv-7-gguf-model">
 <Steps>
 <Step>
-**下载 RWKV7 G1 gguf 模型**
+**下载 RWKV gguf 模型**
 
-要自定义 RWKV7 G1 模型，需要先从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf` 格式的 RWKV-7-G1 模型。
+可以从 [ModelScope - RWKV GGUF 合集](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf` 格式的 RWKV 模型。
 
 <CallOut type="warning">
-RWKV gguf 模型有各种量化版本，建议使用 `Q5_K_M`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变差。
+RWKV gguf 模型有各种量化版本，建议使用 `FP16`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q5_K_M`、`Q4_K_M` 等）可能会使模型的回答变差。
 </CallOut>
 <CallOut type="tips">
 自己微调了一个 RWKV-7 模型，想从 pth 转 gguf 格式？查看 [llama.cpp 文档 - 从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
@@ -103,16 +125,21 @@ RWKV gguf 模型有各种量化版本，建议使用 `Q5_K_M`、 `Q8_0` 两种�
 <Step>
 **创建模型的 Modelfile 文件**
 
-在存放 RWKV7 G1 gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
+在存放 RWKV gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
 
 ![Modelfile](./imgs/ollama-Modelfile.png)
 
-之后使用“记事本”等文本编辑工具打开该文本文件，写入以下内容：
+使用“记事本”等文本编辑工具打开 `Modelfile`，然后根据“模型是否支持思考模式”**创建不同的 Modelfile 文件**。
+
+<Tabs items={['支持思考的 RWKV 模型', '不支持思考的 RWKV 模型']}>
+<Tab>
+
+对于 RWKV G1 系列支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
 ```bash
-FROM rwkv7-g1-0.4b-20250324-ctx4096_Q8_0.gguf
+FROM rwkv7-g1-2.9b-20250519-ctx4096-Q8_0.gguf
 
-TEMPLATE """{{- if .System }}{{ .System }}{{ end }}
+TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
 {{- $last := eq (len (slice $.Messages $i)) 1}}
 {{- if eq .Role "user" }}
@@ -139,62 +166,16 @@ PARAMETER stop "Assistant"
 
 PARAMETER temperature 1
 PARAMETER top_p 0.5
+PARAMETER repeat_penalty 1.2
 ```
-
-将第一行 `FROM` 之后的 `rwkv7-g1-0.4b-20250324-ctx4096_Q8_0.gguf` 修改为你下载的 RWKV 模型文件名。
-
-`PARAMETER temperature 1`、`PARAMETER top_p 0.5` 等解码参数可以根据需要进行调整。
-</Step>
-<Step>
-**运行自定义 RWKV7 G1 模型**
-
-在 RWKV7 G1 gguf 模型文件夹下打开终端，并执行 `ollama create` 命令：
-
-``` bash
-ollama create rwkv-7-g1-0.4b-20250324-ctx4096_Q8_0 -f Modelfile
-```
-<CallOut type="info">
-将 `ollama create` 后面的模型名称改成你本地的 RWKV 模型，与 `Modelfile` 中的模型名称保持一致。
-</CallOut>
-
-创建完毕后，使用 `ollama run` 命令直接运行模型：
-
-``` bash
-ollama run rwkv-7-g1-0.4b-20250324-ctx4096_Q8_0
-```
-
-成功运行后，即可与模型进行聊天对话。
-</Step>
-</Steps>
-
 </Tab>
-<Tab id="modify-rwkv-7-world-gguf-model">
-<Steps>
-<Step>
-**下载 RWKV-7 World gguf 模型**
+<Tab>
+对于 RWKV-World 等不支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
-要自定义 RWKV 模型，需要先从 [RWKV-GGUF 仓库](https://modelscope.cn/organization/RWKV?tab=collection) 下载 `gguf` 格式的 RWKV-7-World 模型。
+```bash
+FROM rwkv7-g1-1.5b-20250429-ctx4096-Q8_0.gguf
 
-<CallOut type="warning">
-RWKV gguf 模型有各种量化版本，建议使用 `Q5_K_M`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q4_0`、`Q3_0` 等）可能会使模型的回答变差。
-</CallOut>
-<CallOut type="tips">
-自己微调了一个 RWKV-7 模型，想从 pth 转 gguf 格式？查看 [llama.cpp 文档 - 从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
-</CallOut>
-</Step>
-<Step>
-**创建模型的 Modelfile 文件**
-
-在存放 RWKV-7 World gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
-
-![Modelfile](./imgs/ollama-Modelfile.png)
-
-之后使用“记事本”等文本编辑工具打开该文本文件，写入以下内容：
-
-```bash copy
-FROM rwkv7-world-0.4B-Q8_0.gguf
-
-TEMPLATE """
+TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
 {{- $last := eq (len (slice $.Messages $i)) 1}}
 {{- if eq .Role "user" }}
@@ -215,35 +196,37 @@ PARAMETER stop """
 User"""
 
 PARAMETER temperature 1
-PARAMETER top_p 0.3
+PARAMETER top_p 0.5
+PARAMETER repeat_penalty 1.2
 ```
+</Tab>
+</Tabs>
+请将第一行 `FROM` 之后的 `rwkv-xxx.gguf` 修改为你本地的 RWKV 模型文件名称。
 
-将第一行 `FROM` 之后的 `rwkv7-world-0.4B-Q8_0.gguf` 修改为你下载的 RWKV 模型文件名。
+`PARAMETER temperature 1`、`PARAMETER top_p 0.5` 等解码参数可以根据需要进行调整。
+
 </Step>
 <Step>
-**运行自定义 RWKV-7 World 模型**
+**创建并运行自定义 RWKV 模型**
 
-在 RWKV-7 World gguf 模型文件夹下打开终端，并执行 `ollama create` 命令：
+在存放 RWKV gguf 模型和 `Modelfile` 文件的目录下打开终端，并执行 `ollama create` 命令：
 
 ``` bash
-ollama create rwkv-7-world-0.4B-Q8_0 -f Modelfile
+ollama create rwkv-xxx -f Modelfile
 ```
 <CallOut type="info">
-将 `ollama create` 后面的模型名称改成你本地的 RWKV 模型，与 `Modelfile` 中的模型名称保持一致。
+将 `ollama create` 后面的模型名称改成你本地的 RWKV 模型（与 `Modelfile` 中的模型名称保持一致），但**无需 `.gguf` 后缀名**。
 </CallOut>
 
 创建完毕后，使用 `ollama run` 命令直接运行模型：
 
 ``` bash
-ollama run rwkv-7-world-0.4B-Q8_0
+ollama run rwkv-xxx
 ```
 
 成功运行后，即可与模型进行聊天对话。
 </Step>
 </Steps>
-</Tab>
-
-</Tabs>
 
 ## 关闭 Ollama[#close-ollama]
 
