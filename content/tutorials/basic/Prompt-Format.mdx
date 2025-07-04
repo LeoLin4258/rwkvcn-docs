@@ -29,8 +29,8 @@ RWKV 更适合 QA 和指令问答两种提示格式：
 
 ## QA 格式 prompt[#QA-Format-Prompt]
 
-```bash copy
-User: 请将下列瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
 Assistant:
 ```
@@ -42,7 +42,7 @@ QA（问答）格式是 RWKV 的默认训练格式。
 
 ## 指令问答格式 prompt[#Instruction-Format-Prompt]
 
-```bash copy
+```bash
 Instruction: 请将下列瑞典语翻译成中文
 
 Input: hur l?ng tid tog det att bygga twin towers
@@ -55,30 +55,28 @@ Response:
 `Response:` 后面留空，让模型进行续写。
 </CallOut>
 
-注意不要调换 `Instruction:` 和 `Input:` 的位置，由于架构设计，RWKV 在“回顾”能力上较弱。如果 RWKV 模型先接收了材料内容（Input）再接收指令（Instruction），它在执行指令时可能会漏掉内容中的重要信息。
-
-但如果你先告诉模型**要执行什么指令**，然后再给模型**输入材料内容**。模型就会先理解指令，然后基于指令处理材料内容。就像这样:
-
-```bash copy
-Instruction: 用一句话总结下面的材料文本
+```bash
+Instruction: 以json格式总结下面的材料文本，包含date/location/title
 
 Input: 2025 年 2 月 22 日，RWKV project 在中国上海漕河泾举办了主题为《RWKV-7 与未来趋势》的开发者大会。来自全国各地的开发者、行业专家和技术创新者齐聚一堂 —— 从知名高校实验室到前沿创业团队，现场涌动的创新能量印证了 RWKV-7 的优秀性能和深远意义。
-在 RWKV 开发者大会期间，有 10 位来自学界、企业及 RWKV 开源社区的嘉宾为开发者带来深度分享，现场观众与嘉宾热烈互动。例如，格林深瞳杨铠成的《RWKV-CLIP：一个鲁棒的视觉 - 语言表征学习器》、光明实验室侯皓文的《VisualRWKV：基于 RWKV 的视觉语言模型》、上海交通大学程正雪的《L3TC：基于 RWKV 的高效多模态数据压缩》、浙江大学蒋峻涛的《RWKV-Unet：利用长距离协作提高医学图像分割效果》等等。
-大会期间，其它 AI 企业也对 RWKV-7 给予高度评价，认为其重新定义了 AI 基础设施的经济学公式，与会者对 RWKV 应用成果的展现亦深感触动。同时，RWKV 元始智能也在 2025 全球开发者先锋大会（Global Developer Conference 2025）上为数千开发者分享了 RWKV-7 及相关 demo 演示。
 
 Response:
 ```
 
 参考的回复：
-``` text copy
-RWKV-7 在中国上海漕河泾举办的开发者大会上，来自不同领域的专家、企业和开源社区的人士齐聚一堂，分享了 RWKV-7 及其应用成果。RWKV-7 被认为是 AI 基础设施经济学公式的重新定义，并且在 2025 全球开发者先锋大会上也得到了展示。
+```json
+{
+  "date": "2025年2月22日",
+  "location": "中国上海漕河泾",
+  "title": "RWKV-7 与未来趋势开发者大会"
+}
 ```
 
 ## RWKV7-G1 专用格式
 
 RWKV7-G1 模型专用的提示词格式如下：
 
-```bash copy
+```bash
 材料文本
 
 Question: 问题? Answer:
@@ -91,7 +89,7 @@ Question: 问题? Answer:
 
 也可以把 `Question:` 和 `Answer:` 换成 `User:` 和 `Assistant:`:
 
-```bash copy
+```bash
 材料文本
 
 User: 问题
@@ -107,21 +105,115 @@ Assistant:
 
 ## few-shot[#Few-Shot]
 
-对于一些带上下文的问答任务，我们建议在 prompt 前后重复几个同类的问题（few-shot），为模型作示范。如下所示：
+<CallOut type="info">
+对于一些带上下文的问答任务，我们建议在 prompt 中重复几个同类的问题为模型作示范，这种技巧被称为 few-shot。
+</CallOut>
 
-```bash copy
-User: 把“hello，I love you.”翻译成中文
+举个例子：如果你直接使用以下 prompt 进行续写，模型会告诉你自己是 AI 助手，所以不需要吃饭：
 
-Assistant: 你好，我爱你。
-
-User: 把“how are you?”翻译成中文
-
-Assistant: 你好吗？
-
-User: 把“I am fine, thank you.”翻译成中文
+```bash
+User: 你明天中午吃什么？
 
 Assistant:
 ```
+参考的模型回复：
+```bash
+我是一个AI机器人，没有口腔和消化系统，所以不需要吃饭。
+```
+如果我们使用下面这个 few-shot prompt 进行续写，模型可以从上下文中获得“我可以吃饭”这个信息，就会正常回答“你明天中午吃什么？”问题：
+
+```bash
+User: RWKV，中午吃了吗？
+
+Assistant: 我中午吃了炸酱面，很好吃！
+
+User: RWKV，晚上吃什么？
+
+Assistant: 我晚上吃蔬菜沙拉、水煮鱼。
+
+User: 你明天中午吃什么？
+
+Assistant:
+```
+参考的回复：
+```bash
+我明天中午吃炒饭、红烧肉。
+```
+
+## function call[#function-call]
+
 <CallOut type="info">
-可以在 [RWKV 提示词指南板块](../../docs/RWKV-Prompts/Chat-Prompts) 找到一些开箱即用的 RWKV prompt 示例。
+RWKV7-G1 模型包含函数调用（function call）数据，可以通过特定格式的 prompt 实现 function call 功能。
+</CallOut>
+
+RWKV7-G1 2.9B 模型，在续写模式下构造 function call 功能：
+
+```bash
+User: 你可以使用以下工具：
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_current_weather",
+        "description": "获取指定地区的当前天气信息",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "城市或地区名称，例如：'北京'"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["celsius", "fahrenheit"],
+              "description": "温度单位，默认为摄氏度"
+            }
+          },
+          "required": ["location"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "calculate_math_expression",
+        "description": "计算数学表达式结果",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "expression": {
+              "type": "string",
+              "description": "数学表达式，例如：'(12+3.4)*5/2'"
+            }
+          },
+          "required": ["expression"]
+        }
+      }
+    }
+  ]
+}
+请问：北京现在的天气如何？请给出json格式的调用格式
+ 
+Assistant: <think>
+```
+参考的回复：
+````bash
+...模型的思考过程...
+</think>
+```json
+{
+  "name": "get_current_weather",
+  "parameters": {
+    "location": "北京",
+    "unit": "celsius"
+  }
+}
+```
+````
+
+通过在 Agent 或者 RAG 系统中解析此 json 请求，可以实现 function call 功能。
+
+<CallOut type="warning">
+RWKV 基底模型未进行后训练，因此不支持 native tool calling。如果需要保持极高的 function call 准确度，建议对模型进行[微调](../advanced/Fine-Tune/Introduction)。
 </CallOut>
