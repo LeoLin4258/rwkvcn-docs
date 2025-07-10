@@ -12,11 +12,36 @@ RWKV 更适合 QA 和指令问答两种提示格式：
 
 ## QA 格式 prompt[#QA-Format-Prompt]
 
+<Tabs items={["不思考模式","思考模式", "快思考模式"]}>
+
+<Tab>
 ```bash
 User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
 Assistant:
 ```
+</Tab>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+
+Assistant: <think>
+```
+</Tab>
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+
+Assistant: <think></think>
+```
+<CallOut type="info">
+快思考模式是直接使用 `<think></think>` 标签跳过思考过程，从而使模型以为自己进行了思考。
+
+此模式会让模型比思考模式回答的更快，同时回答质量比不思考更好。
+</CallOut>
+</Tab>
+</Tabs>
 <CallOut type="info">
 QA（问答）格式是 RWKV 的默认训练格式。
 
@@ -95,32 +120,33 @@ Assistant:
 举个例子：如果你直接使用以下 prompt 进行续写，模型会告诉你自己是 AI 助手，所以不需要吃饭：
 
 ```bash
-User: 你明天中午吃什么？
+User: 请你帮我给以下句子写广告词：这是一款新的笔记本，很轻，电池能用很久。
 
-Assistant:
+Assistant: 
 ```
 参考的模型回复：
 ```bash
-我是一个AI机器人，没有口腔和消化系统，所以不需要吃饭。
+这款笔记本轻巧便携，让你随时随地畅享移动办公。同时，它的电池续航能力惊人，让你不用担心频繁充电的烦恼。无论是学习、工作还是娱乐，这款笔记本都能满足你的需求。快来体验它吧！
 ```
 如果我们使用下面这个 few-shot prompt 进行续写，模型可以从上下文中获得“我可以吃饭”这个信息，就会正常回答“你明天中午吃什么？”问题：
 
 ```bash
-User: RWKV，中午吃了吗？
+User: 请你帮我给以下句子写广告词：这是一款手冲咖啡壶，玻璃材质，可以过滤咖啡。
 
-Assistant: 我中午吃了炸酱面，很好吃！
+Assistant: 告别速溶，只需3分钟，在家复刻咖啡馆级的风味。高透玻璃壶身，亲眼见证每一滴香醇的萃取。用一个清晨的仪式感，唤醒一整天的活力。
 
-User: RWKV，晚上吃什么？
+User: 请你帮我给以下句子写广告词：我们新出了一门口语课，教你怎么跟外国人聊天。
 
-Assistant: 我晚上吃蔬菜沙拉、水煮鱼。
+Assistant: 还在对着屏幕说“Hello, how are you?” 别让你的口语停留在课本里！我们的课程带你走进真实对话场景，从点餐到侃大山，让你自信开口，像本地人一样聊天！
 
-User: 你明天中午吃什么？
+User: 请你帮我给以下句子写广告词：这是一款新的笔记本，很轻，电池能用很久。
 
-Assistant:
+Assistant: 
+
 ```
 参考的回复：
 ```bash
-我明天中午吃炒饭、红烧肉。
+轻盈如羽，电池如海。这款笔记本让你随时随地畅游数字世界，无需担心续航问题。
 ```
 
 ## function call[#function-call]
