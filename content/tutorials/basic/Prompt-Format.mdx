@@ -29,11 +29,36 @@ RWKV 更适合 QA 和指令问答两种提示格式：
 
 ## QA 格式 prompt[#QA-Format-Prompt]
 
+<Tabs items={["不思考模式","思考模式", "快思考模式"]}>
+
+<Tab>
 ```bash
 User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
 Assistant:
 ```
+</Tab>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+
+Assistant: <think>
+```
+</Tab>
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+
+Assistant: <think></think>
+```
+<CallOut type="info">
+快思考模式是直接使用 `<think></think>` 标签跳过思考过程，从而使模型以为自己进行了思考。
+
+此模式会让模型比思考模式回答的更快，同时回答质量比不思考更好。
+</CallOut>
+</Tab>
+</Tabs>
 <CallOut type="info">
 QA（问答）格式是 RWKV 的默认训练格式。
 
