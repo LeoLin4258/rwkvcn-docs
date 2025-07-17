@@ -5,6 +5,7 @@ title: Ollama 推理教程
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { TEMP_CODE_BLOCK } from 'components-docs/ui/TEMP-CODE-BLOCK.tsx'
 
 <CallOut type="info">
 [Ollama](https://github.com/ollama) 是一个简单易用的开源本地大语言模型运行框架，支持在个人电脑上一键部署和运行各类开源模型，具有配置简单、资源占用低等特点。
@@ -136,8 +137,8 @@ RWKV gguf 模型有各种量化版本，建议使用 `FP16`、 `Q8_0` 两种量�
 
 对于 RWKV G1 系列支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
-```bash
-FROM rwkv7-g1-2.9b-20250519-ctx4096-Q8_0.gguf
+<TEMP_CODE_BLOCK text={
+`FROM rwkv7-g1-2.9b-20250519-ctx4096-Q8_0.gguf
 
 TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
@@ -166,14 +167,15 @@ PARAMETER stop "Assistant"
 
 PARAMETER temperature 1
 PARAMETER top_p 0.5
-PARAMETER repeat_penalty 1.2
-```
+PARAMETER repeat_penalty 1.2`
+}/>
 </Tab>
 <Tab>
 对于 RWKV-World 等不支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
-```bash
-FROM rwkv7-g1-1.5b-20250429-ctx4096-Q8_0.gguf
+
+<TEMP_CODE_BLOCK text={
+`FROM rwkv7-g1-1.5b-20250429-ctx4096-Q8_0.gguf
 
 TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
@@ -197,8 +199,9 @@ User"""
 
 PARAMETER temperature 1
 PARAMETER top_p 0.5
-PARAMETER repeat_penalty 1.2
-```
+PARAMETER repeat_penalty 1.2`
+}/>
+
 </Tab>
 </Tabs>
 请将第一行 `FROM` 之后的 `rwkv-xxx.gguf` 修改为你本地的 RWKV 模型文件名称。
