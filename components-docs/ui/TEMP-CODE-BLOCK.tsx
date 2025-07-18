@@ -1,7 +1,9 @@
-// TEMPORARY COMPONENT: 
-// This code block is a provisional solution to address the issue of extra spaces on line breaks.
-// Avoid using this component, as it will be deprecated and removed soon.
-// Please use the built-in code block component once the whitespace issue is resolved.
+// ===================== DEPRECATED COMPONENT =====================
+// ⚠️ THIS COMPONENT IS ONLY TEMPORARILY ENABLED FOR WHITESPACE ISSUES ⚠️
+// DO NOT USE THIS COMPONENT IN NEW CODE.
+// Please use the built-in code block component instead.
+// This file will be removed soon.
+// ===============================================================
 
 // Usage:
 // import { TEMP_CODE_BLOCK } from 'components-docs/ui/TEMP-CODE-BLOCK.tsx'
