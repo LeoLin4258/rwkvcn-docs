@@ -4,25 +4,23 @@ title: 聊天模式的提示词示例
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-这个页面展示了多种**聊天模式**的 prompt 参考。在每个 prompt 示例的右上方可以一键复制文本，然后到 RWKV Runner/Ai00 的文本框中粘贴使用。
+这个页面展示了多种**聊天模式**的 prompt 参考。在每个 prompt 示例的右上方可以一键复制文本，然后到 RWKV Runner/Ai00 等推理工具的文本框中粘贴使用。
 
 <CallOut type="warning">
-此页面的 prompt 只适用于**聊天（chat） 模式**的 RWKV Runner 或者 Ai00。
+此页面的 prompt 基于 RWKV7-G1 2.9B 模型的**聊天模式（chat mode）**。
 
-下述所有 prompt 示例基于 RWKV-6-7B-World 模型，随着模型版本和参数的调整，生成的结果可能会产生变化。
+随着模型版本和参数的调整，生成的结果可能会产生变化。
 </CallOut>
 
 ### ⭐ 撰写并翻译电子邮件（多语言）
 
 <CallOut type="info">
-该类任务既需要一定的创造力也需保证翻译的准确性，建议的参数：Temperature 设为 1、Top_P 设为 0.2、Presence Penalty 设为 0、Frequency Penalty 设为 1
+该类任务既需要一定的创造力也需保证翻译的准确性，建议的参数：Temperature = 1、Top_P = 0.2、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
-
---- 
 
 **输入 prompts:**
 
-``` markdown copy
+``` markdown
 Schreiben Sie einen Brief an meinen Professor und sagen Sie ihm, dass ich es nicht mehr tun werde!
 ```
 
@@ -43,12 +41,12 @@ Mit freundlichen Grüßen, [Ihr Name]
 
 **继续输入 prompts:**
 
-``` markdown copy
+``` markdown
 翻译成中文
 ```
 
 **参考输出：**
-``` markdown
+```markdown
 亲爱的教授，
 
 我今天写信给您，告诉您我不会再这样做了。我想向您道歉，因为我一直没有积极参与项目。
@@ -66,12 +64,11 @@ Mit freundlichen Grüßen, [Ihr Name]
 
 **继续输入 prompts:**
 
-``` markdown copy
+``` markdown
 翻译成泰语
 ```
 **参考输出：**
 ``` markdown
-
 สวัสดีครับ/ค่ะ [ชื่อของคุณ]
 
 ฉันเขียนจดหมายนี้มาให้ท่านทราบว่าฉันจะไม่ทำอีกต่อไป!
@@ -96,13 +93,13 @@ Mit freundlichen Grüßen, [Ihr Name]
 ### ⭐ 撰写并修改请假邮件
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts:**
 
-``` markdown copy
-User: Write an email to my professor, asking for a leave for today's group meeting.
+``` markdown
+Write an email to my professor, asking for a leave for today's group meeting.
 ```
 **参考输出：**
 ``` markdown
@@ -119,7 +116,7 @@ Best regards,
 
 **继续输入 prompts，更新请假理由:**
 
-``` markdown copy
+``` markdown
 Actually the reason is that I am having a fever. Please update the email to include that information.
 ```
 
@@ -139,7 +136,7 @@ Best regards,
 
 **继续输入 prompts，移除"family matter"板块:**
 
-``` markdown copy
+``` markdown
 Please remove the "family matter" part.
 ```
 
@@ -159,14 +156,14 @@ Best regards,
 ### ⭐ 生成或修改代码
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 #### 1. 分析并修改简单代码
 
 **输入 prompts：**
 
-``` markdown copy
+``` markdown
 请阅读以下文档，并告诉我它在讲什么：
 
 ming_apples = 7
@@ -181,36 +178,50 @@ print("Blink has", blink_apples, "apples.")
 print("Total apples for all: ", total_apples)
 ```
 **参考输出：**
-``` markdown
-这段代码定义了三个变量ming_apples、leo_apples和blink_apples，分别表示苹果的数量。然后使用print()函数输出了它们的值，并计算出了它们的总数。
-
-具体来说，代码首先定义了三个变量ming_apples、leo_apples和blink_apples，分别赋值为7、6和85。
-
-然后使用print()函数输出了它们的值，并计算出了它们的总数。最后，将计算结果打印到屏幕上。
-```
+```` markdown
+这段Python代码展示了三个人（Ming、Leo和Blink）拥有的苹果数量及其总和。具体来说：
+1. **定义变量**：
+   - `ming_apples = 7` 表示Ming拥有7个苹果。
+   - `leo_apples = 6` 表示Leo拥有6个苹果。
+   - `blink_apples = 85` 表示Blink拥有85个苹果。
+2. **计算总数**：
+   - `total_apples = ming_apples + leo_apples + blink_apples` 计算三人共同拥有的苹果总数：
+     \[
+     7 + 6 + 85 = 98
+     \]
+   - 结果存储在变量`total_apples`中。
+3. **打印信息**：
+   - 使用f-string格式化输出每个人的苹果数量：
+     ```python
+     print("Ming has", ming_apples, "apples.")
+     print("Leo has", leo_apples, "apples.")
+     print("Blink has", blink_apples, "apples.")
+     ```
+   - 打印总共拥有的苹果数：
+     ```python
+     print("Total apples for all: ", total_apples)
+     ```
+**总结**：代码展示了三人各自拥有的苹果数量及其总和，便于直观理解每个人持有多少苹果。
+````
 
 **继续输入 prompts：**
 
-``` markdown copy
+``` markdown
 请将程序中Ming的苹果数改为80，并提供修改后的代码。
 ```
 
 **参考输出：**
 
 ```` markdown
-好的，根据您提供的信息，我已经将程序中小明（Ming）所拥有的苹果数从7改为80。修改后完整代码如下：
-``` python
-好的，以下是修改后的代码：
-ming_apples = 80
-leo_apples = 6
-blink_apples = 85
-
-total_apples = ming_apples + leo_apples + blink_apples
-
-print("Ming has", ming_apples, "apples.")
-print("Leo has", leo_apples, "apples.")
-print("Blink has", blink_apples, "apples.")
-print("Total apples for all: ", total_apples)
+```python
+ming_apples = 80  # 将Ming拥有的苹果数从7改为80
+leo_apples = 6    # Leo拥有6个苹果不变
+blink_apples = 85 # Blink拥有85个苹果不变
+total_apples = ming_apples + leo_apples + blink_apples  # 计算总共拥有的苹果数
+print("Ming has", ming_apples, "apples.")  # Ming拥有80个苹果
+print("Leo has", leo_apples, "apples.")    # Leo拥有6个苹果不变
+print("Blink has", blink_apples, "apples.") # Blink拥有85个苹果不变
+print("Total apples for all: ", total_apples) # 总共拥有171个苹果（80+6+85）
 ```
 ````
 
@@ -218,13 +229,13 @@ print("Total apples for all: ", total_apples)
 
 **输入 prompts：**
 
-``` markdown copy
+``` markdown
 使用 python 写文本相似度分析的代码
 ```
 
 **参考输出：**
 
-```` markdown copy
+```` markdown
 以下是使用Python编写文本相似度分析的代码示例：
 
 ``` python
@@ -249,38 +260,155 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 需要注意的是，在实际应用中可能需要根据具体情况进行调整和优化。例如，可以考虑使用不同的特征提取方法、不同的词向量表示方法等来提高模型性能。
 ````
 
-### ⭐ 撰写销售工作日报
+### ⭐ 撰写线上技术分享会策划案
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1.2、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts:**
+``` markdown
+策划一个面向前端开发者的线上技术分享会，主题为“现代前端框架的新趋势”，方案需包括活动目标、议程安排、嘉宾邀请、宣传渠道和预期效果。
+```
+**参考输出：**
+``` markdown
+### 活动目标
+1. **知识普及**：帮助前端开发者了解最新的现代前端框架及其应用场景。
+2. **技能提升**：通过专家讲解和互动环节，提升开发者的实际操作能力。
+3. **社区建设**：促进开发者之间的交流与合作，形成良好的技术社区氛围。
+4. **品牌推广**：增强公司在行业内的影响力和知名度。
+### 议程安排
+#### 1. 开场致辞（5分钟）
+- 主持人简要介绍活动背景和目标，激励参与者积极参与讨论。
+#### 2. 主题演讲（30分钟）
+- **嘉宾1：前端框架专家A**
+  - 主题：“现代前端框架的核心特性及应用”
+  - 内容概述：介绍React、Vue、Angular等主流框架的最新版本特性，如虚拟DOM、组件化开发等。
+  - 案例分析：通过实际项目案例展示如何利用这些框架优化性能和提升用户体验。
+  
+- **嘉宾2：前端工程师B**
+  - 主题：“微服务架构下的前端技术选型”
+  - 内容概述：探讨在微服务环境中如何选择合适的前端框架，以及如何进行跨团队协作。
+  - 实战经验分享：分享公司在微服务项目中使用React和Vue进行单页应用开发的经验教训。
+#### 3. Q&A环节（20分钟）
+- 邀请观众提问，由嘉宾解答疑惑。重点关注现代框架在不同场景下的适用性和优缺点。
+#### 4. 互动讨论（15分钟）
+- **小组讨论**：将参与者分成若干小组，每组围绕一个话题进行深入讨论。话题包括“你认为未来前端技术会有哪些变化？”、“如何平衡性能与开发效率？”等。
+  - 每个小组选出代表进行汇报，其他成员提问或补充意见。
+#### 5. 结束语（5分钟）
+- **总结发言**：主持人对本次活动进行总结，强调知识共享和技术交流的重要性。
+### 嘉宾邀请
+1. **专家A**
+   - **背景**：资深前端工程师，曾在知名互联网公司担任高级开发工程师，擅长React框架应用。
+   - **贡献**：撰写过多篇关于React最佳实践的文章，参与过多个大型项目的开发和优化。
+2. **专家B**
+   - **背景**：前端工程师领域的资深顾问，拥有丰富的微服务架构经验。
+   - **贡献**：在业界内推广了基于Vue框架进行微服务开发的方法论，并撰写了相关技术博客和书籍。
+### 宣传渠道
+1. **社交媒体推广**
+   - Twitter、LinkedIn等平台上发布活动预告和嘉宾介绍信息。
+   - 使用#TechTalk #FrontendTrends #WebDevCommunity标签增加曝光度。
+2. **邮件营销**
+   - 向公司内部员工群发邀请函，并附上详细议程和注册链接。
+3. **官方网站宣传**
+   - 在公司官网上设立活动专区，展示嘉宾简介、议程安排等信息。
+4. **合作伙伴协作**
+   - 与相关技术社区（如Stack Overflow、GitHub）合作推广活动，吸引更多开发者参与。
+### 预期效果
+1. **知识普及率提升**：通过嘉宾讲解和互动环节，让参与者深入了解现代前端框架的最新趋势和应用场景。
+2. **技能提升机会增加**：通过实战演练和小组讨论，帮助开发者掌握更多实用技巧，提高工作效率。
+3. **社区建设加强**：促进不同背景的开发者之间的交流与合作，形成良好的技术社区氛围。
+4. **品牌影响力扩大**：通过线上活动展示公司在行业内的专业性和领导力，吸引更多潜在客户和合作伙伴。
+```
+
+### ⭐ 撰写电影影评
+
+<CallOut type="info">
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts:**
+``` markdown
+从剧情、视觉效果和情感内核三个方面，写一篇关于电影《星际穿越》的深度影评，字数不少于1000字。
+```
+
+**参考输出：**
+``` markdown
+《星际穿越》：时空褶皱中的人性探索与宇宙叙事
+2014年上映的《星际穿越》（Interstellar）堪称诺兰导演电影史上最具哲学张力的作品之一。这部由他执导并编剧的科幻巨制在宏大叙事与精妙人文关怀间游走出独特风格——它既是对爱因斯坦相对论理论的视觉解构，也是关于家庭、生命意义和人类存在本质的深刻隐喻。本文将从剧情、视觉效果和情感内核三个维度展开分析。
+### 一、时空褶皱中的叙事革新
+诺兰通过虫洞这一量子物理概念构建了超越传统叙事框架的宇宙观。影片开篇即以"黑暗森林法则"为切入点：当地球资源枯竭时代背景下，人类被迫面临生存抉择——要么在土星环建立殖民基地（象征着未来），要么继续依赖母星（代表着过去）。这种"二元选择悖论"暗合了海德格尔关于技术决定论与存在主义困境的思考。
+剧情核心围绕库珀（马修·麦康纳饰）与女儿安妮塔（伊丽莎白·奥布莱恩饰）展开。当库珀穿越虫洞进入未知维度后，故事线分化为两条平行轨迹：一条是地球母亲节日下父女重逢的温情叙事；另一条则是他在多元宇宙中寻找新家园的冒险旅程。这种时间维度上的双线交织暗合了弗洛伊德"自我-超我-本我"三重结构，使观众在跟随主角穿越不同维度时产生强烈认同感。
+值得注意的是诺兰巧妙运用量子纠缠原理：当库珀在不同星系间传递信息时，其思想波动会引发多个平行宇宙共振现象。这种设定既符合爱因斯坦相对论关于引力场与光速限制的科学基础，又暗示了人类意识可能具有超越物理界限的潜能——正如影片中提到："爱就像虫洞一样，它把我们连接起来"。
+### 二、视觉效果：从微观到宏观的宇宙叙事
+《星际穿越》在视觉呈现上达到了诺兰最高水准。导演通过精确计算将黑洞场景转化为真实可感知的存在：当库珀进入柯伊伯带时，周围空间出现明显扭曲效果；而当他进入五号行星大气层时，空气流动产生的光谱变化更是逼真得令人屏息。
+尤其值得称道的是电影对引力波传播机制的再创作。影片中引力波被描绘成肉眼可见的蓝色涟漪，这种视觉化处理不仅符合爱因斯坦相对论预测（引力波以光速传播），更暗示了人类探索宇宙本质需要突破常规感官认知。这种"超越感官"的叙事手法与安妮塔所说"我们都在寻找那个让我们心跳加速的东西"形成呼应。
+特别值得提及的是电影中关于黑洞吞噬行星现象的再创作。诺兰采用了前所未有细致入微的计算机模拟技术：当飞船穿越黑洞边界时，会出现令人窒息般的颜色渐变效果——从蓝色逐渐转为深红再消失于无形。这种视觉冲击不仅符合物理学上物质被黑洞吸积层吞噬后产生极端辐射现象，更暗示了人类面对终极存在时必须做出选择。
+### 三、情感内核：量子纠缠与家庭叙事
+《星际穿越》最具哲学深度之处在于其关于家庭纽带与存在意义的探讨。影片通过多重平行宇宙设定展开：库珀选择留下来寻找新家园时，另一条平行线上安妮塔仍然年幼；而当库珀返回地球母亲节日时，他发现女儿已长大成人。这种跨维度叙事方式正如海德格尔所言："存在即被世界着"。
+电影中最具震撼力的场景莫过于库珀穿越虫洞后看到地球母亲节日场景——此刻他突然意识到自己已经超越了时间维度。这种"心灵瞬间移动"正是诺兰对量子纠缠概念的艺术化诠释：当父女之间建立起超距作用关系时，他们实际上已经融入了同一个量子态。
+更值得注意的是电影对生命价值观的重构。当库珀面临选择是否拯救五号行星居民时，他说："我们不能因为害怕失去而放弃探索未知"。这种勇于冒险精神恰恰与海德格尔关于存在者必须勇敢面对死亡本质的思想相契合
+```
+
+### ⭐ 根据主题撰写博客文章
+
+<CallOut type="info">
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts:**
 
-``` markdown copy
-我的工作是拜访了3名高潜客户，同1位客户签订了10万元的意向合同。请你根据我的工作写一篇日报
-```
-**参考输出**
 ``` markdown
-好的，以下是一份可能的日报：
+写一篇实用的博客文章，主题是如何克服拖延症。文章需要提供至少5个具体可行的方法，并结合心理学原理解释。
+```
 
-日期：2023年3月31日
-
-工作内容：拜访了3名高潜客户，同1位客户签订了10万元的意向合同。
-
-具体情况：今天我前往公司附近的三家企业进行拜访。在与这些企业负责人交流后，我成功地与其中一位高潜客户签订了一份10万元的意向合同。这个合同将为公司带来相当可观的收益。
-
-总结：今天是一个非常成功的日子。通过拜访和签订意向合同，我们为公司带来了重要的商机和收益。这也证明了我们团队在市场营销方面所取得的进展和成就。
+**参考输出：**
+``` markdown
+**如何克服拖延症：5个实用方法与心理学原理解析**
+拖延症是许多人面临的常见问题，它不仅影响工作效率，还可能导致压力和焦虑。本文将介绍5个具体可行的方法来克服拖延症，并结合心理学原理解释其背后的机制。
+---
+### **1. 分解任务：从小到大，逐步完成**
+**方法说明：**  
+将大任务拆分为小步骤，每完成一个小目标即获得成就感。例如，写一篇论文可以分为“选题”、“收集资料”、“撰写草稿”等阶段。
+**心理学原理：**  
+这种方法利用了“目标设定理论”（Goal Setting Theory），通过明确的目标激发动机。研究表明，当任务被细化时，人们更容易开始并持续执行。
+---
+### **2. 设定截止日期：压力与动力并存**
+**方法说明：**  
+为每个任务设定一个具体的截止日期（如“今天下午3点前完成报告”），避免拖延到最后关头。
+**心理学原理：**  
+这种方法利用了“时间压力效应”（Temporal Pressure Effect），即人们在面对紧迫时间时更容易集中注意力和行动。研究显示，适度的压力可以提高工作效率。
+---
+### **3. 使用番茄工作法：专注与休息结合**
+**方法说明：**  
+将工作划分为25分钟专注+5分钟休息的周期（称为“番茄钟”）。每完成4个番茄钟后，可以享受较长的休息时间。
+**心理学原理：**  
+这种方法结合了“有限资源假设”（Limited Resource Theory），即通过限制专注时间来防止疲劳和厌倦感。研究表明，短暂休息能恢复大脑功能，提高后续工作效率。
+---
+### **4. 环境优化：减少干扰因素**
+**方法说明：**  
+创造一个无干扰的工作环境（如关闭社交媒体、使用专注软件）。例如，将手机静音或放在另一房间。
+**心理学原理：**  
+这种方法利用了“外部控制论”（External Control Theory），即通过改变外部条件来影响内在动机。研究表明，减少干扰可以降低任务中断率，提高执行力。
+---
+### **5. 奖励自己：积极反馈激励内驱力**
+**方法说明：**  
+完成任务后给予自己小奖励（如看一集喜欢的电视剧或吃一块巧克力）。奖励应与任务相关且具体。
+**心理学原理：**  
+这种方法结合了“期望价值论”（Expectancy Value Theory），即通过正向激励增强动机。研究显示，积极反馈能提高情绪状态和持续性努力。
+---
+### **总结与建议**
+克服拖延症需要多角度干预：从任务拆分到环境优化，再到心理激励。同时，重要的是找到适合自己的方法并持之以恒。记住，每个小步骤都是向目标迈进的一部分！
 ```
 
 ### ⭐ 撰写图书馆办公室工作周报
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts:**
-```markdown copy
+```markdown
 请为以下时间段撰写一份工作报告：
 报告周期：过去一周
 工作职位：图书馆办公室主任
@@ -334,12 +462,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 撰写产品发布会策划案
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts:**
 
-``` markdown copy
+``` markdown
 请为互联网公司设计一份人工智能聊天app产品的发布会活动策划案
 ```
 
@@ -373,12 +501,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 解读社会现象
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts:**
 
-``` markdown copy
+``` markdown
 现代城市化生活下，很多人有高薪，但是工作压力大，幸福度和自由度不一定高，可以从社会发展和哲学的角度来解读一下么？
 ```
 **参考输出**
@@ -398,12 +526,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 总结分布式系统理论概念
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 请帮我分段总结分布式系统的架构及理论，以及应用该理念的行业，和在市场上的较常用的应用
 ```
 **参考输出**
@@ -425,11 +553,11 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 金融学论文选题建议
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
-``` markdown copy
+``` markdown
 请你基于金融学的专业知识，结合当前的热点话题，为我提供几个具有创新性、实用性、研究价值的毕业论文选题
 ```
 **参考输出**
@@ -447,41 +575,16 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 
 希望这些选题能够给您提供一些启示，祝您顺利完成毕业论文！
 ```
-### ⭐ 帮助答辩回答
-
-<CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
-</CallOut>
-
-**输入 prompts**
-
-``` markdown copy
-“Chat大模型对用户行为的影响”的答辩问题
-```
-
-**参考输出**
-``` markdown
-当然，以下是一些可能的答辩问题：
-
-1. 你认为Chat大模型对用户行为有何影响？请详细阐述。
-2. Chat大模型在哪些方面可能会对用户行为产生负面影响？请举例说明。
-3. 你认为Chat大模型如何改善用户体验？请提供具体的例子。
-4. Chat大模型在数据隐私保护方面存在哪些挑战？请分析并提出解决方案。
-5. 你认为Chat大模型是否会取代人类客服？如果是，它将如何影响客服行业的就业市场？
-6. Chat大模型的发展对于未来人工智能技术的发展有何启示和借鉴意义？
-7. 你认为Chat大模型应该如何平衡技术进步和社会责任之间的关系？
-8. Chat大模型在不同领域中可能存在哪些潜在风险和挑战，需要采取什么措施来应对这些风险和挑战呢？
-```
 
 ### ⭐ 冠词知识点辨析
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 不定冠词和定冠词的区别是什么
 ```
 
@@ -502,12 +605,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 散文诗文学创作
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 请写一首散文诗来赞美江南春色
 ```
 
@@ -541,12 +644,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 生活贴士-除去冰箱异味
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 怎么除去冰箱异味
 ```
 
@@ -567,12 +670,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 厨房帮手-麻婆豆腐的做法
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 告诉我麻婆豆腐的做法和注意事项
 ```
 
@@ -616,12 +719,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 一句话扩写文本
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.5、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 扩写文本：大语言模型的发展将为生活带来便利
 ```
 
@@ -637,12 +740,12 @@ print("The similarity score between the two texts is:", similarity_score)  # 输
 ### ⭐ 制定 Python 学习计划
 
 <CallOut type="info">
-建议的参数：Temperature 设为 1、Top_P 设为 0.3、Presence Penalty 设为 0、Frequency Penalty 设为 1
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
 </CallOut>
 
 **输入 prompts**
 
-``` markdown copy
+``` markdown
 我想尽快掌握Python编程，请问该如何制定学习计划？
 ```
 
