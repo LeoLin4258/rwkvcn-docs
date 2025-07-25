@@ -63,11 +63,11 @@ RWKV-6 World 模型已过时，不再推荐使用。
 
 在终端中运行 `ollama run mollysama/rwkv-7-g1:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-G1 2.9B 模型。您可以在终端中与 RWKV 模型进行对话。
 
-![ollama-run-rwkv-7-g1-2.9b](./imgs/ollama-run-rwkv-7-g1-2.9b.png)
-
-<CallOut type="info">
+<CallOut type="tips">
 Ollama 的 RWKV7-G1 模型默认开启思考模式，可以通过 `/set nothink` 和 `/set think` 命令灵活地开关思考模式。
 </CallOut>
+
+![ollama-run-rwkv-7-g1-2.9b](./imgs/ollama-run-rwkv-7-g1-2.9b.png)
 
 所有可选的 Ollama/RWKV7-G1 模型：
 
@@ -130,14 +130,18 @@ RWKV gguf 模型有各种量化版本，建议使用 `FP16`、 `Q8_0` 两种量�
 
 ![Modelfile](./imgs/ollama-Modelfile.png)
 
-使用“记事本”等文本编辑工具打开 `Modelfile`，然后根据“模型是否支持思考模式”**创建不同的 Modelfile 文件**。
+使用“记事本”等文本编辑工具打开 `Modelfile`，然后根据**模型是否支持思考模式**创建不同的 Modelfile 文件。
 
-<Tabs items={['支持思考的 RWKV 模型', '不支持思考的 RWKV 模型']}>
+<CallOut type="tips">
+RWKV G0/G1 系列推理模型**同时支持“思考”和“不思考”两种模式**，因此下列两种 Modelfile 都可用，根据您对推理功能的需求选择一种即可。
+</CallOut>
+
+<Tabs items={['思考模式', '不思考模式']}>
 <Tab>
 
-对于 RWKV G1 系列支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
+对于 RWKV G0/G1 系列**支持思考功能**的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
-<TEMP_CODE_BLOCK text={
+```bash
 `FROM rwkv7-g1-2.9b-20250519-ctx4096-Q8_0.gguf
 
 TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
@@ -168,14 +172,13 @@ PARAMETER stop "Assistant"
 PARAMETER temperature 1
 PARAMETER top_p 0.5
 PARAMETER repeat_penalty 1.2`
-}/>
+```
 </Tab>
 <Tab>
-对于 RWKV-World 等不支持思考的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
+对于 RWKV-World 等**不支持思考**的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
 
-
-<TEMP_CODE_BLOCK text={
-`FROM rwkv7-g1-1.5b-20250429-ctx4096-Q8_0.gguf
+```bash
+`FROM rwkv7-2.9B-world-F16.gguf
 
 TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
@@ -200,7 +203,7 @@ User"""
 PARAMETER temperature 1
 PARAMETER top_p 0.5
 PARAMETER repeat_penalty 1.2`
-}/>
+```
 
 </Tab>
 </Tabs>
