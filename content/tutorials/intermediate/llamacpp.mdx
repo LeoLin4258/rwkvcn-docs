@@ -97,9 +97,9 @@ python convert_rwkv_pth_to_gguf.py [pth模型文件路径] rwkv_vocab_v20230424.
 在 llama.cpp 目录运行以下命令，可以开启 llama.cpp 的命令行**对话模式**：
 
 ``` bash copy
-./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -n 500
+./llama-cli -m models/rwkv-6-world-7b-Q8_0.gguf -p "You are a helpful assistant" -cnv -t 8 -ngl 99 -r "\n\n"
 ```
-这条命令通过 `llama-cli` 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、并根据给定的初始 prompt `You are a helpful assistant` 开启对话，每次生成最多 500 个 token。
+这条命令通过 `llama-cli` 运行 `models/rwkv-6-world-7b-Q8_0.gguf` 模型，使用 8 个线程、并根据给定的初始 prompt `You are a helpful assistant` 开启对话。
 
 ![llama.cpp-RWKV-inference-cnv-mode](./images/llamacpp/llama.cpp-RWKV-inference-cnv-mode.png)
 
@@ -109,9 +109,9 @@ python convert_rwkv_pth_to_gguf.py [pth模型文件路径] rwkv_vocab_v20230424.
 - `-m models/rwkv-6-world-7b-Q8_0.gguf`：模型的路径参数
 - `-p "You are a helpful assistant"`：初始 prompt 参数，模型根据该提示词开启对话
 - `-cnv`：开启对话模式，此参数为默认参数，可以省略
-- `-t 8`：指定线程数，建议根据可用的物理 CPU 核心数调整
+- `-t 8`：指定线程数，建议根据可用的物理 CPU 核心数调整，可以省略（省略则默认为物理核心数）
 - `-ngl`：指定使用 GPU 加载的模型层数，可以通过设定 `-ngl 99`，使用 GPU 加载 RWKV 模型所有层
-- `-n 500`：-n 参数表示模型生成的最大 token 数
+- `-r`：用于以字符串形式匹配的停止词，rwkv模型需要指定为"\n\n"（双换行）
 
 <CallOut type="info">
 完整的参数列表可以在 [llama.cpp 参数文档](https://github.com/ggml-org/llama.cpp/blob/master/tools/main/README.md#input-prompts)中查看。
@@ -142,7 +142,7 @@ python convert_rwkv_pth_to_gguf.py [pth模型文件路径] rwkv_vocab_v20230424.
 使用以下命令，启动 llama.cpp 的 Web 服务：
 
 ``` bash copy
-./llama-server -m models/rwkv-6-world-7b-Q8_0.gguf -ngl 99
+./llama-server -m models/rwkv-6-world-7b-Q8_0.gguf -ngl 99 -r "\n\n"
 ```
 
 启动后，可以通过 `http://127.0.0.1:8080` 访问 llama.cpp Web 页面：
