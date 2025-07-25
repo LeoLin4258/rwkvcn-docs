@@ -3,6 +3,7 @@ title: RWKV 简介
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 
 RWKV（读作 RWaKuV）是一种具有 GPT 级大型语言模型（LLM）性能的 RNN，也可以像 GPT Transformer 一样直接训练（可并行化）。
 
@@ -39,9 +40,11 @@ RWKV-7 架构是 RWKV 的最新版本，架构论文于 2025 年 3 月 18 日正
 有关 RWKV-7 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=20250320)。
 </CallOut>
 
-RWKV-7 架构图如下： 
-
-![RWKV-7-architecture](./imgs/rwkv-7-architecture.jpg)
+<Accordions type="single">
+  <Accordion title="点击查看 RWKV-7 完整架构图">
+  ![RWKV-7-architecture](./imgs/rwkv-7-architecture.jpg)
+   </Accordion>
+</Accordions>
 
 </Tab>
   <Tab>
@@ -54,13 +57,16 @@ RWKV-5/6 两个架构在 RWKV-4 架构的基础上进行了若干改进。因此
 有关 RWKV-5/6 论文的解读，可以参考[此文章](https://rwkv.cn/news/read?id=382345)。
 </CallOut>
 
-RWKV-6 架构图如下： 
-
+<Accordions type="single">
+  <Accordion title="点击查看 RWKV-6 完整架构图">
 ![RWKV-6-architecture](./imgs/rwkv-6-architecture.png)
 
 <CallOut type="info">
 RWKV-6 架构图由 RWKV 社区开发者按照 CC-BY-SA 许可发布，可以在 [rwkv-wiki.fandom](https://rwkv.fandom.com/zh/wiki/RWKV-6%E6%9E%B6%E6%9E%84) 上找到原始版本。
 </CallOut>
+   </Accordion>
+</Accordions>
+
 </Tab>
 <Tab>
 RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWKV 社区共同完成，初次发表于 2023 年 5 月 22 日。同年 10 月，RWKV-4 架构论文被顶级会议 [EMNLP 2023](https://2023.emnlp.org/program/accepted_findings/) 收录。
@@ -81,11 +87,11 @@ RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWK
 | --- | --- | --- | --- | --- | --- |
 | 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2503.14456) | 🎓[论文已发布](https://arxiv.org/abs/2503.14456) |
 | 总体状态 | **⚠ EOL** | **⚠ EOL**| **⚠ EOL** | **⚙️ 模型训练中** | **⚙️ 模型训练中** |
-| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/files) |
-| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/files) |
-| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/files) |
-| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) |**❌ 无计划** | ⚙️ **训练中** |
-| 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |**❌ 无计划** | 📅 **计划训练** |
+| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250325) |
+| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250429) |
+| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250520) |
+| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) |**❌ 无计划** | ✅ [已发布](https://rwkv.cn/news/read?id=20250520) |
+| 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |**❌ 无计划** | ⚙️ **训练中** |
 
 ## 我应该使用哪些 RWKV 模型？
 
@@ -93,11 +99,11 @@ RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWK
 由于老旧架构导致的性能问题， RWKV-5、RWKV-4 全系列（Raven / World / Pile ...）和更早的 RWKV 版本均已结束生命周期，现有模型仅作为存档。
 </CallOut>
 
-- **7B 及以下参数的模型**：请使用 [RWKV7-G1 2.9B 模型](https://modelscope.cn/models/RWKV/rwkv7-g1/files)，得益于最新的架构设计和最新的 World v3.5 数据集（总数据为 5.16T tokens），RWKV7-G1 模型有较强的**推理、代码和数学能力**，在所有任务上的表现都比过去的模型更好
-- **7B 以上参数的模型**：由于 RWKV7-G1 7B 及更大的模型正在训练中，推荐使用 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型
+- **7B 及以下参数的模型**：请使用 [RWKV7-G0 7.2B 模型](https://rwkv.cn/news/read?id=20250724) 或 [RWKV7-G1 2.9B 模型](https://rwkv.cn/news/read?id=20250520)，得益于最新的架构设计和最新数据集，RWKV7-G0 和 G1 模型有较强的**推理、代码和数学能力**，在所有任务上的表现都比过去的模型更好
+- **14B 及以上参数的模型**：由于 RWKV7-G0 13.3B 正在训练中，推荐使用 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型
 
 <CallOut type="info">
-RWKV7-G1 7B/14B 完成训练后，将完全取代现有的 RWKV-6-World 7B/14B 模型。
+RWKV7-G0 13.3B 完成训练后，将完全取代现有的 RWKV-6-World 14B 模型。
 </CallOut>
 
 请查看[本地部署 RWKV 模型的显存需求](./Vram)，以确认**你的显卡可以使用哪一款 RWKV 模型**。

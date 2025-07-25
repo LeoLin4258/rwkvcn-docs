@@ -73,7 +73,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 请参考[准备训练数据](./Fine-Tune/FT-Dataset.mdx) 文档，准备一个 `jsonl` 格式的预训练数据集，并将其放在 `RWKV-LM-V7/data` 目录下。
 
 <Accordions type="single">
-  <Accordion title="已经有转换好的数据如何查看 my_exit_tokens 和 magic_prime？">
+  <Accordion title="已经有转换好的 binidx 数据，如何查看 my_exit_tokens 和 magic_prime？">
 `data/compute_magic_prime.py` 脚本可为指定的 binidx 数据集和上下文长度（ctx_len）计算正确的 `--my_exit_tokens` 和 `--magic_prime` 值。
 
 1. 在 `data/compute_magic_prime.py` 中修改你的训练数据集和上下文长度（`DATA_NAME` 和 `CTX_LEN`）
