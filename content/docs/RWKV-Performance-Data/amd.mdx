@@ -1,6 +1,5 @@
 ---
 title: AMD 硬件
-
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
@@ -9,29 +8,142 @@ import { HeatMap } from '../../../components-docs/heat-map'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 <CallOut type="info">
-RWKV 模型在 AMD 硬件上的推理性能，当前包括 AMD Radeon-Pro-W7900，后续会添加其他 AMD 硬件的性能表现。
+RWKV 模型在 AMD 硬件上的推理性能，包括各类专业显卡、消费级显卡，甚至集成显卡。
+
+对于 RDNA2 或更早架构的 AMD 硬件，NF4 量化的推理性能可能不如 INT8 量化。
 </CallOut>
 
-## AMD Radeon-Pro-W7900
+## AMD RX 7900 XTX
 
-RWKV 模型在 AMD Radeon-Pro-W7900 上的性能表现：
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [llama.cpp(Vulkan)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 41.55 | 5.75GB |
+| [llama.cpp(Vulkan)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | Q8_0 | 42.85 | 3.47GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 | 106.00 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8 | 137.36 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 | 151.64 | 2.4GB |
 
-| Model | Precision | 每秒生成的 Token 数 | 显存用量 （GB） | 
-|:---:|:---:|:---:| :----------:|
-| RWKV-6-1B6-v2.1 | fp16 | 22.14 | 3.59 |
-| RWKV-6-1B6-v2.1 | fp32 | 18.40 | 6.40 |
-| RWKV-6-3B-v2.1 | fp16 | 21.14 | 6.44 |
-| RWKV-6-3B-v2.1 | fp32 | 16.14 | 12.17 |
-| RWKV-6-7B-v2.1 | fp16 | 18.64 | 14.60 |
-| RWKV-6-7B-v2.1 | fp32 | 10.91 | 28.92 |
-| RWKV-6-14B-v2.1 | fp16 | 14.91 | 26.66 |
-
-表格中的参数解释：
-
-- Model：代表不同参数量的 RWKV-6 模型。
-- Precision：代表不同量化策略或计算精度。
-
+数据来源：[issues/5](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/5) | [issues/6](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/6)
 
 <CallOut type="info">
-测试的性能数据基于项目：[https://github.com/yuunnn-w/RWKV_Pytorch](https://github.com/yuunnn-w/RWKV_Pytorch)
+测试环境：
+- CPU：AMD Ryzen 9 5950X
+- OS version: Ubuntu 25.04, 6.14.0-23-generic
+- driver_info: "radv Mesa 25.0.3-1ubuntu2"
 </CallOut>
+
+## AMD Radeon PRO W7900
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [RWKV pip](https://pypi.org/project/rwkv/)  | RWKV7-G1 2.9B | fp16 | 45.28 | 5.52 GB |
+| [llama.cpp(ROCm)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 48.71 | 5.75GB  |
+| [llama.cpp(ROCm)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | Q8_0 | 58.59 | 3.47GB |
+| [llama.cpp(Vulkan)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 39.49 | 5.75GB |
+| [llama.cpp(Vulkan)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | Q8_0 | 45.21 | 3.47GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 | 61.62 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8 | 79.46 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 | 89.76 | 2.4GB |
+
+数据来源：[issues/9](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/9) | [issues/13](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/13) | [issues/14](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/14)
+
+<CallOut type="info">
+测试环境：
+- CPU：Intel I3 12100
+- OS version: Ubuntu 24.04.2 LTS 6.11.0-26-generic
+</CallOut>
+
+## AMD Radeon Pro VII (Instinct MI50)
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | FP16 | 59.83 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | INT8 | 72.70 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | NF4 | 65.99 | 2.4GB |
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD Ryzen 9 5900X
+- OS version: Windows11 24H2
+- AMD Software: PRO Edition25.5.1 Vulkan
+</CallOut>
+
+## AMD RYZEN AI MAX+ 395w [CPU]
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 内存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [llama.cpp(CPU)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | fp16 | 14.10  | to-be-tested |
+| [llama.cpp(CPU)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | Q8_0 | 22.42 | to-be-tested |
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD RYZEN AI MAX+ 395w
+- OS version: Ubuntu 24.04.2 LTS Linux-6.14.0-24-generic-x86_64-with-glibc2.39
+- driver_info: "Mesa 24.2.8-1ubuntu1 24.04.1"
+</CallOut>
+
+## Radeon 8060S [Integrated]
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [RWKV pip](https://pypi.org/project/rwkv/)  | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | fp16 |  9.49  | 13.47GB |
+| [RWKV pip](https://pypi.org/project/rwkv/)  | RWKV7-G1 2.9B | fp16 | 17.57 | 5.52 GB |
+| [llama.cpp(ROCm)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | fp16 | 27.38 | 5.75GB |
+| [llama.cpp(ROCm)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | Q8_0 | 43.10 | 3.47GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | fp16 | 10.16 | 13.25GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | int8 | 14.71 | 7.82GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | nf4 | 26.09 | 4.85GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 |  31.29 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8  |51.56  | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4  | 77.71  | 2.4GB |
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD RYZEN AI MAX+ 395w
+- OS version: Ubuntu 24.04.2 LTS Linux-6.14.0-24-generic-x86_64-with-glibc2.39
+- driver_info: "Mesa 24.2.8-1ubuntu1~24.04.1"
+</CallOut>
+
+## AMD Radeon 780M [Integrated]
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [web-rwkv](https://github.com/cryscan/web-rwkv)  | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | fp16 | 5.80 | 13.26GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv)  | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span>   | int8 | 10.26 | 7.8GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv)  | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">RWKV7-G0 7.2B</span> | nf4 | 15.76 | 4.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 |  13.61 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8  | 23.65  | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 |  32.22  | 2.4GB |
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD Ryzen 7 8845H (16) @ 5.61 GHz
+- OS version: Arch Linux x86_64 @ Kernel: Linux 6.15.7-arch1-1
+- driver_info: "Mesa 25.1.6-arch1.1"
+</CallOut>
+
+数据来源：[RWKV-Inference-Performance-Test/issues/15](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/15)
+
+## AMD Radeon 610M [Integrated]
+
+<CallOut type="info">
+数据来源：[RWKV-Inference-Performance-Test/issues/15](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/15)
+</CallOut>
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [llama.cpp(vulkan)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | fp16 | 6.12 | 5.75GB |
+| [llama.cpp(vulkan)](https://github.com/ggml-org/llama.cpp)  | RWKV7-G1 2.9B | Q8_0 | 7.54 |3.47GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 |  8.49 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8  | 11.96  | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 |  8.03 | 2.4GB |8.03  | 2.4GB |
+
+数据来源：[issues/19](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/19) | [issues/20](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/20)
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD Ryzen 9 9955HX 16-Core Processor
+- OS version: Ubuntu 25.04 Kernel 6.14.0-15-generic
+- driver_info: "Mesa 25.0.7-0ubuntu0.25.04.1"
+</CallOut>
+
