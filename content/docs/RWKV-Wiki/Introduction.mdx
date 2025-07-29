@@ -20,6 +20,7 @@ RWKV 模型架构有 RWKV-4（Dove）、RWKV-5（Eagle）、RWKV-6（Finch）、
 <CallOut type="info">
 截至 2025 年 6 月，RWKV-8 架构仍处于实验阶段。RWKV-8 已公开的特性：
 - [RWKV-8 预览之 DeepEmbed：对端侧友好的稀疏设计，解决 MoE 显存占用](https://rwkv.cn/news/read?id=20250527)
+- [RWKV-8 系列之 DeepEmbedAttention：精简 KV 缓存，尤其适合混合模型（RWKV-7s）](https://rwkv.cn/news/read?id=20250630)
 </CallOut>
 
 <Tabs items={['RWKV-7 架构', 'RWKV-6 架构', 'RWKV-4 架构']}>
@@ -112,16 +113,16 @@ RWKV7-G0 13.3B 完成训练后，将完全取代现有的 RWKV-6-World 14B 模�
 
 ### 优势
 
-- 运行和训练时资源使用更低（VRAM、CPU、GPU 等）。
-- **与较大上下文的 Transformer 相比，计算需求低 10 倍到 100 倍**。
-- 支持以线性方式扩展到任何上下文长度（Transformer 以二次方扩展）。
-- 在答案质量和泛化能力方面的表现与 Transformer 架构一样好。
-- RWKV 模型的训练数据包括英文以外的其他语言（例如中文、日文等），多语言能力比大多数现有的开源模型要好。
+- 与 Transformer 相比，消耗的算力和显存更低，尤其适合端侧部署
+- 无论多长的上下文长度，保持速度恒定，显存恒定
+- 作为 RNN，原生支持任意上下文长度
+- 泛化能力超越 Transformer 模型
 
 ### 不足
 
-- RWKV 基底模型对提示词（prompt）的格式非常敏感，提示词的格式对生成结果影响较大。
-- 出于架构设计，RWKV 模型在**需要回顾的任务**上较弱，我们正在进行各种优化以解决此问题。
+- RWKV-7 的长文本能力仍然弱于 Transformer
+- RWKV-7 对提示词（prompt）的格式更敏感，提示词的格式对生成结果影响更大
+- RWKV-7s 作为混合模型，解决了 RWKV-7 的这些不足
 
 ## RWKV 社区的基本术语
 
