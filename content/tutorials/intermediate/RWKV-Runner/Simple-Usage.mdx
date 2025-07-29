@@ -29,18 +29,6 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 </CallOut>
 以下两种方法可为你的 RWKV Runner 软件提供完整的启动环境：
 
-### 下载懒人包
-
-直接下载 [Baidu 网盘](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)中的懒人包，然后在一个空白的目录中解压懒人包。
-
-![](./imgs/runner-download-lazypackage.png)
-
-<CallOut type="error">
-只需下载约 11G 的懒人包即可，请勿下载网盘中所有文件
-</CallOut>
-
-懒人包中预置了 RWKV Runner 软件本体和 Python 、Pytorch 等所有依赖项，以及一个 3B 的 RWKV 模型。将其下载至本地并在**空白目录**中解压，即可正常使用。
-
 ### 通过 RWKV Runner 自动下载
 
 首次打开 RWKV Runner 软件时，点击“运行”按钮，软件会提示你缺失 Python 等依赖项。
@@ -71,6 +59,18 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 对于 Mac 和 Linux 用户，请手动安装 Python3.10 (通常最新的系统已经内置了)。此外，你可以在设置中指定使用的 Python 解释器。
 
+### 下载懒人包
+
+直接下载 [Baidu 网盘](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)中的懒人包，然后在一个空白的目录中解压懒人包。
+
+![](./imgs/runner-download-lazypackage.png)
+
+<CallOut type="error">
+只需下载约 11G 的懒人包即可，请勿下载网盘中所有文件
+</CallOut>
+
+懒人包中预置了 RWKV Runner 软件本体和 Python 、Pytorch 等所有依赖项，以及一个 3B 的 RWKV 模型。将其下载至本地并在**空白目录**中解压，即可正常使用。
+
 
 ## 模型配置与运行
 
@@ -82,22 +82,13 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 ![RWKV-Runner-preset](./imgs/RWKV-Runner-preset.png)
 
-每个模型配置名称的规则，依次代表着：设备-所需显存-模型规模-模型语言。
-
-例如 GPU-8G-3B-CN，表示该配置用于 Nvidia 显卡，需要 8G 显存，模型规模为 30 亿（3B）参数，使用的是中文模型。
-
-模型的规模越大，理论上的任务效果会更好，但对设备的内存、显存等性能要求也会更高。
-
-**我该选择哪一项模型配置？**
-
-- 如果你使用 NVIDIA（英伟达）的显卡，可以选择“GPU” 前缀的预设模型配置。
-
-- 如果你使用的是 AMD 或 Intel 的显卡，请选择 “CPU” 或“AnyGPU” 前缀的预设模型配置。
+每个模型配置名称的规则，依次代表着：设备-所需显存-模型规模-模型类型。例如 GPU-4G-3B-RWKV，表示该配置需要 4G 显存，模型规模为 30 亿（3B）参数，使用的是 RWKV 模型。
+模型的参数规模越大，理论上的任务效果会更好，但对**设备的内存、显存**等性能要求也会更高。
 
 选择一项预设的模型配置后，点击右下角的 `运行` 按钮，即可运行对应的模型。
-
-如果你尚未拥有该预设配置所需的 RWKV 模型，请点击弹窗的“下载”按钮，系统将自动为你下载对应的模型文件。（如果模型下载失败或无响应，请看下一个章节：其他模型下载方法）
-
+<CallOut type="tips">
+如果你尚未拥有该预设配置所需的 RWKV 模型，请点击弹窗的“下载”按钮，系统将自动为你下载对应的模型文件。（如果模型下载失败或无响应，请看下一个章节：模型下载方法）
+</CallOut>
 等待模型下载完成，再度点击 `运行` 按钮，即可启动模型并运行各类 AI 功能。
 
 ## RWKV 模型下载方法
@@ -121,11 +112,14 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 1. 在浏览器中下载 RWKV 模型
 2. 将下载的 RWKV 模型放在 RWKV Runner 的 `models` 文件夹中
 
-<CallOut type="info">
-RWKV-6-World 模型下载链接：
-- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-6-world/tree/main)
-- [Hugging Face 镜像站（国内可访问）](https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main)
-- [modelscope（国内可访问）](https://modelscope.cn/models/Blink_DL/rwkv-6-world/files)
+<CallOut type="tips">
+
+推荐使用 RWKV7-G0/G1 系列模型，RWKV7-G1 系列模型拥有杰出的推理能力，且原生支持世界 100+ 种语言和代码。即使是最小的 0.1B 也能回答开放性和创造性问题。
+
+- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv7-g1/tree/main)
+- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv7-g1/tree/main)（国内可访问）
+- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv7-g1/files)（国内可访问）
+- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/RWKV-7-G1/file)（国内可访问）
 
 其他模型下载链接请参考：[模型下载](../../basic/Model-Download)
 </CallOut>
