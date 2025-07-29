@@ -9,7 +9,7 @@ import { HeatMap } from '../../../components-docs/heat-map'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 <CallOut type="info">
-RWKV 模型在移动端芯片的推理性能，当前包括高通骁龙 8 Gen3、8 Elite ，后续会添加其他移动端芯片的性能表现。
+RWKV 模型在移动端芯片的推理性能，包括高通、MTK Soc 以及各类嵌入式/边缘计算设备。
 </CallOut>
 
 ## 高通骁龙 8 Gen3
@@ -45,4 +45,21 @@ RWKV 模型在天玑 9300 上的性能表现：
 - Precision：代表不同量化策略或计算精度。
   - a16：激活值被量化为 16 位(int16)
   - w8/w4：权重（weights）被量化为 8 位/4 位（per-channel 线性量化）
+</CallOut>
+
+## Rockchip RK3588 
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [llama.cpp(BLAS)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | F16 | 3.62 | <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">~6.5GB 系统内存</span> |
+| [llama.cpp(BLAS)](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | Q8_0 | 5.67 |  <span className="bg-red-100 text-red-800 px-2 py-1 rounded dark:bg-red-950/50 dark:text-red-300">~3.9GB 系统内存</span> |
+| [RKNN-LLM(NPU)](https://github.com/airockchip/rknn-llm) | RWKV7-G1 2.9B | FP16 | 4.04 | 5.49GB |
+| [RKNN-LLM(NPU)](https://github.com/airockchip/rknn-llm) | RWKV7-G1 2.9B | W8A8 | 6.58 | 2.80GB |
+
+数据来源：[RWKV-Inference-Performance-Test issues/7](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/7)
+
+<CallOut type="info">
+测试环境：
+- CPU：Rockchip RK3588
+- OS version: Armbian 25.5.2 noble on Radxa ROCK 5B
 </CallOut>
