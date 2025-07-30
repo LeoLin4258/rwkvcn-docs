@@ -37,7 +37,7 @@ jobs:
           # 同步文件
           cd ..
           rsync -av --delete --exclude='.git' content/ rwkvcn/content/
-          rsync -av --delete --exclude='.git' components-docs/ rwkvcn/components-docs/
+          # rsync -av --delete --exclude='.git' components-docs/ rwkvcn/components-docs/
           rsync -av --delete --exclude='.git' public/docs/ rwkvcn/public/docs/
 
           # 提交更改
