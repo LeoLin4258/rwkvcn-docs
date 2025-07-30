@@ -1,13 +1,14 @@
 // Migrated from V1, should be rewritten in the future.
 
-
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import * as echarts from 'echarts';
 import { chartData } from './chart-data';
 
-
 export const RadarChartComponent = ({ name }: { name: string }) => {
+    const chartRef = useRef<HTMLDivElement>(null);
+    const chartInstanceRef = useRef<echarts.ECharts | null>(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     const originalData = chartData.find(data => data.name === name);
 
@@ -31,19 +32,20 @@ export const RadarChartComponent = ({ name }: { name: string }) => {
         data: normalizeDataByMin(dataset.data, minValues ? minValues : [])
     }));
 
-    // 构建 chartData
-    const chartDataByMin = originalData.labels?.map((label, index) => {
-        const dataPoint: { [key: string]: any } = {}; // 定义 dataPoint 对象
-        normalizedDatasetsByMin?.forEach(dataset => {
-            dataPoint[dataset.label] = dataset.data[index]; // 记录每个模型归一化后的数据
-        });
-        return dataPoint; // 返回这个维度的数据点
-    });
+    // 初始化或更新图表
+    const initOrUpdateChart = () => {
+        if (!chartRef.current) return;
 
-    useEffect(() => {
+        // 确保容器有足够的尺寸
+        const containerRect = chartRef.current.getBoundingClientRect();
+        if (containerRect.width === 0 || containerRect.height === 0) {
+            return;
+        }
 
-        const chartDom = document.getElementById(`radar-chart-${name}`);
-        const myChart = echarts.init(chartDom);
+        // 如果图表实例不存在，创建新实例
+        if (!chartInstanceRef.current) {
+            chartInstanceRef.current = echarts.init(chartRef.current);
+        }
 
         const option = {
             //当鼠标悬停在图表上时，tooltip 会提供数据点的详细信息
@@ -111,26 +113,69 @@ export const RadarChartComponent = ({ name }: { name: string }) => {
             }]
         };
 
-        myChart.setOption(option);
+        chartInstanceRef.current.setOption(option);
+        chartInstanceRef.current.resize();
+    };
 
-        // 监听窗口大小变化，调整图表大小
+    // 检查容器是否可见
+    useEffect(() => {
+        if (!chartRef.current) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsVisible(entry.isIntersecting);
+            },
+            { threshold: 0.1 }
+        );
+
+        observer.observe(chartRef.current);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, []);
+
+    // 当组件变为可见时初始化图表
+    useEffect(() => {
+        if (isVisible) {
+            // 使用 setTimeout 确保 DOM 渲染完成后再初始化图表
+            const timeoutId = setTimeout(() => {
+                initOrUpdateChart();
+            }, 100);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isVisible, normalizedDatasetsByMin]);
+
+    // 处理窗口大小变化
+    useEffect(() => {
         const resizeChart = () => {
-            myChart.resize();
+            if (chartInstanceRef.current && isVisible) {
+                chartInstanceRef.current.resize();
+            }
         };
 
         window.addEventListener('resize', resizeChart);
 
         return () => {
-            myChart.dispose();
             window.removeEventListener('resize', resizeChart);
         };
-    }, [chartDataByMin]);
+    }, [isVisible]);
+
+    // 清理图表实例
+    useEffect(() => {
+        return () => {
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.dispose();
+                chartInstanceRef.current = null;
+            }
+        };
+    }, []);
 
     return (
         //border
-        <div className='h-[500px] md:h-[600px] lg:h-[650px] mt-10'>
-            <div id={`radar-chart-${name}`} style={{ width: '100%', height: '100%' }}></div>
+        <div className='h-[500px] md:h-[600px] lg:h-[650px] mt-10 w-full'>
+            <div ref={chartRef} className='w-full h-full'></div>
         </div>
     );
-
 }
