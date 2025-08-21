@@ -237,7 +237,7 @@ python train.py --load_model $load_model \
 --peft pissa --pissa_config $pissa_config \
 # 以下是可选项
 # --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
-# --wandb RWKV-PEFT-LoRA （是否使用 wandb 监控训练过程）
+# --wandb RWKV-PEFT-PiSSA （是否使用 wandb 监控训练过程）
 # --quant int8/nf4 （是否量化训练）
 # --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay 
 ```
@@ -283,8 +283,8 @@ output='/home/rwkv/RWKV-PEFT/output_pissa/pissa-test-3b.pth'
 TYPE='pissa'
 
 python merge/merge.py --base_model $base_model \
---lora_init $lora_init \
---lora_checkpoint $lora_checkpoint \
+--lora_init $pissa_init \
+--lora_checkpoint $pissa_checkpoint \
 --output $output \
 --type $TYPE 
 # --quant int8/nf4 （和训练时的量化参数同步）
