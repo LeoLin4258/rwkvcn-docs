@@ -22,8 +22,19 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1opwheLE9b)观看。
 </CallOut>
 
+## 安装 CUDA Toolkit[#cudatoolkit]
 
-##  配置 Conda 虚拟环境
+请参考 [**CUDA Toolkit 安装文档**](https://developer.nvidia.com/cuda-downloads)，根据您的操作系统安装  CUDA Toolkit。
+
+以下是 Ubuntu 24.04  x86_64 的安装示例：
+```
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get -y install cuda-toolkit-13-0
+```
+
+##  配置 Conda 虚拟环境[#condaenv]
 
 RWKV 模型的微调训练默认虚拟环境为 Conda。此处以 MiniConda 为例，介绍如何配置 Linux 系统的 Conda 环境。
 
@@ -49,7 +60,7 @@ conda activate rwkv
 
 至此，我们已经配置了 RWKV 微调所需的 Conda 环境。
 
-## 安装训练所需的软件
+## 安装训练所需的软件[#install-deps]
 
 在终端的 Conda 环境中依次运行以下命令，安装 RWKV 训练环境：
 
@@ -69,7 +80,7 @@ pip install bitsandbytes einops triton rwkv-fla rwkv transformers GPUtil plotly 
 下载缓慢？尝试在命令后添加 `-i https://mirrors.aliyun.com/pypi/simple` 参数，使用阿里源加快下载速度。
 </CallOut>
 
-## 检查 CUDA 环境
+## 检查 CUDA 环境[#check-cuda]
 
 上述依赖安装完毕后，你应该已经同时安装好最新版本的 Torch 和 CUDA 12.1 工具包。
 
@@ -95,5 +106,5 @@ print(f"Number of GPUs: {torch.cuda.device_count()}")
 
 如果返回 `False` ，则使用 `print(f"CUDA version: {torch.version.cuda}")` 命令，检查是否正确安装了 CUDA 版本的 torch。
 
-如果安装了 CUDA 版本的 torch ，仍然返回 `CUDA available: False` 。则可能需要重新安装 CUDA 环境（建议 cuda 12.1 或更新版本），安装步骤请参阅 [**CUDA Toolkit 安装文档**](https://developer.nvidia.com/cuda-downloads)。
+如果安装了 CUDA 版本的 torch ，仍然返回 `CUDA available: False` 。则可能需要重新安装 CUDA 环境（建议 cuda 12.1 或更新版本），安装步骤请参阅 [**CUDA Toolkit 安装文档**](./FT-Environment#cudatoolkit)。
 

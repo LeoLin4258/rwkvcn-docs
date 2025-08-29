@@ -8,11 +8,11 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 预训练教程基于 [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7) 仓库，训练流程和 RWKV 官方模型完全一致。
 
-## 预训练案例
+## 预训练案例[#showcase]
 
 - [RWKV-7-Arithmetic-0.1B](https://huggingface.co/shoumenchougou/RWKV-7-Arithmetic-0.1B)：基于 RWKV-7 架构预训练的 0.1B 模型，实现基础加减法运算和加减法方程求解功能。
 
-## 硬件需求
+## 硬件需求[#hardware-requirements]
 
 预训练需要的显存**比微调训练要高得多**。
 
@@ -27,7 +27,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 | 7B       | 32   | 4096 | 4*4090 OOM                                   |
 | 14B      | 61   | 4096 | 4*4090 OOM                                   |
 
-## 克隆仓库
+## 克隆仓库[#clone-repo]
 
 ```bash
 git clone https://github.com/RWKV-Vibe/RWKV-LM-V7.git
@@ -43,15 +43,38 @@ rm rwkv.zip
 使用 zip 下载的代码仓库不含 git 信息，无法使用 `git pull` 更新仓库
 </CallOut>
 
-## 准备训练环境
+## 准备训练环境[#prepare-env]
 
-1. 使用 miniforge 等 conda 兼容包管理器，创建一个全新的环境
-``` bash copy
+1. 安装 CUDA Toolkit
+
+请参考 [**CUDA Toolkit 安装文档**](https://developer.nvidia.com/cuda-downloads)，根据您的操作系统安装  CUDA Toolkit。
+
+以下是 Ubuntu 24.04  x86_64 的安装示例：
+
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get -y install cuda-toolkit-13-0
+```
+
+
+2. 使用 miniforge 等 conda 兼容包管理器，创建一个全新的环境
+
+``` bash 
+# 下载最新的 MiniConda 安装包
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+# 运行 MiniConda 安装包的安装脚本，安装期间一定要注意进展，及时输入 yes  ！
+sh Miniconda3-latest-Linux-x86_64.sh -u
+# 重启环境变量，激活 Conda 环境
+source ~/.bashrc
+# 创建名为 rwkv-lm-v7 的 conda 环境, 并指定 python 版本为 3.12
 conda create -n rwkv-lm-v7 python=3.12
+# 激活 rwkv 环境
 conda activate rwkv-lm-v7
 ```
 
-2. 安装下列依赖，注意 `pytorch-lightning` 固定使用了 `1.9.5` 版本，此为本仓库特性，请不要升级此依赖包。
+3. 安装下列依赖，注意 `pytorch-lightning` 固定使用了 `1.9.5` 版本，此为本仓库特性，请不要升级此依赖包。
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 # 安装 CUDA 版本的 PyTorch，这里的 cu128 指的是 CUDA 12.8 版本，可以根据你自己的 CUDA 版本进行调整
@@ -68,7 +91,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
 输出为 `2.7.1+cu128 True`，表示已安装 CUDA 12.8 版本的 pytorch 2.7.1， CUDA 12.8 工具包可用。
 
-## 准备训练数据
+## 准备训练数据[#prepare-dataset]
 
 请参考[准备训练数据](./Fine-Tune/FT-Dataset.mdx) 文档，准备一个 `jsonl` 格式的预训练数据集，并将其放在 `RWKV-LM-V7/data` 目录下。
 
@@ -121,7 +144,7 @@ python make_data.py demo.jsonl 30 4096
 ![pretrain-showcase-dataset](./imgs/pretrain/pretrain-showcase-dataset.png)
 </CallOut>
 
-## 初始化 RWKV 模型
+## 初始化 RWKV 模型[#init-model]
 
 <CallOut type="info">
 在开始预训练之前，我们需要初始化一个 RWKV 模型，作为预训练的起点。
@@ -142,9 +165,9 @@ python make_data.py demo.jsonl 30 4096
 
 ![demo-training-prepare.sh](./imgs/pretrain/demo-training-prepare.png)
 
-## 预训练阶段
+## 预训练阶段[#pretrain]
 
-### 调整训练参数
+### 调整训练参数[#adjust-params]
 
 初始化完成后，使用文本编辑器打开 `RWKV-LM-V7` 目录的 `demo-training-run.sh` 脚本，修改训练参数。
 
@@ -195,7 +218,7 @@ python make_data.py demo.jsonl 30 4096
 | `--enable_progress_bar True`   | 是否在终端显示进度条，通常保持默认值 `True`                                                                                                                                    |
 
 
-### 开始预训练
+### 开始预训练[#start-pretrain]
 
 训练参数调整完毕后，保存 `demo-training-run.sh` 文件，并在 `RWKV-LM-V7` 目录下运行 `sh demo-training-run.sh` 命令开启预训练。
 
@@ -203,7 +226,7 @@ python make_data.py demo.jsonl 30 4096
 
 ![pre-training-run](./imgs/pretrain/pretrain-run-train.png)
 
-## 测试预训练模型
+## 测试预训练模型[#test-pretrain-model]
 
 预训练完成后，在 `RWKV-LM-V7/out` 目录中可以找到训练的中间检查点 `rwkv-0/1/2/...pth` 和最终模型文件 `rwkv-final.pth`。
 
@@ -213,9 +236,9 @@ python make_data.py demo.jsonl 30 4096
 
 ![test-pretrain-model](./imgs/pretrain/pretrain-test-result.png)
 
-## 附录
+## 附录[#appendix]
 
-### DeepSpeed 训练策略
+### DeepSpeed 训练策略[#deepspeed]
 
 DeepSpeed 支持以下五种[训练策略](https://www.deepspeed.ai/tutorials/zero/#zero-overview)：
 
@@ -234,7 +257,7 @@ DeepSpeed 支持以下五种[训练策略](https://www.deepspeed.ai/tutorials/ze
 - [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/)
 - [DeepSpeed ZeRO-3 Offload](https://www.deepspeed.ai/2021/03/07/zero3-offload.html)
 
-### 使用 WandB 监控训练过程
+### 使用 WandB 监控训练过程[#wandb]
 <CallOut type="info">
 WandB 是一个用于实验跟踪和模型评估的工具，可以帮助我们更好地监控训练过程和 loss 数据。
 </CallOut>
@@ -249,7 +272,7 @@ WandB 是一个用于实验跟踪和模型评估的工具，可以帮助我们�
 
 ![wandb-screenshot](./imgs/pretrain/wandb-screenshot.png)
 
-### 常见问题
+### 常见问题[#faq]
 
 <Accordions type="single">
   <Accordion title="训练中断了，如何继续训练？">
