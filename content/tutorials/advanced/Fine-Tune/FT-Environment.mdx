@@ -27,14 +27,18 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 请参考 [**CUDA Toolkit 安装文档**](https://developer.nvidia.com/cuda-downloads)，根据您的操作系统安装  CUDA Toolkit。
 
 以下是 Ubuntu 24.04  x86_64 的安装示例：
-```
+```bash
+# 下载 CUDA 仓库的 GPG 密钥包 
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+# 安装 GPG 密钥包，使系统信任 NVIDIA 的软件仓库
 sudo dpkg -i cuda-keyring_1.1-1_all.deb
+# 更新 apt 软件包列表，更新 NVIDIA CUDA 软件源
 sudo apt-get update
-sudo apt-get -y install cuda-toolkit-13-0
+# 安装 CUDA Toolkit 13.0（包含 nvcc 编译器、开发库、工具链等）
+sudo apt-get -y install cuda-toolkit-13-0 
 ```
 
-##  配置 Conda 虚拟环境[#condaenv]
+##  配置 Conda 虚拟环境[#conda]
 
 RWKV 模型的微调训练默认虚拟环境为 Conda。此处以 MiniConda 为例，介绍如何配置 Linux 系统的 Conda 环境。
 
@@ -65,8 +69,8 @@ conda activate rwkv
 在终端的 Conda 环境中依次运行以下命令，安装 RWKV 训练环境：
 
 ``` bash copy
-# 通过指定 url 安装 CUDA 12.1 版本的 torch, 也可以选择最新版本的 torch + CUDA 版本
-pip install torch --upgrade --extra-index-url https://download.pytorch.org/whl/cu121
+# 通过指定 url 安装 CUDA 12.8 版本的最新 torch
+pip install torch --upgrade --extra-index-url https://download.pytorch.org/whl/cu128
 # 安装 PyTorch Lightning 和其他常用的机器学习工具包，--upgrade 参数将软件升级到最新版本
 pip install lightning deepspeed wandb ninja --upgrade
 # 以下是使用 RWKV-PEFT 微调时会用到的一些其他工具包，建议提前安装
@@ -106,5 +110,5 @@ print(f"Number of GPUs: {torch.cuda.device_count()}")
 
 如果返回 `False` ，则使用 `print(f"CUDA version: {torch.version.cuda}")` 命令，检查是否正确安装了 CUDA 版本的 torch。
 
-如果安装了 CUDA 版本的 torch ，仍然返回 `CUDA available: False` 。则可能需要重新安装 CUDA 环境（建议 cuda 12.1 或更新版本），安装步骤请参阅 [**CUDA Toolkit 安装文档**](./FT-Environment#cudatoolkit)。
+如果安装了 CUDA 版本的 torch ，仍然返回 `CUDA available: False` 。则可能需要重新安装 CUDA 环境（建议 cuda 12.1 或更新版本），安装步骤请参阅 [**CUDA Toolkit 安装文档**](#cudatoolkit)。
 

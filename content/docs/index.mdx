@@ -10,11 +10,11 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 欢迎来到 RWKV 中文文档，可在此处了解 RWKV 的**概念性知识**，包括但不限于：
 
-- RWKV 的介绍，比如架构迭代历史、模型版本、训练数据集、本地部署的显存需求等
+- RWKV 的介绍，比如[架构迭代历史](/docs/RWKV-Wiki/RWKV-Architecture)、模型版本、[训练数据集](/docs/RWKV-Wiki/Dataset)、本地部署的显存需求等
 - RWKV 的基准测试表现如何？在不同设备（如各种 GPU/CPU/NPU 等）的推理速度如何？
-- RWKV 社区有哪些优秀的项目？如何参与 RWKV 社区并贡献您的力量？
+- RWKV 社区有哪些[优秀的项目](/docs/RWKV-Wiki/Links)？如何[参与 RWKV 社区](/docs/RWKV-Wiki/Contribute)并贡献您的力量？
 
-<CallOut type="info" >
+<CallOut type="tips" >
 RWKV 文档**不包含实操教程**，如果您需要学习 RWKV 的具体用法，比如本地部署、微调训练，请参考 [RWKV 教程](../tutorials)。
 </CallOut>
 
@@ -23,9 +23,9 @@ RWKV 文档**不包含实操教程**，如果您需要学习 RWKV 的具体用�
 **刚接触 RWKV** 的用户可能想知道 RWKV 是什么。
 
 <CallOut type="info" >
-RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模型可以**生成文本**。
+RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模型可以**理解并生成文本**。
 
-有一些 RWKV 的多模态模型可以**生成图像、声音等多种形态的内容**。
+有一些 RWKV 的多模态模型可以**理解或生成图像、声音等多种模态的内容**。
 </CallOut>
 
 对于 RWKV，您可能想了解这些事情：
@@ -66,6 +66,7 @@ RWKV 的客观测试性能数据，含 MMLU、LongBench 等基准测试：
 RWKV 的端侧推理性能数据，如 AMD GPU、摩尔线程 GPU、移动端芯片：
 
 <CardContainer>
+<Card image="color-19.png" icon={FileText} iconColor='text-purple-500' title="NVIDIA 推理性能" description="RWKV 模型在 NVIDIA 硬件上的推理性能" link="/docs/RWKV-Performance-Data/nvidia" />
 <Card image="color-22.png" icon={Cpu} iconColor='text-purple-500' title="AMD 推理性能" description="RWKV 模型在 AMD 硬件上的推理性能" link="/docs/RWKV-Performance-Data/amd" />
 <Card image="color-2.png" icon={Cpu} iconColor='text-blue-500' title="摩尔线程推理性能" description="RWKV 模型在摩尔线程硬件上的推理性能" link="/docs/RWKV-Performance-Data/mthread" />
 <Card image="color-3.png" icon={Smartphone} iconColor='text-pink-600' title="移动端推理性能" description="RWKV 模型在移动端的推理性能" link="/docs/RWKV-Performance-Data/mobile" />
@@ -82,7 +83,7 @@ RWKV 的端侧推理性能数据，如 AMD GPU、摩尔线程 GPU、移动端芯
 
 ## 如何反馈文档问题？
 
-遇到任何文档相关的问题（包括但不限于：错别字、文档不完整、文档难以理解或希望看到某一类文档等），请通过以下渠道向我们反馈：
+若您有任何文档相关的问题（包括但不限于：错别字、文档不完整、文档难以理解或希望看到某一类文档等），请通过以下渠道向我们反馈：
 - 通过 [GitHub Issue](https://github.com/LeoLin4258/rwkvcn-docs/issues/new/choose) 向我们反馈
 - 在 [RWKV 论坛](https://community.rwkv.cn/) 中发帖反馈
 - 向我们[发送邮件](mailto:qilongluo@rwkvos.com)
