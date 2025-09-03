@@ -238,7 +238,7 @@ ollama run rwkv-xxx
 
 请使用 `ollama stop mollysama/rwkv-7-g1:2.9b` 命令停止当前模型实例，从而**重置对话上下文**。
 
-否则 Ollama 会**持续保留当前会话的上下文**（历史消息）作为后续对话的参考。
+如果你不需要停止当前模型，而是想要开始一轮全新的对话，则可以使用 `/clear` 命令**清除当前模型的上下文（历史消息）**。
 
 ## Ollama GUI 和桌面程序[#ollama-gui-and-desktop-program]
 

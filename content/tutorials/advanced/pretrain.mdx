@@ -50,16 +50,20 @@ rm rwkv.zip
 请参考 [**CUDA Toolkit 安装文档**](https://developer.nvidia.com/cuda-downloads)，根据您的操作系统安装  CUDA Toolkit。
 
 以下是 Ubuntu 24.04  x86_64 的安装示例：
-
 ```bash
+# 下载 CUDA 仓库的 GPG 密钥包 
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+# 安装 GPG 密钥包，使系统信任 NVIDIA 的软件仓库
 sudo dpkg -i cuda-keyring_1.1-1_all.deb
+# 更新 apt 软件包列表，更新 NVIDIA CUDA 软件源
 sudo apt-get update
-sudo apt-get -y install cuda-toolkit-13-0
+# 安装 CUDA Toolkit 13.0（包含 nvcc 编译器、开发库、工具链等）
+sudo apt-get -y install cuda-toolkit-13-0 
 ```
 
+2. 使用 miniforge 等 conda 兼容包管理器，创建一个全新的虚拟环境
 
-2. 使用 miniforge 等 conda 兼容包管理器，创建一个全新的环境
+以下是 MiniConda-Linux x86_64 的安装和环境创建示例：
 
 ``` bash 
 # 下载最新的 MiniConda 安装包
@@ -75,6 +79,7 @@ conda activate rwkv-lm-v7
 ```
 
 3. 安装下列依赖，注意 `pytorch-lightning` 固定使用了 `1.9.5` 版本，此为本仓库特性，请不要升级此依赖包。
+
 ```bash
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 # 安装 CUDA 版本的 PyTorch，这里的 cu128 指的是 CUDA 12.8 版本，可以根据你自己的 CUDA 版本进行调整
@@ -99,7 +104,7 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
   <Accordion title="已经有转换好的 binidx 数据，如何查看 my_exit_tokens 和 magic_prime？">
 `data/compute_magic_prime.py` 脚本可为指定的 binidx 数据集和上下文长度（ctx_len）计算正确的 `--my_exit_tokens` 和 `--magic_prime` 值。
 
-1. 在 `data/compute_magic_prime.py` 中修改你的训练数据集和上下文长度（`DATA_NAME` 和 `CTX_LEN`）
+1. 在 `data/compute_magic_prime.py` 中修改你的训练数据集路径和上下文长度（`DATA_NAME` 和 `CTX_LEN`）
 
 2. 打开终端， 在 `data` 目录下使用下列命令运行脚本
 ```
@@ -108,7 +113,7 @@ python compute_magic_prime.py
 
 最终输出类似于：
 
-```
+```bash
 ### Loading /home/rwkv/RWKV-LM-V7/data/demo
 
 ### /home/rwkv/RWKV-LM-V7/data/demo.bin/idx has 200499 tokens, 546 items. Dtype <class 'numpy.uint16'>
