@@ -2,6 +2,7 @@
 title: RWKV 模型的种类和下载方法
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { LinkCard, LinkCardContainer } from 'components-docs/link-card/link-card.tsx'
 
 ## 视频教程
 
@@ -19,65 +20,101 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV16hidYdE9i)观看。
 </CallOut>
 
-## RWKV7-G1 推理模型
+## 如何选择最好的模型？
 
-<CallOut type="info">
+- 1️⃣ 选择**最新的架构**，例如 RWKV7 > RWKV6 
+- 2️⃣ 选择**数据集更好**的模型，数据集质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 
+- 3️⃣ **看模型名称中的日期**，相同的参数，模型越新越好！比如同样是 1.5B 模型，发布于 `251005` 的 G1a2 版本必定优于 `250429` 的 G1 版本
+
+## RWKV7-G1 推理模型[#rwkv7-g1]
+
+
 RWKV7-G1 系列模型拥有杰出的推理能力，且原生支持世界 100+ 种语言和代码。即使是最小的 0.1B 也能回答开放性和创造性问题。
 
-RWKV7-G1 推理模型基于 World v3.5 数据集继续训练 RWKV-7 "Goose" World 系列模型。World v3.5 数据集包含更多小说、网页、数学、代码和 reasoning 数据，总数据为 5.16T tokens。
+<CallOut type="tips">
+**G0/G1/G1a2/G1b 是什么?**
+
+RWKV 模型名称中的 G0a/G1a/G1a2 等字段是**训练数据的版本**，数据质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 。
+
+RWKV7-G1 推理模型基于 World v3.5 数据集（包含更多小说、网页、数学、代码和 reasoning 数据，共 5.16T tokens）继续训练 RWKV-7 "Goose" World 系列模型。 
+
+RWKV7-G1a 模型是在 RWKV7-G1 模型的基础上继续训练了 1T 优质推理和指令数据，RWKV7-G1a2 则是在 RWKV7-G1a 模型的基础上继续添加数据训练，以此类推。
 </CallOut>
 
-- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv7-g1/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv7-g1/tree/main)（国内可访问）
-- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv7-g1/files)（国内可访问）
-- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/RWKV-7-G1/file)（国内可访问）
+<LinkCardContainer>
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv7-g1/tree/main" />
+    <LinkCard content="ModelScope 仓库" link="https://modelscope.cn/models/Blink_DL/rwkv7-g1/files" />
+      <LinkCard content="下载 GGUF 模型" link="https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a" />
+        <LinkCard content="下载 ST 格式模型" link="https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST" />
+</LinkCardContainer>
 
 RWKV7-G1 的整体 prompt 格式与 RWKV-7 模型类似，但可选使用 `<think>` 标签开启 reasoning 功能：
 
-```markdown copy
-User: 你不许参加学术派对！
+```markdown
+User: USER_PROMPT
 
-Assistant: <think>
+Assistant: <think
 ```
 
-## RWKV-7-World 基底模型
+也可以使用**快思考 prompt**（使用空 think 标签跳过思考过程，但获得更高质量的回答）：
 
-<CallOut type="info">
+```
+User: USER_PROMPT
+
+Assistant: <think>
+</think
+```
+
+## RWKV-7-World 基底模型【过时】
+
+<CallOut type="error">
+已过时，请使用效果更好的 [RWKV7-G1 系列模型](#rwkv7-g1)。
+</CallOut>
+
 RWKV-7-World 系列模型均为基底模型（base model ，又称预训练模型）。基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
 
 但为了保持泛化能力和通用性，基底模型通常不会针对任何一类任务作优化。针对一些垂直的下游任务，可能需要[微调 RWKV 基底模型](../advanced/Fine-Tune/Introduction)才能获得更好的任务效果。
+
+
+<LinkCardContainer>
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-7-world/tree/mai" />
+    <LinkCard content="ModelScope 仓库" link="https://modelscope.cn/models/Blink_DL/rwkv-7-world/files" />
+        <LinkCard content="ST 格式模型" link="https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST" />
+</LinkCardContainer>
+
+## RWKV-6-World 基底模型【过时】
+
+<CallOut type="error">
+已过时，请使用效果更好的 [RWKV7-G1 系列模型](#rwkv7-g1)。
 </CallOut>
 
-- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-7-world/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-7-world/tree/main)（国内可访问）
-- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files)（国内可访问）
-- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/Rwkv-7-world/file)（国内可访问）
 
-在寻找其他格式（safetensors、gguf）的 RWKV-7-World 模型？请查阅：
-
-- [下载 .st 格式 RWKV-7-World 模型](https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST/files)
-
-## RWKV-6-World 基底模型
-
-<CallOut type="info">
 RWKV-6-World 系列模型均为基底模型（base model ，又称预训练模型）。基底模型在自然语言处理等领域的大规模数据集上进行了训练，具备较强的泛化能力和丰富的知识储备。
 
 但为了保持泛化能力和通用性，基底模型通常不会针对任何一类任务作优化。针对一些垂直的下游任务，可能需要[微调 RWKV 基底模型](../advanced/Fine-Tune/Introduction)才能获得更好的任务效果。
-</CallOut>
 
-- [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv-6-world/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main)（国内可访问）
-- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-6-world/files)（国内可访问）
-- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/Rwkv-6-world/file)（国内可访问）
-- BT 种子下载：[1B6](https://rwkv.cn/files/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth.torrent) | [3B](https://rwkv.cn/files/RWKV-x060-World-3B-v2.1-20240417-ctx4096.pth.torrent) 
-| [7B](https://rwkv.cn/files/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth.torrent) | [14B](https://rwkv.cn/files/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth.torrent)
+
+<LinkCardContainer>  
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-6-world/tree/main" />  
+  <LinkCard content="Hugging Face 镜像" link="https://hf-mirror.com/BlinkDL/rwkv-6-world/tree/main" />  
+  <LinkCard content="ModelScope 仓库" link="https://modelscope.cn/models/Blink_DL/rwkv-6-world/files" />  
+  <LinkCard content="WiseModel 仓库" link="https://wisemodel.cn/models/rwkv4fun/Rwkv-6-world/file" />  
+  {/* <LinkCard content="BT 种子下载：1B6" link="https://rwkv.cn/files/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：3B" link="https://rwkv.cn/files/RWKV-x060-World-3B-v2.1-20240417-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：7B" link="https://rwkv.cn/files/RWKV-x060-World-7B-v2.1-20240507-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：14B" link="https://rwkv.cn/files/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth.torrent" />   */}
+</LinkCardContainer>
+
 
 在寻找其他格式（safetensors、gguf）的 RWKV-6-World 模型？请查阅：
 
 - [下载 .st 格式 RWKV-6-World 模型](https://modelscope.cn/models/shoumenchougou/RWKV-6-World-ST/files)
-- [下载 .gguf 格式 RWKV-6-World 模型](https://modelscope.cn/collections/RWKV-6-World-GGUF-f06d2c9def1349)
 
-## RWKV-6 中文小说模型
+## RWKV-6 中文小说模型【过时】
+
+<CallOut type="error">
+已过时，请使用效果更好的 [RWKV7-G1 系列模型](#rwkv7-g1)。
+</CallOut>
 
 <CallOut type="info">
 RWKV-6-ChnNovel 系列中文小说模型基于 RWKV-6-World 模型微调而来，在小说续写、小说扩写、角色扮演方面有非常好的效果。
@@ -86,12 +123,16 @@ RWKV-6-ChnNovel 系列中文小说模型基于 RWKV-6-World 模型微调而来�
 
 </CallOut>
 
-- [Hugging Face 主站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)（国内可访问）
-- [ModelScope 仓库](https://modelscope.cn/models/Blink_DL/rwkv-6-misc/files)（国内可访问）
-- [WiseModel 仓库](https://wisemodel.cn/models/rwkv4fun/RWKV-6-ChnNovel/file)（国内可访问）
-- BT 种子下载：[1B6 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-1B-20240807-ctx4096.pth.torrent) | [3B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-3B-20240807-ctx4096.pth.torrent) 
-| [7B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-7B-20240803-ctx4096.pth.torrent) | [14B 中文小说模型](https://rwkv.cn/files/RWKV-x060-ChnNovel-14B-20240805-ctx4096.pth.torrent)
+<LinkCardContainer>  
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-6-misc/tree/main" />  
+  <LinkCard content="Hugging Face 镜像站（国内可访问）" link="https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main" />  
+  <LinkCard content="ModelScope 仓库（国内可访问）" link="https://modelscope.cn/models/Blink_DL/rwkv-6-misc/files" />  
+  <LinkCard content="WiseModel 仓库（国内可访问）" link="https://wisemodel.cn/models/rwkv4fun/RWKV-6-ChnNovel/file" />  
+  {/* <LinkCard content="BT 种子下载：1.6B 中文小说模型" link="https://rwkv.cn/files/RWKV-x060-ChnNovel-1B-20240807-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：3B 中文小说模型" link="https://rwkv.cn/files/RWKV-x060-ChnNovel-3B-20240807-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：7B 中文小说模型" link="https://rwkv.cn/files/RWKV-x060-ChnNovel-7B-20240803-ctx4096.pth.torrent" />  
+  <LinkCard content="BT 种子下载：14B 中文小说模型" link="https://rwkv.cn/files/RWKV-x060-ChnNovel-14B-20240805-ctx4096.pth.torrent" />   */}
+</LinkCardContainer>
 
 ## RWKV-6 日文模型
 
@@ -99,10 +140,13 @@ RWKV-6-ChnNovel 系列中文小说模型基于 RWKV-6-World 模型微调而来�
 RWKV-6-Jpn 系列日语模型基于 RWKV-6-World 模型微调而来，在日语任务和基准测试上表现良好。
 </CallOut>
 
-- [Hugging Face 主站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)
-- [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main)（国内可访问）
+<LinkCardContainer>
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-6-misc/tree/main" />
+  <LinkCard content="Hugging Face 镜像" link="https://hf-mirror.com/BlinkDL/rwkv-6-misc/tree/main" />
+</LinkCardContainer>
 
-## RWKV-6 State 文件
+
+## RWKV-6 State 文件【过时】
 
 <CallOut type="info">
 作为 RNN 模型，RWKV 拥有固定大小的隐藏状态（State）。可通过加载 State 文件强化 RWKV 模型在特定任务的表现（类似于模型增强插件）。

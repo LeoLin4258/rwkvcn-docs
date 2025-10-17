@@ -87,12 +87,57 @@ RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWK
 | 版本 | RWKV-V4 | RWKV-v5-Eagle | RWKV-v6-Finch | RWKV-v7-World | RWKV7-G1 |
 | --- | --- | --- | --- | --- | --- |
 | 论文 | 🎓[论文已发布](https://arxiv.org/abs/2305.13048) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2404.05892) | 🎓[论文已发布](https://arxiv.org/abs/2503.14456) | 🎓[论文已发布](https://arxiv.org/abs/2503.14456) |
-| 总体状态 | **⚠ EOL** | **⚠ EOL**| **⚠ EOL** | **⚙️ 模型训练中** | **⚙️ 模型训练中** |
-| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250325) |
-| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250429) |
-| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://rwkv.cn/news/read?id=20250520) |
-| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) |**❌ 无计划** | ✅ [已发布](https://rwkv.cn/news/read?id=20250520) |
+| 总体状态 | **⚠ EOL** | **⚠ EOL**| **⚠ EOL** | **⚠ EOL** | **⚙️ 模型训练中** |
+| 0.1B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/file/view/master/rwkv7-g1a-0.1b-20250728-ctx4096.pth?status=2) |
+| 0.4B 模型 | ✅ 已发布 | ✅ 已发布 | ❌ 无计划 |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/file/view/master/rwkv7-g1a-0.4b-20250905-ctx4096.pth?status=2) |
+| 1.5B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/file/view/master/rwkv7-g1a3-1.5b-20251015-ctx8192.pth?status=2) |
+| 3B 模型 | ✅ 已发布 | ✅ 已发布 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-1B6-v2.1-20240328-ctx4096.pth) |✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-7-world/files) | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/file/view/master/rwkv7-g1a-2.9b-20250924-ctx4096.pth?status=2) |
+| 7B 模型 | ✅ 已发布 | ✅ 已发布| ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-7B-v3-20241112-ctx4096.pth) |**❌ 无计划** | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv7-g1/file/view/master/rwkv7-g0a2-7.2b-20251005-ctx4096.pth?status=2) |
 | 14B 模型 | ✅ 已发布 | ❌ 无计划 | ✅ [已发布](https://modelscope.cn/models/Blink_DL/rwkv-6-world/file/view/master/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) |**❌ 无计划** | ⚙️ **训练中** |
+
+## RWKV 模型的命名规则
+
+RWKV 模型通常有两种命名规则，一种是 World 模型，另一种是自 RWKV 7 架构时期推出的 RWKV G1 系列模型（支持 think 推理）。
+
+<Tabs items={['RWKV G1 模型', 'RWKV World 模型']}>
+  <Tab>
+
+G1 模型的命名格式：
+- rwkv7a-g1b-0.1b-20250819-ctx4096.pth
+- rwkv7-g0a2-7.2b-20251005-ctx4096.pth
+- rwkv7-g1a3-1.5b-20251015-ctx8192.pth
+
+G1 模型名称中每个字段的含义：
+
+| 字段 | 含义 |
+| --- | --- |
+| **rwkv7a / rwkv7** | 模型架构版本，[rwkv7](https://rwkv.cn/news/read?id=20250320) 是最新的 RWKV 基础架构，rwkv7a 是在 rwkv7 的基础上加了 [DE](https://rwkv.cn/news/read?id=20250527) 机制，rwkv7b 在 rwkv7 的基础上加了 [DE](https://rwkv.cn/news/read?id=20250527) 和 [DEA](https://rwkv.cn/news/read?id=20250630) |
+| **0.1b / 7.2b** | 模型的参数规模，"B"代表"Billions"（十亿） |
+| **g1b / g0a2 / g1a3** | **训练数据的版本**，数据质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 。RWKV7-G1a 模型是在 RWKV7-G1 模型的基础上继续训练了 1T 优质推理和指令数据，RWKV7-G1a2 则是在 RWKV7-G1a 模型的基础上继续添加数据训练，以此类推 |
+| **20250819 / 20251005** | 模型的发布日期 |
+| **ctx4096/ctx8192** | 预训练的上下文长度 |  
+</Tab>
+  <Tab>
+
+World 模型的命名格式：
+- RWKV-x060-World-3B-v2.1-20240208-ctx4096.pth
+- RWKV-x070-World-0.1B-v2.8-20241210-ctx4096.pth
+
+World 模型名称中每个字段的含义：
+
+| 字段 | 含义 |
+| --- | --- |
+| **RWKV** | 模型名称 |
+| **x060 / X070** | RWKV 模型的架构，X060 = RWKV6，X070 = RWKV7|
+| **World** | 数据集类型，World 数据集包含一百多种全球语言，World 模型支持多语言任务 |
+| **3B / 0.1B** | 模型的参数规模，"B"代表"Billions"（十亿） |
+| **v2.1 / v2.8** | 模型的训练集版本，v2 ≈ 1.1 T , v2.1 ≈ 2.5T ,v3 ≈ 5.6T  |
+| **20240208 / 20231113** | 模型的发布日期 |
+| **ctx4096** | 预训练的上下文长度 |
+
+</Tab>
+</Tabs>
+
 
 ## 我应该使用哪些 RWKV 模型？
 
@@ -100,7 +145,7 @@ RWKV-4 是 RWKV 模型的首个正式版本，论文由 RWKV 作者彭博和 RWK
 由于老旧架构导致的性能问题， RWKV-5、RWKV-4 全系列（Raven / World / Pile ...）和更早的 RWKV 版本均已结束生命周期，现有模型仅作为存档。
 </CallOut>
 
-- **7B 及以下参数的模型**：请使用 [RWKV7-G0 7.2B 模型](https://rwkv.cn/news/read?id=20250724) 或 [RWKV7-G1 2.9B 模型](https://rwkv.cn/news/read?id=20250520)，得益于最新的架构设计和最新数据集，RWKV7-G0 和 G1 模型有较强的**推理、代码和数学能力**，在所有任务上的表现都比过去的模型更好
+- **7B 及以下参数的模型**：请使用 [RWKV7-G0a2 7.2B 模型](https://modelscope.cn/models/RWKV/rwkv7-g1/files) 或 [RWKV7-G1a 2.9B 模型](https://modelscope.cn/models/RWKV/rwkv7-g1/files)，得益于最新的架构设计和最新数据集，RWKV7-G1 模型有较强的**推理、代码和数学能力**，在所有任务上的表现都比过去的模型更好
 - **14B 及以上参数的模型**：由于 RWKV7-G0 13.3B 正在训练中，推荐使用 [RWKV-6-World-14B-V2.1](https://hf-mirror.com/BlinkDL/rwkv-6-world/blob/main/RWKV-x060-World-14B-v2.1-20240719-ctx4096.pth) 模型
 
 <CallOut type="info">
@@ -138,24 +183,6 @@ RWKV7-G0 13.3B 完成训练后，将完全取代现有的 RWKV-6-World 14B 模�
 | **RWKV CHNtuned / one-state-chat / role_play / novel ...** | RWKV 社区提供的微调模型，针对特定任务或数据类型优化。请优先考虑使用 RWKV-7 系列的微调模型 |
 | **RWKV7-G1（Goose One）** | 基于 RWKV-7 架构和 World v3.5 数据集训练的基底模型，支持**思考推理**（Think），性能更强 |
 
-## RWKV 模型的命名规则
-
-RWKV 模型通常有两种命名规则：
-
-- RWKV-x060-World-3B-v2.1-20240208-ctx4096.pth
-- RWKV-5-World-1B5-v2-20231113-ctx4096.pth
-
-模型名称中每个字段的含义：
-
-| 字段 | 含义 |
-| --- | --- |
-| **RWKV** | 模型名称 |
-| **x060 / 5** | RWKV 模型的架构，推荐使用 RWKV-6 模型|
-| **World** | 模型类型，World 指使用全球语言训练的 RWKV 模型，因此支持多语言任务|
-| **3B / 1B5** | 模型的参数规模，"B"代表"Billions"（十亿） |
-| **v2 / v2.1** | 模型的训练集版本，v2 ≈ 1.1 T , v2.1 ≈ 2.5T ,v3 ≈ 5.6T  |
-| **20240208 / 20231113** | 模型的发布日期 |
-| **ctx4096** | 预训练的上下文长度 |
 
 ## RWKV 社区成员如何交流？
 

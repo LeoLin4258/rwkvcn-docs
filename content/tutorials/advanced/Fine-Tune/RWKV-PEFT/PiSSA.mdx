@@ -267,8 +267,8 @@ python train.py --load_model $load_model \
 | 参数 | 描述 |
 | ---| --- |
 | base_model | PiSSA 微调的基底 RWKV 模型路径，参考 run_pissa.sh 的 `load_model` 路径 |
-| pissa_checkpoint | 训练得到的 pissa 文件路径，通常存放在 run_pissa.sh 指定的 `proj_dir` 目录中 |
-| pissa_init | 填写 pissa 初始化权重文件路径（`init_pissa.pth`），通常和训练得到的 pissa 文件保存在同一目录 |
+| pissa_checkpoint | 训练得到的 PiSSA 文件路径，通常存放在 run_pissa.sh 指定的 `proj_dir` 目录中 |
+| pissa_init | 填写 PiSSA 初始化权重文件路径（`init_pissa.pth`），通常和训练得到的 PiSSA 文件保存在同一目录 |
 | output | 合并后的 PiSSA 模型输出路径（包含模型命名 `xxx.pth`） |
 | TYPE='pissa' | 合并类型：PiSSA，无需修改 |
 | --quant | 跟随训练时的量化参数，"nf4"或者"int8"。如果训练时未使用量化，则无需添加此参数 |
