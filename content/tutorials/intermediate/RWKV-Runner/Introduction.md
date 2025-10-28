@@ -1,5 +1,7 @@
 ---
 title: 简介
+description: RWKV Runner的功能预览、聊天功能、写作功能、作曲功能等。
+keywords: [RWKV Runner简介, RWKV Runner功能预览, RWKV Runner聊天功能, RWKV Runner是什么, RWKV Runner是啥]
 ---
 
 RWKV Runner 是 RWKV 模型的管理和启动工具，由 RWKV 开源社区成员 [josStorer](https://github.com/josStorer) 开发，它本身也是一个开源软件，且体积仅 10MB 左右（不含依赖项）。
