@@ -1,6 +1,7 @@
 ---
 title: Ai00 简介
-
+description: Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 语言模型推理 API 服务器。
+keywords: [Ai00简介, Ai00功能, Ai00使用方法, Ai00教程, Ai00指南]
 ---
 
 

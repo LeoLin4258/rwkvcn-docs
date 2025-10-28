@@ -1,10 +1,10 @@
 ---
 title: LoRA 微调
+description: 详细介绍如何在RWKV Runner中进行LoRA微调。
+keywords: [RWKV Runner LoRA微调, RWKV Runner LoRA微调教程, RWKV Runner LoRA微调指南, RWKV Runner LoRA微调示例]
 ---
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
-
-# LoRA 微调功能
 
 <CallOut type="info">
 LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术。它不改变原始模型大部分参数，而是仅通过引入两个低秩矩阵来调整模型的部分权重，以此实现对特定任务的有效优化。这种方法能够在保持模型原有泛化能力的同时，减少微调所需资源，并提高特定任务的性能。

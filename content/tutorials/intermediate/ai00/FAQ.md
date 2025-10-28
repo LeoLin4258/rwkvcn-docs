@@ -1,5 +1,7 @@
 ---
 title: Ai00 常见问题
+description: 解答Ai00的常见问题。
+keywords: [Ai00常见问题, Ai00问题解答, Ai00问题排查, Ai00问题解决, Ai00问题指南]
 ---
 
 ## 访问 `https://localhost:65530` 加载失败

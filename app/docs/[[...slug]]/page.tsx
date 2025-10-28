@@ -51,5 +51,9 @@ export async function generateMetadata(props: {
   return {
     title: page.data.title,
     description: page.data.description,
+    keywords: page.data.keywords,
+    alternates: {
+      canonical: `https://rwkv.cn/docs/${params.slug?.join('/') || ''}`,
+    },
   };
 }

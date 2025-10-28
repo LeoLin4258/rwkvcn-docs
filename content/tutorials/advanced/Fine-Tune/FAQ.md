@@ -1,6 +1,7 @@
 ---
 title: 微调常见问题
-
+description: RWKV微调的常见问题解答，包括jsonl 转 binidx 时报错、运行sh脚本训练出现显存不足相关报错等。
+keywords: [rwkv微调报错,rwkv微调问题解答,rwkv微调常见错误,rwkv微调常见问题]
 ---
 
 ## jsonl 转 binidx 时出现 ModuleNotFoundError: No module named 'xxx' 错误
