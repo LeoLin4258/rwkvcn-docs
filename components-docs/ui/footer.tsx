@@ -3,18 +3,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Asterisk, Check, Github } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function DocsFooter({ filePath }: { filePath: string }) {
     const [clickedBtn, setClickedBtn] = useState<"yes" | "no" | null>(null);
     const [feedback, setFeedback] = useState("");
     const [contact, setContact] = useState("");
+    const [hp, setHp] = useState("");
+    const [openedAt, setOpenedAt] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const isFeedbackValid = feedback.trim().length > 0;
+
+    useEffect(() => {
+        if (clickedBtn && !openedAt) {
+            setOpenedAt(Date.now());
+        }
+    }, [clickedBtn, openedAt]);
 
     const handleSubmit = async () => {
         try {
+            if (!isFeedbackValid) return;
             setIsSubmitted(false)
             setIsSubmitting(true);
             const response = await fetch('/api/feedback', {
@@ -26,7 +36,9 @@ export default function DocsFooter({ filePath }: { filePath: string }) {
                     is_helpful: clickedBtn === "yes",
                     feedback,
                     contact,
-                    page: filePath
+                    page: filePath,
+                    hp,
+                    openedAt: openedAt ?? Date.now()
                 }),
             });
 
@@ -88,12 +100,15 @@ export default function DocsFooter({ filePath }: { filePath: string }) {
             >
                 <div className="w-full flex flex-col gap-4 mt-8">
                     <div className="w-full flex flex-col gap-1">
-                        <p className="text-sm">意见反馈(可选)</p>
+                        <p className="text-sm">意见反馈</p>
                         <Textarea
                             placeholder="请输入您的意见"
                             value={feedback}
                             onChange={(e) => setFeedback(e.target.value)}
                         />
+                        {!isFeedbackValid && clickedBtn && (
+                            <p className="text-xs text-red-500">请填写反馈内容</p>
+                        )}
                     </div>
 
                     <div className="w-full flex flex-col gap-1">
@@ -104,18 +119,28 @@ export default function DocsFooter({ filePath }: { filePath: string }) {
                             onChange={(e) => setContact(e.target.value)}
                         />
                     </div>
+
+                    <div className="hidden" aria-hidden>
+                        <Input
+                            tabIndex={-1}
+                            autoComplete="off"
+                            value={hp}
+                            onChange={(e) => setHp(e.target.value)}
+                            placeholder="请不要填写此项"
+                        />
+                    </div>
                 </div>
 
                 <div className="w-full flex flex-col md:flex-row gap-2 mt-2">
-                        <Button
-                            onClick={handleSubmit}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? '提交中...' : '提交'}
-                        </Button>
-                        <Button variant="outline" onClick={() => setClickedBtn(null)} >
-                            取消
-                        </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting || !isFeedbackValid}
+                    >
+                        {isSubmitting ? '提交中...' : '提交'}
+                    </Button>
+                    <Button variant="outline" onClick={() => setClickedBtn(null)} >
+                        取消
+                    </Button>
                 </div>
 
                 {
@@ -133,4 +158,3 @@ export default function DocsFooter({ filePath }: { filePath: string }) {
         </div>
     )
 }
-
