@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           banner: (
             <RootDropdown currentPage="tutorials" />
           ),
-          className: 'xl:border-none xl:bg-[#111111]',
+          className: 'xl:border-none xl:bg-[#f9fafb] xl:dark:bg-[#111111]',
         }}
       >
         <div className='xl:m-4 xl:border xl:shadow-lg xl:rounded-2xl bg-white dark:bg-[#070707] relative'>
