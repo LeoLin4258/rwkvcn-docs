@@ -20,16 +20,22 @@ export default function Layout({ children }: { children: ReactNode }) {
             banner: (
               <RootDropdown currentPage="docs" />
             ),
-            className: 'md:border-none md:bg-transparent',
+            className: 'xl:border-none xl:bg-[#111111]',
           }}
         >
-          <div className='md:m-4 md:border md:shadow-lg md:rounded-2xl bg-white dark:bg-[#070707]'>
-            {children}
+          <div className='xl:m-4 xl:border xl:shadow-lg xl:rounded-2xl bg-white dark:bg-[#070707] relative'>
+            <div className='absolute top-0 left-0 w-full h-[600px] z-0 rounded-2xl overflow-hidden'>
+              <div className='w-full h-full bg-gradient-to-br from-neutral-200 dark:from-neutral-800 to-transparent' />
+              <div className='absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-[#070707]' />
+            </div>
+            <div className='relative z-10'>
+              {children}
+            </div>
           </div>
 
-          <div className='py-14 text-xs md:text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-2'>
+          <div className='py-14 text-xs xl:text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-2'>
             <span>©2025 RWKV. All rights reserved.</span>
-            <span className='hidden md:inline'>•</span>
+            <span className='hidden xl:inline'>•</span>
             <a
               href='https://beian.miit.gov.cn/'
               target='_blank'
