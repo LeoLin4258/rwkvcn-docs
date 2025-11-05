@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import defaultMdxComponents, { createRelativeLink } from 'fumadocs-ui/mdx';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import DocsFooter from 'components-docs/ui/footer';
+import RecomandLink from 'components-docs/ui/recomand-link';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -20,6 +21,9 @@ export default async function Page(props: {
     <DocsPage
       toc={page.data.toc}
       full={page.data.full}
+      tableOfContent={{
+        footer: <RecomandLink links={page.data.recommendedLinks} />,
+      }}
       footer={
         {
           enabled: true,
