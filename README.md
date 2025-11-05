@@ -59,10 +59,22 @@ npm run dev
 
 ### MDX文件格式
 
+每个 MDX 文件需要在文件开头包含 frontmatter（YAML 格式的元数据配置）：
+
 ```mdx
 ---
 title: 文档标题
 description: 文档描述
+icon: Album                    # 可选，侧边栏图标
+keywords: [关键词1, 关键词2]     # 可选，SEO关键词数组
+full: false                    # 可选，是否全宽显示
+recommendedLinks:              # 可选，推荐阅读链接（显示在右侧边栏）
+  - title: 推荐阅读标题1
+    link: /docs/path/to/page1
+  - title: 推荐阅读标题2
+    link: /docs/path/to/page2
+  - title: 外部链接示例
+    link: https://example.com
 ---
 
 import {组件名称} from '@components-docs/组件名称'
@@ -77,6 +89,33 @@ import {组件名称} from '@components-docs/组件名称'
 
 更多内容...
 ```
+
+#### Frontmatter 字段说明
+
+- **title**（必需）：文档标题
+- **description**（可选）：文档描述，用于 SEO 和页面预览
+- **icon**（可选）：侧边栏显示的图标名称（使用 lucide-react 图标库）
+- **keywords**（可选）：关键词数组，用于 SEO
+- **full**（可选）：布尔值，设置为 `true` 时页面全宽显示
+- **recommendedLinks**（可选）：推荐阅读链接数组，显示在右侧边栏的"推荐阅读"区域
+  - **title**：链接显示的文字
+  - **link**：链接地址
+    - 内部链接：使用相对路径，如 `/docs/RWKV-Wiki/Introduction`
+    - 外部链接：使用完整 URL，如 `https://example.com`（会在新标签页打开）
+
+#### 推荐阅读链接示例
+
+```yaml
+recommendedLinks:
+  - title: RWKV 简介
+    link: /docs/RWKV-Wiki/Introduction
+  - title: RWKV 架构介绍
+    link: /docs/RWKV-Wiki/RWKV-Architecture
+  - title: RWKV 相关论文
+    link: https://www.rwkv.cn/eco/papers
+```
+
+**注意**：如果不配置 `recommendedLinks` 或数组为空，推荐阅读区域将不会显示。
 
 ### 数学公式支持
 
