@@ -267,15 +267,19 @@ python make_data.py demo.jsonl 30 4096
 
 DeepSpeed 支持以下五种[训练策略](https://www.deepspeed.ai/tutorials/zero/#zero-overview)：
 
-| 策略名称                    | 显存占用 | CPU 占用 | 训练速度 | 适用显卡场景              | 特点说明                    |
-| --------------------------- | -------- | -------- | -------- | ------------------------- | --------------------------- |
-| `deepspeed_stage_1`         | 高       | 低       | 快       | 显存充足的高端显卡        | 基础版本，显存占用最高      |
-| `deepspeed_stage_2`         | 中       | 低       | 快       | 消费级高端显卡（如 3090） | 显存和速度的最佳平衡        |
-| `deepspeed_stage_2_offload` | 低       | 中       | 中等     | 显存中等，CPU 不差的机器  | 减少显存占用但速度稍慢      |
-| `deepspeed_stage_3`         | 低       | 中       | 中等     | 显存较小，需要切分大模型  | 支持超大模型，配置复杂      |
-| `deepspeed_stage_3_offload` | 最低     | 高       | 慢       | 显存小 + CPU 性能好       | 最省显存，但要求 CPU 性能高 |
+| 策略名称 | 显存占用 | CPU 占用 | 训练速度 | 适用场景 | 特点说明 |
+|---|:---:|:---:|:---:|---|---|
+| stage_1 | 较高 | 低 | 最快 | 显存较为充足的训练集群 | 仅分片优化器状态，稳定高效，吞吐最佳 |
+| stage_2 | 中等 | 低 | 较快 | 消费级/科研机，显存不算充裕 | 分片优化器 + 梯度，显存更省，吞吐略受影响 |
+| stage_2_offload | 较低 | 中 | 中等 | 显存有限但 CPU 较强 | 将优化器状态 offload 到 CPU/NVMe，显存大幅下降，但通信变多 |
+| stage_3 | 很低 | 中 | 中等～偏慢 | 大模型（>7B）必需 | 分片参数本身，省显存，但通信复杂 |
+| stage_3_offload | 最低 | 高 | 最慢 | 极小显存 + 强 CPU/NVMe | 显存最低，但训练速度依赖带宽，显著变慢 |
 
-**`deepspeed_stage_2` 是综合考虑了节约显存、保留训练性能、轻松部署的最佳折中点。**
+对于**多 GPU、大 Batch、全参数更新**的全参微调/预训练场景，**`deepspeed_stage_2` 是综合考虑了节约显存、保留训练性能、轻松部署的最佳折中点。**
+
+<CallOut type="tips">
+在 LoRA 等参数高效微调场景中，推荐 `deepspeed_stage_1` 。
+</CallOut>
 
 参考文档：
 - [DeepSpeed Zero Redundancy Optimizer](https://www.deepspeed.ai/tutorials/zero/#zero-overview)

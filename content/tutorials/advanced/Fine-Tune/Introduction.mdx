@@ -35,7 +35,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### RWKV-7 模型微调显存需求[#vram-of-rwkv-7-fine-tuning]
 
-<Tabs items={["State tuning", "LoRA 微调", "DiSHA 微调", "PiSSA 微调"]}>
+<Tabs items={["State tuning", "LoRA 微调", "MiSS 微调", "PiSSA 微调"]}>
 <Tab>
 **RWKV-7 模型进行 [State tuning](./RWKV-PEFT/State-Tuning.mdx) 的显存需求：**
 
@@ -47,7 +47,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 | RWKV7-2.9B   | 8.2GB GPU  | 5.7GB GPU  | 4.7GB GPU  | 
 </Tab>
 <Tab>
-**RWKV-7 模型进行 [LoRA 微调](./RWKV-PEFT/LoRA-Fine-Tuning.mdx) 的显存需求：**
+**RWKV-7 模型进行 [LoRA 微调](./RWKV-PEFT/LoRA.mdx) 的显存需求：**
 
 | 模型参数 | bf16  | int8 量化 | nf4 量化 |
 |------------|---------|--------|--------|
@@ -57,7 +57,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 | RWKV7-2.9B   | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  | 
 </Tab>
 <Tab>
-**RWKV-7 模型进行 [DiSHA 微调](./RWKV-PEFT/DiSHA-Fine-Tuning.mdx) 的显存需求：**
+**RWKV-7 模型进行 [MiSS 微调](./RWKV-PEFT/MiSS.mdx) 的显存需求：**
 
 | 模型参数 | bf16  | int8 量化 | nf4 量化 |
 |------------|---------|--------|--------|
@@ -67,7 +67,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 | RWKV7-2.9B   | 8.8GB GPU  | 6.7GB GPU  | 5.7GB GPU  | 
 </Tab>
 <Tab>
-**RWKV-7 模型进行 [PiSSA 微调](./RWKV-PEFT/Pissa-Fine-Tuning.mdx) 的显存需求：**
+**RWKV-7 模型进行 [PiSSA 微调](./RWKV-PEFT/PiSSA.mdx) 的显存需求：**
 
 | 模型参数 | bf16  | int8 量化 | nf4 量化 |
 |------------|---------|--------|--------|
