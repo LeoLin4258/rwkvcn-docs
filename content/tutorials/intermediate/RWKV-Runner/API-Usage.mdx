@@ -406,6 +406,8 @@ State 缓存相关 API 没有请求主体。
 此外，如果你打开了部署模式，或在运行模型时勾选了“启用WebUI”，State 缓存相关 API 将不可用。
 </CallOut>
 
+开启 state cache 后，当前运行的 RWKV 模型的 state 会被缓存到内存中，在接受近似的 prompt 时无需重新 prefill。
+
 ### /disable-state-cache
 
 这个 API 用于禁用 state 缓存
@@ -423,8 +425,6 @@ State 缓存相关 API 没有请求主体。
 这个 API 用于重置 state 缓存设置
 
 **API 地址**：（post）`http://127.0.0.1:8000/reset-state-cache`
-
-有关 State 文件是什么，以及它的详细用法，请参考[此文章](https://rwkv.cn/news/read?id=343)。
 
 ## Root API
 
