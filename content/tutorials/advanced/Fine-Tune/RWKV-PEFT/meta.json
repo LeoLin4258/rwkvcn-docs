@@ -1,4 +1,4 @@
 {
     "title" : "RWKV-PEFT 微调教程",
-    "pages": ["State-Tuning", "LoRA", "DiSHA", "PiSSA"]
+    "pages": ["State-Tuning", "LoRA", "MiSS", "PiSSA"]
 }

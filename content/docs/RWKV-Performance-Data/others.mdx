@@ -1,0 +1,62 @@
+---
+title: Apple 和其他硬件
+description: RWKV在Apple Silicon和其他硬件上的推理性能，包括Apple Silicon、MTT-S4000等硬件。
+keywords: [RWKV Apple Silicon推理速度, rwkv M2推理性能, RWKV在苹果芯片的推理速度, RWKV在Apple Silicon推理快吗]
+---
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { RadarChartComponent } from '../../../components-docs/radar-charts'
+import { HeatMap } from '../../../components-docs/heat-map'
+
+<CallOut type="info">
+RWKV 在 Apple Silicon 和摩尔线程等其他硬件上的推理性能，包括 Apple Silicon、MTT-S4000 等硬件
+</CallOut>
+
+## Apple M2 8-core
+
+RWKV 模型在 Apple M2 8-core 上的性能表现：
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 |
+| :---: |:---:|:---:|:---:| :----------:|
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | fp16 | 14.75 | - |
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | int8 | 23.21 | - |
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | nf4 | 21.65 | - |
+| llama.cpp (Metal,BLAS,4 threads) | RWKV7-G1 2.9B | fp16 | 11.26 | - |
+| llama.cpp (Metal,BLAS,4 threads) | RWKV7-G1 2.9B | Q8_0 | 18.24 | - |
+| llama.cpp (Metal,BLAS,4 threads) | RWKV7-G1 2.9B | Q4_K | 25.92 | - |
+
+数据来源：[issue #22](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/22)
+
+## M4 Pro 12-core
+
+RWKV 模型在 Apple M4 Pro 12-core 上的性能表现：
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 |
+| :---: |:---:|:---:|:---:| :----------:|
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | fp16 | 33.98 | - |
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | int8 | 47.70 | - |
+|[web-rwkv](https://github.com/cryscan/web-rwkv)| RWKV7-G1 2.9B | nf4 | 32.95 | - |
+| llama.cpp (Metal,BLAS,8 threads) | RWKV7-G1 2.9B | fp16 | 32.08 | - |
+| llama.cpp (Metal,BLAS,8 threads) | RWKV7-G1 2.9B | Q8_0 | 46.20 | - |
+| llama.cpp (Metal,BLAS,8 threads) | RWKV7-G1 2.9B | Q4_K | 56.60 | - |
+
+数据来源：[issue #22](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/22)
+
+## 摩尔线程 MTT-S4000
+
+RWKV 模型在摩尔线程 MTT-S4000 上的性能表现：
+
+| Model | Precision | 每秒生成的 Token 数 | 显存用量 （GB） | 
+|:---:|:---:|:---:| :----------:|
+| RWKV-6-1B6-v2.1 | fp16 | 57.31 | 3.42 |
+| RWKV-6-1B6-v2.1 | fp32 | 30.45 | 6.30 |
+| RWKV-6-3B-v2.1 | fp16 | 36.09 | 6.27 |
+| RWKV-6-3B-v2.1 | fp32 | 30.03 | 11.99 |
+| RWKV-6-7B-v2.1 | fp16 | 30.39 | 14.43 |
+| RWKV-6-7B-v2.1 | fp32 | 16.62 | 28.71 |
+| RWKV-6-14B-v2.1 | fp16 | 16.19 | 26.57 |
+
+表格中的参数解释：
+
+- Model：代表不同参数量的 RWKV-6 模型。
+- Precision：代表不同量化策略或计算精度。
