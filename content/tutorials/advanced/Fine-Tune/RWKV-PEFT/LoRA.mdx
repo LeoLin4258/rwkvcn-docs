@@ -20,7 +20,7 @@ LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术
 
 在开始 LoRA 微调之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
-## 视频教程
+## 视频教程[#video-tutorial]
 
 <div className="iframe-container">
  <iframe 
@@ -136,12 +136,6 @@ pip install -r requirements.txt
 <Step>
 ### 调整重要训练参数
 
-<CallOut type="info">
-注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积；
-
-`--my_testing` 必须对应微调模型的版本。
-</CallOut>
-
 | 参数 | 描述 |
 | --- | --- |
 | `micro_bsz=1` | 微批次大小，根据显存大小调整，微调时从 1 开始逐渐增大 |
@@ -164,6 +158,7 @@ pip install -r requirements.txt
 | "lora_dropout":0.01 | LoRA 微调的丢弃率，建议使用 0.01 |
 </Step>
 <Step>
+
 ### 调整其他训练参数
 
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
@@ -237,19 +232,16 @@ python train.py --load_model $load_model \
 
 ## 开始训练
 
-在 RWKV-PEFT 目录，运行 `sh scripts/run_lora.sh` 命令，开启 LoRA 微调 。
+在 RWKV-PEFT 目录，运行 `sh scripts/lora.sh` 命令，开启 LoRA 微调 。
 
 正常开始训练后，应当是如下画面：
 
 ![lora-tuning-running](../imgs/lora-tuning-successfully.png)
 
-训练完毕后，应当可以在输出文件夹中找到训练好的 LoRA 权重文件（`.pth` 格式）和训练日志（`.txt` 文件）:
-
-![lora-tuning-get-model](../imgs/lora-finetune-output.png)
 
 ## 如何使用 LoRA 权重文件
 
-完成训练后，在输出路径中可以找到完整的 LoRA 微调模型文件（`.pth` 格式）。
+训练完毕后，可以在输出路径中找到完整的 LoRA 微调模型文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
 ![lora-merged-model](../imgs/lora-merged-model.png)
 

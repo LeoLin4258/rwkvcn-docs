@@ -7,6 +7,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 
+
 <CallOut type="info">
 **MiSS 微调是什么？**
 
@@ -44,7 +45,7 @@ MiSS 微调方法在不影响性能的前提下降低了复杂度，在性能、
 高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV1rJExzgEBX/)观看。
 </CallOut>
 
-## MiSS 微调显存参考
+## MiSS 微调显存参考[#vram-of-miss-tuning]
 
 RWKV MiSS 微调的显存（GPU VRAM）需求可参考下表：
 
@@ -83,7 +84,7 @@ RWKV MiSS 微调的显存（GPU VRAM）需求可参考下表：
 
 请参考[RWKV 微调环境配置](../FT-Environment)板块，配置 Conda 等训练环境。
 
-## 克隆仓库并安装依赖
+## 克隆仓库并安装依赖[#install-dependencies]
 
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
 
@@ -102,7 +103,7 @@ git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 pip install -r requirements.txt
 ```
 
-## 修改训练参数 
+## 修改训练参数[#modify-training-parameters]
 
 使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录下的 `miss.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
 
@@ -112,7 +113,7 @@ pip install -r requirements.txt
 
 <Steps>
 <Step>
-### 调整路径参数
+### 调整路径参数[#adjust-path-parameters]
 
 `miss.sh` 文件前三行是文件路径参数：
  
@@ -120,9 +121,9 @@ pip install -r requirements.txt
 - proj_dir：训练日志和训练得到的 MiSS 文件输出路径
 - data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
 </Step>
-
 <Step>
-### 调整 n_layer 和 n_embd 参数
+
+### 调整 n_layer 和 n_embd 参数[#adjust-n-layer-and-n-embd-parameters]
 
 <CallOut type="warning">
 不同参数的 RWKV 模型，训练时使用的 n_layer 和 n_embd 数值不一样
@@ -139,9 +140,9 @@ pip install -r requirements.txt
 | 7B         | 32      | 4096   |
 | 14B        | 61      | 4096   |
 </Step>
-
 <Step>
-### 调整重要训练参数
+
+### 调整重要训练参数[#adjust-important-training-parameters]
 
 | 参数 | 描述 |
 | --- | --- |
@@ -149,12 +150,11 @@ pip install -r requirements.txt
 | `epoch_save=5` | 每隔多少个训练轮次保存一次 MiSS 文件，注意存储空间是否充足 |
 | `epoch_steps=1200` | 每个训练轮次的步数，增加会延长单个 epoch 的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，建议根据语料长度修改 |
-| `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 | `peft_config='{"r":64}'` | MiSS 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
 </Step>
-
 <Step>
-### 调整其他训练参数
+
+### 调整其他训练参数[#adjust-other-training-parameters]
 
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
 
@@ -170,6 +170,7 @@ pip install -r requirements.txt
 | `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
 | `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
+| `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 | `--peft miss` | 微调训练类型，MiSS 微调填 `miss` 即可 |
 | `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
 | `--wandb RWKV-PEFT-MiSS` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
@@ -186,7 +187,7 @@ pip install -r requirements.txt
 </Step>
 </Steps>
 
-### 附录：miss.sh 配置参考
+### 附录：miss.sh 配置参考[#appendix-miss-sh-config]
 
 ``` bash copy filename="miss.sh"
 load_model='/home/rwkv/models/rwkv7-g1a3-1.5b.pth'
@@ -224,13 +225,15 @@ python train.py --load_model $load_model \
 参数调整完成后，请记得保存 `miss.sh` 文件。
 </CallOut>
 
-## 开始训练
+## 开始训练[#start-training]
 
 在 RWKV-PEFT 目录，运行 `sh scripts/miss.sh` 命令，开启 MiSS 微调 。
 
 正常开始训练后，应当是如下画面：
 
 ![miss-tuning-running](../imgs/miss-tuning-successfully.png)
+
+## 如何使用 MiSS 微调模型
 
 训练完毕后，应当可以在输出文件夹中找到完整的 MiSS 权重文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 

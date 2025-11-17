@@ -16,10 +16,13 @@ RWKV 是纯 RNN，因此可以做 transformer 难以做到的事情。例如，�
 
 开始之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
-## State tuning  微调案例
+## State tuning  微调案例[#state-tuning-case]
 
-[RWKV-7-G1 角色扮演State](https://modelscope.cn/models/shoumenchougou/RWKV7_G1_RolePlay_State)：基于 RWKV-7-G1 基底模型进行 State tuning，提供沉浸式的角色扮演体验。
-## State tuning 的显存需求
+<Cards>
+  <Card  title="RWKV-7-G1 通用角色扮演 State" href="https://modelscope.cn/models/shoumenchougou/RWKV7_G1_RolePlay_State" /> 
+</Cards>
+
+## State tuning 的显存需求[#vram-of-state-tuning]
 
 State tuning 的显存需求可参考下表：
 
@@ -57,7 +60,7 @@ State tuning 的显存需求可参考下表：
 
 请参考[RWKV 微调环境配置](../FT-Environment)板块，配置 Conda 等训练环境。
 
-## 克隆仓库并安装依赖
+## 克隆仓库并安装依赖[#install-dependencies]
 
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
 
@@ -79,9 +82,9 @@ git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 pip install -r requirements.txt
 ```
 
-## 修改训练参数 
+## 修改训练参数[#modify-training-parameters]
 
-使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录的 `demo-state-tuning.sh` 文件，修改训练参数，进而控制微调的训练过程和训练效果：
+使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录的 `state tuning.sh` 文件，修改训练参数，进而控制微调的训练过程和训练效果：
 
 ![state-tuning-configs](../imgs/state-tuning-configs.png)
 
@@ -89,16 +92,16 @@ pip install -r requirements.txt
 
 <Steps>
 <Step>
-### 调整路径参数
+### 调整路径参数[#adjust-path-parameters]
 
- `demo-state-tuning.sh` 文件前三行是文件路径参数：
+ `state tuning.sh` 文件前三行是文件路径参数：
  
 - load_model： 基底 RWKV 模型的路径
 - proj_dir：训练日志和训练得到的 state 文件输出路径
 - data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
 </Step>
 <Step>
-### 调整 n_layer 和 n_embd 参数
+### 调整 n_layer 和 n_embd 参数[#adjust-n-layer-and-n-embd-parameters]
 
 基底 RWKV 模型的参数大小不同，训练时使用的 n_layer 和 n_embd 数值也不一样。以下是不同参数的 RWKV 模型和 n_layer 和 n_embd 数值的对照列表：
 
@@ -112,7 +115,7 @@ pip install -r requirements.txt
 | 14B        | 61      | 4096   |
 </Step>
 <Step>
-### 调整重要训练参数
+### 调整重要训练参数[#adjust-important-training-parameters]
 
 <CallOut type="info">
 注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积；
@@ -126,15 +129,14 @@ pip install -r requirements.txt
 | `epoch_save=1` | 每隔多少个训练轮次保存一次 State 文件 |
 | `epoch_steps=1000` | 每个训练轮次的步数，增加会拉长单个epoch的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，state tuning 建议从短开始尝试，如 512 |
-| `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 </Step>
 <Step>
-### 调整其他训练参数
+### 调整其他训练参数[#adjust-other-training-parameters]
 
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
 
 <CallOut type="warning">
-注意：微调 state 时，建议 `--warmup_steps 10` 、`--lr_init 1` 、`--lr_final 0.01` ，以及尽可能短的 ctxlen 。（是的，state tuning 需要使用非常高的学习率。）
+注意：微调 state 时，建议 `--lr_init 1e-2` 、`--lr_final 1e-4` ，以及尽可能短的 ctxlen 。
 </CallOut>
 
 | 参数 | 描述 |
@@ -143,27 +145,28 @@ pip install -r requirements.txt
 | `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
 | `--epoch_count 5` | 总训练轮次，可根据效果调整 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，有时可能有益 |
-| `--lr_init 1` | 初始学习率，state tuning 建议为 `1`，其他微调建议不超过 `1e-4` |
-| `--lr_final 0.01` | 最终学习率，state tuning 建议为 `0.01`，其他微调建议不超过 `1e-4`  |
+| `--lr_init 1e-2` | 初始学习率，state tuning 建议为 `1e-2`，其他微调建议不超过 `1e-4` |
+| `--lr_final 1e-4` | 最终学习率，state tuning 建议为 `1e-4`，其他微调建议不超过 `1e-4`  |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`， `cpu` 基本不支持训练 |
 | `--devices 1` | 单显卡填 `1`，多卡按实际数量填写 |
 | `--precision bf16` | 训练精度，默认为 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1` |
 | `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
 | `--peft state` | 微调训练类型，state tuning 微调填 `state` 即可 |
+| `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 | `--op fla` | 选择算子，state tuning 仅支持 fla 算子 |
-| `--wandb PEFT-State-tuning` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
+| `--wandb PEFT-State-tuning` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
 | `--lr_schedule wsd` | **可选**，学习率调度方法，默认使用 `cos_decay`，支持：`cos_decay`, `wsd` |
 
 
 <CallOut type="warning">
-参数调整完成后，请记得保存 `demo-state-tuning.sh` 文件。
+参数调整完成后，请记得保存 `state tuning.sh` 文件。
 </CallOut>
 </Step>
 <Step>
-### 附录：state tuning 配置参考
+### 附录：state tuning 配置参考[#appendix-state-tuning-config]
 
-``` bash copy filename="demo-state-tuning.sh"
+``` bash copy filename="state tuning.sh"
 load_model='/home/rwkv/RWKV-PEFT/models/rwkv7-g1a-0.1b-20250728-ctx4096.pth'
 proj_dir='/home/rwkv/RWKV-PEFT/test-output'
 data_file='/home/rwkv/RWKV-PEFT/data/test.jsonl'
@@ -193,9 +196,9 @@ python train.py --load_model $load_model \
 </Step>
 </Steps>
 
-## 开始训练
+## 开始训练[#start-training]
 
-在 RWKV-PEFT 目录，运行 `sh scripts/demo-state-tuning.sh` 命令，开启 state tuning 。
+在 RWKV-PEFT 目录，运行 `sh scripts/state tuning.sh` 命令，开启 state tuning 。
 
 正常开始训练后，应当是如下画面：
 
@@ -205,14 +208,18 @@ python train.py --load_model $load_model \
 
 ![state-tuning-get-model](../imgs/state-tuning-get-model.png)
 
-## 如何使用 state 文件
+## 如何使用 state 文件[#use-state-file]
 
 获得 state 文件后，你可以如此使用：
 
-- 使用 `demo-state-merge.sh` 工具将 state 文件合并到基底 RWKV 模型中，获得一个完整的 state 微调模型。
+- 使用 `merge/merge_state.py` 工具将 state 文件合并到基底 RWKV 模型中，获得一个完整的 state 微调模型。
+- 在 RWKV Runner 或 Ai00 等工具中单独挂载 state 文件。（推荐用法）
 
-- 可以选择在 RWKV Runner 或 Ai00 等工具中单独挂载 state 文件。（推荐用法）
+<CallOut type="info">
+由于 state 文件支持单独挂载，其他用户也可以通过挂载你训练出来的的 state 文件，增强 RWKV 模型的使用体验。 
 
+挂载 state 文件的方法可以参考 [RWKV Runner](../../../intermediate/RWKV-Runner/Advanced-Usage#搭载-state-文件) |  [Ai00](../../../intermediate/ai00/Ai00-Features)
+</CallOut>
 <CallOut type="warning" >
 注意：挂载 state 文件时，必须使用训练此 state 文件的同款 RWKV 模型。
 </CallOut>
@@ -225,8 +232,3 @@ python train.py --load_model $load_model \
 
 ![state-tuning-examples](../imgs/state-tuning-examples.png)
 
-<CallOut type="info">
-由于 state 文件支持单独挂载，其他用户也可以通过挂载你训练出来的的 state 文件，增强 RWKV 模型的使用体验。 
-
-State 文件的用法可以参考 [RWKV Runner](../../../intermediate/RWKV-Runner/Advanced-Usage#搭载-state-文件) |  [Ai00](../../../intermediate/ai00/Ai00-Features)
-</CallOut>
