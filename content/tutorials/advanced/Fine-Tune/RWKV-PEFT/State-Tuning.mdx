@@ -43,7 +43,7 @@ State tuning 的显存需求可参考下表：
 
 上表的数据基于以下测试参数:
 
-- ctxlen=1024 
+- ctx_len=1024 
 - micro_bsz=1
 - strategy=deepspeed_stage_1
 
@@ -139,30 +139,22 @@ pip install -r requirements.txt
 
 | 参数 | 描述 |
 | --- | --- |
-| `--data_type binidx` | 训练语料的文件格式，支持："utf-8", "utf-16le", "numpy", "binidx", "dummy", "wds_img", "uint16" |
+| `--data_type binidx` | 训练语料的文件格式，支持：`utf-8`, `utf-16le`, `numpy`, `binidx`, `dummy`, `uint16`, `sft`, `jsonl`，建议使用 `jsonl` 或 `binidx` 格式 |
 | `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
 | `--epoch_count 5` | 总训练轮次，可根据效果调整 |
-| `--epoch_begin 0` | 初始训练轮次，即从第 N 个 epoch 开始加载 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，有时可能有益 |
-| `--head_qk 0` | 通常保持默认值 0，即关闭状态 |
 | `--lr_init 1` | 初始学习率，state tuning 建议为 `1`，其他微调建议不超过 `1e-4` |
 | `--lr_final 0.01` | 最终学习率，state tuning 建议为 `0.01`，其他微调建议不超过 `1e-4`  |
-| `--warmup_steps 10` | 预热步骤数，state tuning 建议为 `10` |
-| `--beta1 0.9` | Adam 优化器的 beta1 参数 |
-| `--beta2 0.99` | Adam 优化器的 beta2 参数 |
-| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数 |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`， `cpu` 基本不支持训练 |
 | `--devices 1` | 单显卡填 `1`，多卡按实际数量填写 |
 | `--precision bf16` | 训练精度，默认为 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1` |
 | `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
-| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
-| `--train_type "state"` | 训练类型 state tuning ，保持默认|
+| `--peft state` | 微调训练类型，state tuning 微调填 `state` 即可 |
 | `--op fla` | 选择算子，state tuning 仅支持 fla 算子 |
-| `--quant int8/nf4` | RWKV 默认使用 `bf16` 训练精度，但支持 `int8` 和 `nf4` 两种量化训练类型，推荐使用精度损失较小的 `int8` |
 | `--wandb PEFT-State-tuning` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
+| `--lr_schedule wsd` | **可选**，学习率调度方法，默认使用 `cos_decay`，支持：`cos_decay`, `wsd` |
 
-量化训练可以降低显存需求，但会导致模型精度损失。如果不需要量化训练，可以删除 `quant` 相关的参数。
 
 <CallOut type="warning">
 参数调整完成后，请记得保存 `demo-state-tuning.sh` 文件。
@@ -172,33 +164,31 @@ pip install -r requirements.txt
 ### 附录：state tuning 配置参考
 
 ``` bash copy filename="demo-state-tuning.sh"
-load_model='/home/rwkv/models/basemodel/3b.pth'
-proj_dir='/home/rwkv/RWKV-PEFT/output_state'
-data_file='/home/rwkv/RWKV-PEFT/data/qaemoji'
+load_model='/home/rwkv/RWKV-PEFT/models/rwkv7-g1a-0.1b-20250728-ctx4096.pth'
+proj_dir='/home/rwkv/RWKV-PEFT/test-output'
+data_file='/home/rwkv/RWKV-PEFT/data/test.jsonl'
 
+n_layer=12
+n_embd=768
 
-n_layer=32
-n_embd=2560
-
-micro_bsz=2
+micro_bsz=1
 epoch_save=1
-epoch_steps=500
-ctx_len=512
+epoch_steps=300
+ctx_len=1024
 
 python train.py --load_model $load_model \
 --proj_dir $proj_dir --data_file $data_file \
---data_type binidx --vocab_size 65536 \
---ctx_len $ctx_len --epoch_steps $epoch_steps --epoch_count 5 --epoch_begin 0 --epoch_save $epoch_save --micro_bsz $micro_bsz \
+--vocab_size 65536 \
+--data_type jsonl \
 --n_layer $n_layer --n_embd $n_embd \
---pre_ffn 0 --head_qk 0 --lr_init 1 --lr_final 1e-2 --warmup_steps 10 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
---accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
+--ctx_len $ctx_len --micro_bsz $micro_bsz \
+--epoch_steps $epoch_steps --epoch_count 4 --epoch_save $epoch_save \
+--lr_init 1e-2 --lr_final 1e-4 \
+--accelerator gpu --precision bf16 \
+--devices 1 --strategy deepspeed_stage_1 --grad_cp 1 \
 --my_testing "x070" \
---train_type "state"  --dataload pad --wandb PEFT-State-tuning
+--peft state --op fla
 
-# 以下为可选项
-# --fla 
-# --quant int8/nf4 （是否量化训练）
-# --wandb PEFT-State-tuning （是否使用 wandb 监控训练过程）
 ```
 </Step>
 </Steps>
