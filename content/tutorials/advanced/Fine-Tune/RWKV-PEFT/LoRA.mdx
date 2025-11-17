@@ -20,7 +20,7 @@ LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术
 
 在开始 LoRA 微调之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
-## 视频教程
+## 视频教程[#video-tutorial]
 
 <div className="iframe-container">
  <iframe 
@@ -63,7 +63,7 @@ RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 - ctxlen=1024 
 - micro_bsz=1
 - strategy=deepspeed_stage_1
-- lora_r=64
+- peft_config=\'\{\"r\":64,\"lora_alpha\":32,\"lora_dropout\":0.05}\'
 
 随着训练参数的变更，RWKV LoRA 微调所需显存会发生改变。
 
@@ -87,7 +87,7 @@ git clone https://github.com/JL-er/RWKV-PEFT.git
 如果 GitHub 无法链接，请使用以下国内仓库：
 
 ```  bash copy
-git clone https://gitee.com/uniartisan2018/RWKV-PEFT.git
+git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 ```
 </CallOut>
 
@@ -136,12 +136,6 @@ pip install -r requirements.txt
 <Step>
 ### 调整重要训练参数
 
-<CallOut type="info">
-注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积；
-
-`--my_testing` 必须对应微调模型的版本。
-</CallOut>
-
 | 参数 | 描述 |
 | --- | --- |
 | `micro_bsz=1` | 微批次大小，根据显存大小调整，微调时从 1 开始逐渐增大 |
@@ -154,46 +148,46 @@ pip install -r requirements.txt
 ### 调整 LoRA 相关参数
 
 <CallOut type="info">
-`lora_config` 包含 LoRA 微调的参数，效果参考下表：
+`peft_config` 包含 LoRA 微调的参数，效果参考下表：
 </CallOut>
 
 | 参数 | 描述 |
 | --- | --- |
-| "lora_load":"" |LoRA 文件路径，代表从哪个 LoRA checkpoint 开始微调。若从头训练 LoRA 可不填 |
-| "lora_r":32 | LoRA 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
+| "r":32 | LoRA 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
 | "lora_alpha":32 | LoRA 微调的 alpha 参数（缩放因子），建议保持 lora_r 的两倍 |
 | "lora_dropout":0.01 | LoRA 微调的丢弃率，建议使用 0.01 |
 </Step>
 <Step>
+
 ### 调整其他训练参数
 
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
 
 | 参数 | 描述 |
 | --- | --- |
-| `--data_type binidx` | 训练语料的文件格式，支持："utf-8", "utf-16le", "numpy", "binidx", "dummy", "wds_img", "uint16" |
 | `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
+| `--data_type binidx` | 训练语料的文件格式，支持：`utf-8`, `utf-16le`, `numpy`, `binidx`, `dummy`, `uint16`, `sft`, `jsonl`，建议使用 `jsonl` 或 `binidx` 格式 |
 | `--epoch_count 5` | 总训练轮次 |
-| `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
-| `--pre_ffn 0` | 用 ffn 替换第一个 att 层，通常保持默认值 0 |
-| `--head_qk 0` | 通常保持默认值 0，即关闭状态 |
-| `--lr_init 5e-5` | 初始学习率，LoRA 建议 `5e-5` ，最大不超过 `1e-4` |
-| `--lr_final 5e-5` | 最终学习率，建议和初始学习率保持一致 |
-| `--warmup_steps 0` | 预热步骤数，默认 `0`，加载模型时可尝试改成 `50` |
-| `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
-| `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
-| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
+| `--lr_init 2e-5` | 初始学习率，DiSHA 建议 `2e-5` ，最大不超过 `1e-4` |
+| `--lr_final 2e-5` | 最终学习率，建议和初始学习率保持一致 |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`，`cpu` 基本不支持训练 |
 | `--devices 1` | 显卡数量，单显卡填 `1`，多卡按实际数量填写 |
 | `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
 | `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
 | `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
-| `--dataload pad` | 数据加载选项，"pad" 支持 `bsz>1`，"only" 则限制 `bsz=1` |
-| `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |
+| `--peft lora` | 微调训练类型，LoRA 微调填 `lora` 即可 |
 | `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
-| `--peft lora` | 训练类型，LoRA 微调填 `lora`，支持：`lora`、`state`、`pissa`、`bone` |
-| `--quant int8/nf4` | RWKV 默认使用 `bf16` 训练精度，但支持 `int8` 和 `nf4` 两种量化训练类型，推荐使用精度损失较小的 `int8` |
-| `--wandb RWKV-PEFT-LORA` | 是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
+| `--wandb RWKV-PEFT-DiSHA` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
+| `--lr_schedule wsd` | **可选**，学习率调度方法，默认使用 `cos_decay`，支持：`cos_decay`, `wsd` |
+{/* 2025年11月更新后移除了部分训练参数，不支持量化训练 
+| `--warmup_steps 0` | 预热步骤数，默认 `0`，加载模型微调时可尝试改成 `50` |
+| `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
+| `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
+| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
+| `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
+| `--quant int8/nf4` | **可选**，RWKV 默认使用 `bf16` 训练精度，但也支持 `int8` 和 `nf4` 两种量化训练，推荐使用精度损失较小的 `int8` | 
+| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
+| `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |*/}
 
 <CallOut type="warning">
 参数调整完成后，请记得保存 `run_lora.sh` 文件。
@@ -204,93 +198,50 @@ pip install -r requirements.txt
 ### 附录：run_lora.sh 配置参考
 
 ``` bash copy filename="run_lora.sh"
-load_model='/home/rwkv/RWKV-PEFT/model/RWKV-x070-World-0.4B-v2.9-20250107-ctx4096.pth'
-proj_dir='/home/rwkv/RWKV-PEFT/output-manjuan/lora'
-data_file='/home/rwkv/RWKV-PEFT/data/test-1'
+load_model="/home/rwkv/model/rwkv7-g1-1.5b-20250429-ctx4096.pth"
+proj_dir='/home/rwkv/JL/out_model/test'
+data_file=/home/rwkv/JL/data/roleplay
 
 n_layer=24
-n_embd=1024
+n_embd=2048
 
-micro_bsz=4
+micro_bsz=8
 epoch_save=1
-epoch_steps=1000
-ctx_len=512
-
-lora_config='{"lora_load":"","lora_r":32,"lora_alpha":64,"lora_dropout":0.01}'
+epoch_steps=200
+ctx_len=128
+peft_config='{"r":8,"lora_alpha":32,"lora_dropout":0.05}'
 
 python train.py --load_model $load_model \
 --proj_dir $proj_dir --data_file $data_file \
 --vocab_size 65536 \
+--data_type jsonl \
 --n_layer $n_layer --n_embd $n_embd \
---data_type binidx --dataload pad --loss_mask pad \
 --ctx_len $ctx_len --micro_bsz $micro_bsz \
---epoch_steps $epoch_steps --epoch_count 1 --epoch_begin 0 --epoch_save $epoch_save \
---lr_init 2e-5 --lr_final 2e-5 --warmup_steps 0 --beta1 0.9 --beta2 0.99 --adam_eps 1e-8 \
---accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_1 --grad_cp 1 \
+--epoch_steps $epoch_steps --epoch_count 4 --epoch_save $epoch_save \
+--lr_init 1e-5 --lr_final 1e-5 \
+--accelerator gpu --precision bf16 \
+--devices 1 --strategy deepspeed_stage_1 --grad_cp 1 \
 --my_testing "x070" \
---peft lora --lora_config $lora_config \
+--peft lora --peft_config $peft_config
 # 以下是可选项
 # --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
-# --wandb RWKV-PEFT-LoRA （是否使用 wandb 监控训练过程）
-# --quant int8/nf4 （是否量化训练）
-# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay 
+#  --wandb RWKV-PEFT-DiSHA （是否使用 wandb 监控训练过程）
+# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay  
+
 ```
 
 ## 开始训练
 
-在 RWKV-PEFT 目录，运行 `sh scripts/run_lora.sh` 命令，开启 LoRA 微调 。
+在 RWKV-PEFT 目录，运行 `sh scripts/lora.sh` 命令，开启 LoRA 微调 。
 
 正常开始训练后，应当是如下画面：
 
 ![lora-tuning-running](../imgs/lora-tuning-successfully.png)
 
-训练完毕后，应当可以在输出文件夹中找到训练好的 LoRA 权重文件（`.pth` 格式）和训练日志（`.txt` 文件）:
-
-![lora-tuning-get-model](../imgs/lora-finetune-output.png)
 
 ## 如何使用 LoRA 权重文件
 
-得到 LoRA 权重文件后，你需要将它合并到基底 RWKV 模型中，获得一个完整的 LoRA 微调模型。
-
-这个过程可以使用 `scripts` 目录的 `merge_lora.sh` 脚本文件来完成。
-
-### 修改合并参数
-
-使用文本编辑器打开 `scripts` 目录下的 `merge_lora.sh` 脚本文件，并修改脚本中的合并参数：
-
-| 参数 | 描述 |
-| ---| --- |
-| base_model | LoRA 微调的基底 RWKV 模型路径，参考 run_lora.sh  |
-| lora_checkpoint | 训练得到的某个 LoRA 检查点文件路径 |
-| output | 合并后的 LoRA 模型输出路径（包含模型命名） |
-| TYPE='lora' | 合并类型：LoRA，无需修改 |
-| Lora_alpha | 跟随训练时的 Lora_alpha 参数 |
-| --quant | 跟随训练时的量化参数，"nf4"或者"int8"。如果训练时未使用量化，则无需添加此参数 |
-
-合并参数参考：
-
-``` bash copy filename="merge_lora.sh"
-base_model='/home/rwkv/models/basemodel/3b.pth'
-lora_checkpoint='/home/rwkv/RWKV-PEFT/output_lora/rwkv-2.pth'
-output='/home/rwkv/RWKV-PEFT/output_lora/peft-demo.pth'
-TYPE='lora'
-Lora_alpha=64
-
-python merge/merge.py --base_model $base_model \
---lora_checkpoint $lora_checkpoint \
---output $output \
---type $TYPE \
---lora_alpha $Lora_alpha
-# --quant int8/nf4 （和训练时的量化参数同步）
-```
-
-### 使用 LoRA 权重文件
-
-修改完成后保存文件，在 `RWKV-PEFT` 主目录运行 `sh scripts/merge_lora.sh` 命令，进行 LoRA 模型合并：
- 
-![lora-merge.png](../imgs/lora-merge.png)
-
-合并结束后，在输出路径中可以找到合并后的 LoRA 微调模型文件（`.pth` 格式）:
+训练完毕后，可以在输出路径中找到完整的 LoRA 微调模型文件（`.pth` 格式）和训练日志（`.txt` 文件）:
 
 ![lora-merged-model](../imgs/lora-merged-model.png)
 
