@@ -8,6 +8,9 @@ import { CardContainer } from 'components-docs/card/card-container.tsx'
 import { Card } from 'components-docs/card/card.tsx'
 import { Zap, LibraryBig, PanelBottomDashed, PlayCircle, Download, MessageSquare, Sliders, Code2, Terminal, Bot, Cpu, Cloud, Globe2, GamepadIcon, Wrench, Database, Dumbbell, Sparkles, Puzzle, Layers, Brain, FlaskRound } from "lucide-react";
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { SingleCard } from 'components-docs/hero-card/single-card.tsx'
+import { MutiCard } from 'components-docs/hero-card/muti-card.tsx'
+import { HeroCardContainer } from 'components-docs/hero-card/hero-card-container.tsx'
 
 RWKV 教程系列提供 RWKV 从入门（体验在线 demo）到精通（本地部署、微调、预训练）的全教程。
 
@@ -21,18 +24,46 @@ RWKV 入门教程主要介绍 RWKV **模型的种类和下载方法**、**在线
 
 我们提供了 RWKV 模型的在线体验 Demo 和简单易用的模型下载方法，方便大家在线体验和下载多个版本的 RWKV 模型。
 
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-1.png" icon={PlayCircle}    iconColor='text-red-600'   title="在线体验 RWKV 模型"  description="通过在线 Demo 体验各种 RWKV 模型" link="/tutorials/basic/How-To-Play" />
 <Card image="color-2.png" icon={Download}      iconColor='text-blue-600'  title="下载 RWKV 模型" description="了解 RWKV 的模型种类和下载方法" link="/tutorials/basic/Model-Download" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Rocket.png" 
+    title="在线体验 RWKV 模型" 
+    description="通过在线 Demo 体验各种 RWKV 模型" 
+    themeColor="indigo" 
+    buttons={[
+        {label: "在线体验 RWKV 模型", href: "/tutorials/basic/How-To-Play"},
+        {label: "下载 RWKV 模型", href: "/tutorials/basic/Model-Download"},
+    ]}
+/>
+</HeroCardContainer>
 
 ### 改善 RWKV 模型的生成质量
 
 由于 RWKV 模型的 RNN 架构特质，RWKV 模型对提示词更加敏感，通过**优化提示词格式**和**调整解码参数**，可以提升 RWKV 模型在不同任务的性能表现。
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-4.png" icon={Sliders}       iconColor='text-amber-600'  title="调整 RWKV 的解码参数" description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" link="/tutorials/basic/RWKV-Parameters" />
 <Card image="color-28.png" icon={MessageSquare} iconColor='text-purple-600' title="RWKV 的提示词格式" description="通过使用 RWKV 偏好的提示词格式，可以改善模型的输出质量" link="/tutorials/basic/Prompt-Format" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Magic-Wand.png" 
+    title="调整 RWKV 的解码参数" 
+    description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" 
+    themeColor="blue" 
+    buttons={[
+        {label: "调整 RWKV 的解码参数", href: "/tutorials/basic/RWKV-Parameters"},
+        {label: "RWKV 的提示词格式", href: "/tutorials/basic/Prompt-Format"},
+    ]}
+/>
+</HeroCardContainer>
 
 ---
 
@@ -50,24 +81,53 @@ RWKV 的中级教程包含 RWKV 的各种**本地部署方法和推理教程**�
 
 **RWKV Runner** 和 **Ai00** 是 RWKV 社区开发的 RWKV 模型本地运行软件包，无需任何代码基础即可实现 RWKV 模型的本地部署。
 
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-7.png" icon={Zap}      iconColor='text-sky-600'   title="RWKV-FLA 使用教程"  description="介绍 RWKV-FLA 如何训练和推理 RWKV 模型，提供了可运行的简单示例代码" link="/tutorials/intermediate/RWKV-FLA" />
 <Card image="color-23.png" icon={Code2}      iconColor='text-green-600'   title="RWKVpip 指南"  description="了解 RWKVpip 包如何推理 RWKV 模型，对代码进行分段详解" link="/tutorials/intermediate/RWKVpip" />
 <Card image="color-3.png" icon={Terminal}    iconColor='text-pink-600' title="RWKV Runner 使用教程" description="RWKV 的本地部署软件包，带新手友好的图形化界面" link="/tutorials/intermediate/RWKV-Runner/Introduction" />
 <Card image="color-22.png" icon={Bot}         iconColor='text-purple-600' title="Ai00 使用教程" description="基于 WebGPU（vulkan） 的推理工具，支持大多数 GPU 和集显" link="/tutorials/intermediate/ai00/Introduction" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Location.png" 
+    title="RWKV 模型本地部署工具" 
+    description="介绍 RWKV-FLA、RWKVpip、RWKV Runner、Ai00 等 RWKV 模型本地部署工具的使用方法" 
+    themeColor="teal" 
+    buttons={[
+        {label: "RWKV Runner 使用教程", href: "/tutorials/intermediate/RWKV-Runner/Introduction"},
+        {label: "Ai00 使用教程", href: "/tutorials/intermediate/ai00/Introduction"},
+    ]}
+/>
+</HeroCardContainer>
 
 ### 其他开源模型推理工具
 
 RWKV 模型也适配了其他热门的开源模型部署和推理工具：
 
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-2.png" icon={Cpu}         iconColor='text-sky-600'    title="llama.cpp 推理教程" description="本地部署 llama.cpp 并运行 RWKV 模型" link="/tutorials/intermediate/llamacpp" />
 <Card image="color-5.png" icon={Cloud}        iconColor='text-red-400'    title="Ollama 推理教程" description="本地部署 Ollama 并推理 RWKV 模型" link="/tutorials/intermediate/RWKV-Inference/Ollama" />
 <Card image="color-6.png" icon={Globe2}       iconColor='text-rose-600'  title="Text Generation WebUI 教程" description="RWKV 模型的 Text Generation WebUI 推理方法" link="/tutorials/intermediate/RWKV-Inference/text-generation-webui" />
 <Card image="color-25.png" icon={Terminal}     iconColor='text-purple-600'   title="KoboldCpp 推理教程" description="使用 KoboldCpp 运行 RWKV 模型" link="/tutorials/intermediate/RWKV-Inference/KoboldCpp" />
 <Card image="color-29.png" icon={GamepadIcon}  iconColor='text-pink-600'   title="SillyTavern 角色扮演教程" description="使用 SillyTavern 部署和运行 RWKV 模型，并进行角色扮演" link="/tutorials/intermediate/RWKV-Inference/SillyTavern" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Code.png" 
+    title="其他开源模型推理工具" 
+    description="介绍 llama.cpp、Ollama、Text Generation WebUI、KoboldCpp、SillyTavern 等其他开源模型推理工具的使用方法" 
+    themeColor="cyan" 
+    buttons={[
+        {label: "llama.cpp 推理教程", href: "/tutorials/intermediate/llamacpp"},
+        {label: "Ollama 推理教程", href: "/tutorials/intermediate/RWKV-Inference/Ollama"},
+        {label: "Text Generation WebUI 教程", href: "/tutorials/intermediate/RWKV-Inference/text-generation-webui"},
+    ]}
+/>
+</HeroCardContainer>
 
 ---
 ## RWKV 高级教程
@@ -77,11 +137,26 @@ RWKV 高级教程包含 RWKV 模型的**预训练、微调和 RLHF 等训练方�
 </CallOut>
 
 ### 微调简介和准备工作
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-13.png" icon={LibraryBig} iconColor='text-red-400'    title="微调简介" description="为什么要微调 RWKV 模型？微调之前需要准备什么？" link="/tutorials/advanced/Fine-Tune/Introduction" />
 <Card image="color-11.png" icon={Wrench}     iconColor='text-blue-500'   title="配置训练环境" description="配置 Pytorch 等 RWKV 微调训练所需的软件环境" link="/tutorials/advanced/Fine-Tune/FT-Environment" />
 <Card image="color-10.png" icon={Database}   iconColor='text-red-400'  title="准备训练数据" description="根据你的目标任务，收集特定格式的训练数据，将其处理为 binidx 格式" link="/tutorials/advanced/Fine-Tune/FT-Dataset" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Newspaper.png" 
+    title="微调简介和准备工作" 
+    description="为什么要微调 RWKV 模型？微调之前需要准备什么？" 
+    themeColor="green" 
+    buttons={[
+        {label: "微调简介", href: "/tutorials/advanced/Fine-Tune/Introduction"},
+        {label: "配置训练环境", href: "/tutorials/advanced/Fine-Tune/FT-Environment"},
+        {label: "准备训练数据", href: "/tutorials/advanced/Fine-Tune/FT-Dataset"},
+    ]}
+/>
+</HeroCardContainer>
 
 ### 训练方法的详细教程
 
@@ -89,11 +164,27 @@ RWKV 高级教程包含 RWKV 模型的**预训练、微调和 RLHF 等训练方�
 
 RWKV 官方微调仓库 [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT)，包含常见的 `LoRA` 微调、`PiSSA` 微调方法，也有 RWKV 模型特有的 `State-Tuning` 和 RWKV 社区成员 [@JL-er](https://github.com/JL-er) 开发的 `DiSHA` 等独特的微调方法。
 
-<CardContainer>
+{/* <CardContainer>
 <Card image="color-4.png" icon={Dumbbell}  iconColor='text-purple-500'  title="RWKV 预训练教程"           description="基于 RWKV-LM 的预训练方法，训练过程和 RWKV 官方模型完全一致" link="/tutorials/advanced/pretrain" />
 <Card image="color-5.png" icon={Sparkles}  iconColor='text-red-400'    title="State Tuning 微调"  description="RWKV 模型独特的 State Tuning 微调方法" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/State-Tuning" />
 <Card image="color-19.png" icon={Puzzle}    iconColor='text-sky-500'  title="LoRA 微调"          description="RWKV 模型的 LoRA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/LoRA" />
 <Card image="color-18.png" icon={Dumbbell}  iconColor='text-orange-500'   title="DiSHA 微调"         description="RWKV 模型的 DiSHA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/DiSHA" />
 <Card image="color-17.png" icon={FlaskRound}     iconColor='text-yellow-600'    title="PiSSA 微调"    description="RWKV 模型的 PiSSA 微调方法，基于 RWKV-PEFT 仓库" link="/tutorials/advanced/Fine-Tune/RWKV-PEFT/PiSSA" />
-</CardContainer>
+</CardContainer> */}
+
+<HeroCardContainer>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="F-Dumbbell.png" 
+    title="微调方法的详细教程" 
+    description="介绍 RWKV 模型的预训练、State Tuning、LoRA、PiSSA、DiSHA 等微调方法的详细教程" 
+    themeColor="purple" 
+    buttons={[
+        {label: "RWKV 预训练教程", href: "/tutorials/advanced/pretrain"},
+        {label: "State Tuning 微调", href: "/tutorials/advanced/Fine-Tune/RWKV-PEFT/State-Tuning"},
+        {label: "LoRA 微调", href: "/tutorials/advanced/Fine-Tune/RWKV-PEFT/LoRA"},
+        {label: "DiSHA 微调", href: "/tutorials/advanced/Fine-Tune/RWKV-PEFT/DiSHA"},
+    ]}
+/>
+</HeroCardContainer>
 
