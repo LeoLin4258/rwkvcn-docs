@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { getHeroColorClasses, HeroThemeColor } from "./hero-color-classes"
+import Image from "next/image"
 
 type MutiCardButton = {
     label: string
@@ -21,13 +22,15 @@ export const MutiCard = ({ className, IconImage, title, description, themeColor,
     const colorClass = getHeroColorClasses(themeColor)
 
     return (
-        <div className={`${className} p-5 sm:p-6 min-h-40 rounded-2xl flex flex-col relative border ${colorClass.border} group overflow-hidden ${colorClass.gradient} shadow-sm hover:shadow-md transition-all duration-200 ease-out`}>
+        <div className={`${className} p-5 sm:p-6 min-h-40 rounded-lg flex flex-col relative border ${colorClass.border} group overflow-hidden ${colorClass.gradient} shadow-sm hover:shadow-md transition-all duration-200 ease-out`}>
 
+            {/* text area */}
             <div className="flex flex-col gap-2 max-w-[60%] lg:max-w-[64%] w-full">
                 <div className={`text-base sm:text-lg font-semibold tracking-tight z-10 ${colorClass.titleColor}`}>{title}</div>
                 <div className={`text-xs sm:text-sm leading-relaxed line-clamp-2 text-ellipsis z-10 ${colorClass.descriptionColor}`}>{description}</div>
             </div>
 
+            {/* buttons area */}
             <div className="flex flex-row flex-wrap gap-2 mt-4 md:mt-5 items-center z-10">
                 {buttons && buttons.length > 0 && buttons.map((button) => (
                     <Link href={button.href} key={button.label} className="flex-shrink-0 no-underline">
@@ -42,10 +45,13 @@ export const MutiCard = ({ className, IconImage, title, description, themeColor,
                 ))}
             </div>
 
-            <img
+            {/* icon area */}
+            <Image
+                width={100}
+                height={100}
                 src={`/docs/images/bento/${IconImage}`}
-                alt={title}
-                className="size-24 md:size-28 !p-0 !m-0 object-contain absolute right-3 md:right-4 top-1/2 -translate-y-1/2 opacity-90 md:opacity-100 pointer-events-none select-none"
+                alt={`${title} 的图标`}
+                className="absolute right-3 md:right-4 top-0 bottom-0 my-auto opacity-90 md:opacity-100 pointer-events-none select-none"
             />
         </div>
     )
