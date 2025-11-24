@@ -25,140 +25,87 @@ RWKV 文档**不包含实操教程**，如果您需要学习 RWKV 的具体用�
 
 ## 了解 RWKV 
 
-**刚接触 RWKV** 的用户可能想知道 RWKV 是什么。
+RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模型可以**理解并生成文本**。此外，还有一些 RWKV 多模态模型可以**理解或生成图像、声音等多种模态的内容**。
 
-<CallOut type="info" >
-RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模型可以**理解并生成文本**。
-
-有一些 RWKV 的多模态模型可以**理解或生成图像、声音等多种模态的内容**。
-</CallOut>
-
-对于 RWKV，您可能想了解这些事情：
-
-{/* <CardContainer>
-<Card image="color-1.png" icon={BookOpen} iconColor='text-red-500' title="快速了解 RWKV" description="速览 RWKV 的架构版本、模型和论文发布等信息" link="/docs/RWKV-Wiki/Introduction" />
-<Card image="color-23.png" icon={History} iconColor='text-green-500' title="RWKV 的架构和历史" description="RWKV 从 V1 到 V7 的架构变更和设计思路" link="/docs/RWKV-Wiki/RWKV-Architecture" />
-<Card image="color-2.png" icon={Server} iconColor='text-blue-500' title="RWKV 推理的显存需求" description="本地部署不同参数的 RWKV 模型需要多少显存" link="/docs/RWKV-Wiki/Vram" />
-<Card image="color-13.png" icon={FileText} iconColor='text-orange-500' title="RWKV 的训练数据集" description="训练 RWKV 模型使用了哪些数据集？" link="/docs/RWKV-Wiki/Dataset" />
-<Card image="color-5.png" icon={CircleHelp} iconColor='text-pink-600' title="RWKV 的常见问题" description="关于 RWKV 架构和模型的一些常见问题" link="/docs/RWKV-Wiki/FAQ" />
-</CardContainer> */}
 
 <HeroCardContainer>
 <SingleCard className="col-span-1 lg:col-span-2" IconImage="L-Lightning.png" title="快速了解 RWKV" description="速览 RWKV 的架构版本、模型和论文发布等信息" themeColor="blue" href="/docs/RWKV-Wiki/Introduction" />
 <SingleCard className="col-span-1" IconImage="L-Share.png" title="RWKV 的架构和历史" description="RWKV 从 V1 到 V7 的架构变更和设计思路" themeColor="green" href="/docs/RWKV-Wiki/RWKV-Architecture" />
-<SingleCard className="col-span-1" IconImage="L-Command-Line.png" title="RWKV 推理的显存需求" description="本地部署不同参数的 RWKV 模型需要多少显存" themeColor="indigo" href="/docs/RWKV-Wiki/Vram" />
+<SingleCard className="col-span-1" IconImage="L-Command-Line.png" title="RWKV 推理的显存需求" description="本地部署 RWKV 模型，需要多少显存？" themeColor="indigo" href="/docs/RWKV-Wiki/Vram" />
 </HeroCardContainer>
 
 ## 改善模型的生成质量
 
-由于 RNN 本身的特性，RWKV 基底模型对提示词更加敏感。
-
-**改进提示词格式或**调整 RWKV 模型的解码参数**，可以提高 RWKV 模型的生成质量。
-
-{/* <CardContainer>
-<Card image="color-11.png" icon={Sliders} iconColor='text-blue-500' title="RWKV 的解码参数" description="了解 RWKV 模型的解码参数，以改善模型的生成效果" link="/docs/RWKV-Prompts/RWKV-Parameters" />
-<Card image="color-19.png" icon={FileText} iconColor='text-purple-500' title="RWKV 的提示词格式" description="了解 RWKV 偏好的提示词格式，以改善模型的输出质量" link="/docs/RWKV-Prompts/Prompt-Format" />
-<Card image="color-3.png" icon={MessageSquare} iconColor='text-pink-600' title="聊天提示词示例" description="RWKV 模型在聊天模式的提示词示例" link="/docs/RWKV-Prompts/Chat-Prompts" />
-<Card image="color-7.png" icon={PenTool} iconColor='text-sky-500' title="续写提示词示例" description="RWKV 模型在续写模式的提示词示例" link="/docs/RWKV-Prompts/Completion-Prompts" />
-</CardContainer> */}
+<HeroCardContainer>
+<SingleCard className="col-span-1" IconImage="Slider-control-panel.png" title="调整 RWKV 的解码参数" description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" themeColor="orange" href="/docs/RWKV-Prompts/RWKV-Parameters" />
+<SingleCard className="col-span-1" IconImage="L-Newspaper.png" title="RWKV 的提示词格式" description="通过使用 RWKV 偏好的提示词格式，可以改善模型的输出质量" themeColor="orange" href="/docs/RWKV-Prompts/Prompt-Format" />
+</HeroCardContainer>
 
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
-    IconImage="Sound-equalizer.png" 
-    title="RWKV 的解码参数" 
-    description="了解 RWKV 模型的解码参数，以改善模型的生成效果" 
-    themeColor="orange" 
-    buttons={[
-        {label: "RWKV 的解码参数", href: "/docs/RWKV-Prompts/RWKV-Parameters"},
-        {label: "RWKV 的提示词格式", href: "/docs/RWKV-Prompts/Prompt-Format"},
-    ]}
-/>
-<MutiCard 
-    className="col-span-1 lg:col-span-2" 
     IconImage="L-Pen.png" 
-    title="RWKV 的提示词格式" 
-    description="了解 RWKV 偏好的提示词格式，以改善模型的输出质量" 
+    title="RWKV 的提示词示例" 
+    description="尝试我们精心挑选的提示词示例。" 
     themeColor="violet"
     buttons={[
-        {label: "聊天提示词示例", href: "/docs/RWKV-Prompts/Chat-Prompts"},
-        {label: "续写提示词示例", href: "/docs/RWKV-Prompts/Completion-Prompts"},
+        {label: "聊天模式的提示词示例", href: "/docs/RWKV-Prompts/Chat-Prompts"},
+        {label: "续写模式的提示词示例", href: "/docs/RWKV-Prompts/Completion-Prompts"},
     ]}
 />
 </HeroCardContainer>
 
 
-## RWKV 的客观测试性能
-
-RWKV 的客观测试性能数据，含 MMLU、LongBench 等基准测试：
-
-{/* <CardContainer>
-<Card image="color-29.png" icon={BarChart3} iconColor='text-rose-500' title="RWKV 基准测试数据" description="查看 RWKV 模型在各种基准测试中的表现" link="/docs/RWKV-Eval-Data/RWKV-Evals" />
-<Card image="color.png" icon={FileText} iconColor='text-blue-500' title="长文本基准测试" description="查看 RWKV 模型在长文本测试中的表现" link="/docs/RWKV-Eval-Data/RWKV-Long-Evals" />
-</CardContainer> */}
+## RWKV 基准测试表现
 
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
     IconImage="L-Chart.png" 
-    title="RWKV 基准测试数据" 
+    title="RWKV 的 benchmark 测试数据" 
     description="查看 RWKV 模型在各种基准测试中的表现" 
     themeColor="teal" 
     buttons={[
-        {label: "RWKV 的解码参数", href: "/docs/RWKV-Prompts/RWKV-Parameters"},
-        {label: "RWKV 的提示词格式", href: "/docs/RWKV-Prompts/Prompt-Format"},
+        {label: "Uncheatable Eval", href: "/docs/RWKV-Eval-Data/RWKV-Evals#uncheatable-eval"},
+        {label: "MMLU", href: "/docs/RWKV-Eval-Data/RWKV-Evals#mmlu-eval"},
+    ]}
+/>
+<MutiCard 
+    className="col-span-1 lg:col-span-2" 
+    IconImage="L-Chart.png" 
+    title="RWKV 长文本基准测试数据" 
+    description="查看 RWKV 模型在长文本基准测试中的表现" 
+    themeColor="teal" 
+    buttons={[
+        {label: "RULER", href: "/docs/RWKV-Eval-Data/RWKV-Long-Evals#ruler-eval"},
+        {label: "LongBench", href: "/docs/RWKV-Eval-Data/RWKV-Long-Evals#longbench-eval"}
     ]}
 />
 </HeroCardContainer>
 
 ## RWKV 的端侧推理性能
 
-RWKV 的端侧推理性能数据，如 AMD GPU、摩尔线程 GPU、移动端芯片：
-
-{/* <CardContainer>
-<Card image="color-19.png" icon={FileText} iconColor='text-purple-500' title="NVIDIA 推理性能" description="RWKV 模型在 NVIDIA 硬件上的推理性能" link="/docs/RWKV-Performance-Data/nvidia" />
-<Card image="color-22.png" icon={Cpu} iconColor='text-purple-500' title="AMD 推理性能" description="RWKV 模型在 AMD 硬件上的推理性能" link="/docs/RWKV-Performance-Data/amd" />
-<Card image="color-2.png" icon={Cpu} iconColor='text-blue-500' title="Apple 和其他硬件推理性能" description="RWKV 模型在 Apple 和其他硬件上的推理性能" link="/docs/RWKV-Performance-Data/others" />
-<Card image="color-3.png" icon={Smartphone} iconColor='text-pink-600' title="移动端推理性能" description="RWKV 模型在移动端的推理性能" link="/docs/RWKV-Performance-Data/mobile" />
-</CardContainer> */}
-
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
     IconImage="L-CPU-Chip.png" 
-    title="NVIDIA 推理性能" 
-    description="RWKV 模型在 NVIDIA 硬件上的推理性能" 
+    title="RWKV 端侧推理性能" 
+    description="RWKV 模型在 NVIDIA、AMD、Apple Silicon 和移动端芯片等各类端侧硬件上的推理性能" 
     themeColor="cyan" 
     buttons={[
-        {label: "NVIDIA 推理性能", href: "/docs/RWKV-Performance-Data/nvidia"},
-        {label: "AMD 推理性能", href: "/docs/RWKV-Performance-Data/amd"},
-        {label: "摩尔线程推理性能", href: "/docs/RWKV-Performance-Data/mthread"},
-        {label: "移动端推理性能", href: "/docs/RWKV-Performance-Data/mobile"},
+        {label: "NVIDIA 显卡", href: "/docs/RWKV-Performance-Data/nvidia"},
+        {label: "AMD 显卡", href: "/docs/RWKV-Performance-Data/amd"},
+        {label: "Apple Silicon 和其他硬件", href: "/docs/RWKV-Performance-Data/others"},
+        {label: "移动端/边缘设备", href: "/docs/RWKV-Performance-Data/mobile"},
     ]}
 />
 </HeroCardContainer>
 
 ## 加入 RWKV 社区
 
-查看 RWKV 社区的优秀项目，了解如何参与 RWKV 社区并贡献您的力量：
-
-{/* <CardContainer>
-<Card image="color-15.png" icon={Github} iconColor='text-blue-500' title="RWKV 社区精选项目" description="收录了来自 RWKV 社区的优秀开源项目，为您提供参考和灵感" link="/docs/RWKV-Wiki/Links" />
-<Card image="color-13.png" icon={Users} iconColor='text-red-500' title="为 RWKV 贡献力量" description="了解如何参与 RWKV 社区，并贡献您的力量" link="/docs/RWKV-Wiki/Contribute" />
-</CardContainer> */}
-
 <HeroCardContainer>
-<MutiCard 
-    className="col-span-1 lg:col-span-2" 
-    IconImage="L-User.png" 
-    title="RWKV 社区精选项目" 
-    description="收录了来自 RWKV 社区的优秀开源项目，为您提供参考和灵感" 
-    themeColor="blue" 
-    buttons={[
-        {label: "RWKV 社区精选项目", href: "/docs/RWKV-Wiki/Links"},
-        {label: "为 RWKV 贡献力量", href: "/docs/RWKV-Wiki/Contribute"},
-    ]}
-/>
+<SingleCard className="col-span-1" IconImage="L-Newspaper.png" title="RWKV 社区精选项目" description="查看 RWKV 社区的优秀项目" themeColor="blue" href="/docs/RWKV-Wiki/Links" />
+<SingleCard className="col-span-1" IconImage="L-User.png" title="为 RWKV 贡献力量" description="了解如何参与 RWKV 社区，并贡献您的力量" themeColor="blue" href="/docs/RWKV-Wiki/Contribute" />
 </HeroCardContainer>
 
 ## 如何反馈文档问题？
