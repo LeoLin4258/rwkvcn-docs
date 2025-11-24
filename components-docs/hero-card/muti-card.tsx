@@ -32,15 +32,15 @@ export const MutiCard = ({ className, IconImage, title, description, themeColor,
             </div>
 
             {/* buttons area */}
-            <div className="flex flex-row flex-wrap gap-2 mt-4 md:mt-5 items-center z-10">
+            <div className="flex flex-row flex-wrap gap-1.5 sm:gap-2 mt-3 md:mt-5 items-center z-10">
                 {buttons && buttons.length > 0 && buttons.map((button, index) => (
                     <Link href={button.href} key={index} className="flex-shrink-0 no-underline">
                         <Button
                             key={index}
-                            className={`${colorClass.buttonColor} text-[11px] sm:text-xs md:text-sm px-2.5 sm:px-3.5 md:px-4 py-1.5 sm:py-2 rounded-full whitespace-nowrap flex items-center gap-1.5 hover:opacity-90`}
+                            className={`${colorClass.buttonColor} text-[10px] sm:text-xs md:text-sm px-2 sm:px-3.5 md:px-4 py-1 sm:py-2 rounded-full whitespace-nowrap flex items-center gap-1 sm:gap-1.5 hover:opacity-90`}
                         >
                             <span className="font-medium">{button.label}</span>
-                            <ChevronRight className="size-3.5 sm:size-4" />
+                            <ChevronRight className="size-3 sm:size-3.5 md:size-4" />
                         </Button>
                     </Link>
                 ))}
@@ -50,7 +50,7 @@ export const MutiCard = ({ className, IconImage, title, description, themeColor,
             <IconImage
                 width={70}
                 height={70}
-                className="absolute right-4 top-0 bottom-0 my-auto opacity-80 pointer-events-none select-none"
+                className="absolute right-3 sm:right-4 top-3 sm:top-0 sm:bottom-0 sm:my-auto opacity-80 pointer-events-none select-none"
             />
         </div>
     )
