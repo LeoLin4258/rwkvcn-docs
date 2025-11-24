@@ -1,11 +1,11 @@
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { getHeroColorClasses, HeroThemeColor } from "./hero-color-classes"
-import Image from "next/image"
+import { ComponentType } from "react"
 
 type SingleCardProps = {
     className: string
-    IconImage: string
+    IconImage: ComponentType<{ width?: string | number; height?: string | number; className?: string }>
     title: string
     description: string
     themeColor: HeroThemeColor
@@ -28,12 +28,10 @@ export const SingleCard = ({ className, IconImage, title, description, themeColo
             </div>
 
             {/* icon area */}
-            <Image
-                width={100}
-                height={100}
-                src={`/docs/images/bento/${IconImage}`}
-                alt={`${title} 的图标`}
-                className="absolute right-3 md:right-4 top-0 bottom-0 my-auto opacity-90 md:opacity-100 pointer-events-none select-none"
+            <IconImage
+                width={70}
+                height={70}
+                className="absolute right-4 top-0 bottom-0 my-auto opacity-80 pointer-events-none select-none"
             />
             <ChevronRight className="size-4 md:size-8 absolute top-1/2 right-4 md:right-4 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:right-0 md:group-hover:right-0 transition-all duration-200" />
         </Link>

@@ -12,6 +12,18 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 import { SingleCard } from 'components-docs/hero-card/single-card.tsx'
 import { MutiCard } from 'components-docs/hero-card/muti-card.tsx'
 import { HeroCardContainer } from 'components-docs/hero-card/hero-card-container.tsx'
+import Bolt from 'components-docs/hero-card/icons/bolt.tsx'
+import ArrowsBoldOppositeDirection from 'components-docs/hero-card/icons/arrows-bold-opposite-direction.tsx'
+import CodeEditor from 'components-docs/hero-card/icons/code-editor.tsx'
+import Slider from 'components-docs/hero-card/icons/slider.tsx'
+import Feather from 'components-docs/hero-card/icons/feather.tsx'
+import Gauge from 'components-docs/hero-card/icons/gauge.tsx'
+import ClipboardCheck from 'components-docs/hero-card/icons/clipboard-check.tsx'
+import Clipboard from 'components-docs/hero-card/icons/clipboard.tsx'
+import File from 'components-docs/hero-card/icons/file.tsx'
+import CircleArrowRight from 'components-docs/hero-card/icons/circle-arrow-right.tsx'
+import AppStack from 'components-docs/hero-card/icons/app-stack.tsx'
+import Heart from 'components-docs/hero-card/icons/heart.tsx'
 
 欢迎来到 RWKV 中文文档，可在此处了解 RWKV 的**概念性知识**，包括但不限于：
 
@@ -29,22 +41,22 @@ RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模
 
 
 <HeroCardContainer>
-<SingleCard className="col-span-1 lg:col-span-2" IconImage="L-Lightning.png" title="快速了解 RWKV" description="速览 RWKV 的架构版本、模型和论文发布等信息" themeColor="blue" href="/docs/RWKV-Wiki/Introduction" />
-<SingleCard className="col-span-1" IconImage="L-Share.png" title="RWKV 的架构和历史" description="RWKV 从 V1 到 V7 的架构变更和设计思路" themeColor="green" href="/docs/RWKV-Wiki/RWKV-Architecture" />
-<SingleCard className="col-span-1" IconImage="L-Command-Line.png" title="RWKV 推理的显存需求" description="本地部署 RWKV 模型，需要多少显存？" themeColor="indigo" href="/docs/RWKV-Wiki/Vram" />
+<SingleCard className="col-span-1 lg:col-span-2" IconImage={Bolt} title="快速了解 RWKV" description="速览 RWKV 的架构版本、模型和论文发布等信息" themeColor="blue" href="/docs/RWKV-Wiki/Introduction" />
+<SingleCard className="col-span-1" IconImage={ArrowsBoldOppositeDirection} title="RWKV 的架构和历史" description="RWKV 从 V1 到 V7 的架构变更和设计思路" themeColor="purple" href="/docs/RWKV-Wiki/RWKV-Architecture" />
+<SingleCard className="col-span-1" IconImage={CodeEditor} title="RWKV 推理的显存需求" description="本地部署 RWKV 模型，需要多少显存？" themeColor="indigo" href="/docs/RWKV-Wiki/Vram" />
 </HeroCardContainer>
 
 ## 改善模型的生成质量
 
 <HeroCardContainer>
-<SingleCard className="col-span-1" IconImage="Slider-control-panel.png" title="调整 RWKV 的解码参数" description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" themeColor="orange" href="/docs/RWKV-Prompts/RWKV-Parameters" />
-<SingleCard className="col-span-1" IconImage="L-Newspaper.png" title="RWKV 的提示词格式" description="通过使用 RWKV 偏好的提示词格式，可以改善模型的输出质量" themeColor="orange" href="/docs/RWKV-Prompts/Prompt-Format" />
+<SingleCard className="col-span-1" IconImage={Slider} title="调整 RWKV 的解码参数" description="调整 RWKV 模型的解码参数，直接影响模型的生成效果" themeColor="orange" href="/docs/RWKV-Prompts/RWKV-Parameters" />
+<SingleCard className="col-span-1" IconImage={Feather} title="RWKV 的提示词格式" description="通过使用 RWKV 偏好的提示词格式，可以改善模型的输出质量" themeColor="pink" href="/docs/RWKV-Prompts/Prompt-Format" />
 </HeroCardContainer>
 
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
-    IconImage="L-Pen.png" 
+    IconImage={Clipboard} 
     title="RWKV 的提示词示例" 
     description="尝试我们精心挑选的提示词示例。" 
     themeColor="violet"
@@ -61,7 +73,7 @@ RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
-    IconImage="L-Chart.png" 
+    IconImage={Gauge} 
     title="RWKV 的 benchmark 测试数据" 
     description="查看 RWKV 模型在各种基准测试中的表现" 
     themeColor="teal" 
@@ -72,10 +84,10 @@ RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模
 />
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
-    IconImage="L-Chart.png" 
+    IconImage={File} 
     title="RWKV 长文本基准测试数据" 
     description="查看 RWKV 模型在长文本基准测试中的表现" 
-    themeColor="teal" 
+    themeColor="cyan" 
     buttons={[
         {label: "RULER", href: "/docs/RWKV-Eval-Data/RWKV-Long-Evals#ruler-eval"},
         {label: "LongBench", href: "/docs/RWKV-Eval-Data/RWKV-Long-Evals#longbench-eval"}
@@ -88,10 +100,10 @@ RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模
 <HeroCardContainer>
 <MutiCard 
     className="col-span-1 lg:col-span-2" 
-    IconImage="L-CPU-Chip.png" 
+    IconImage={CircleArrowRight} 
     title="RWKV 端侧推理性能" 
     description="RWKV 模型在 NVIDIA、AMD、Apple Silicon 和移动端芯片等各类端侧硬件上的推理性能" 
-    themeColor="cyan" 
+    themeColor="indigo" 
     buttons={[
         {label: "NVIDIA 显卡", href: "/docs/RWKV-Performance-Data/nvidia"},
         {label: "AMD 显卡", href: "/docs/RWKV-Performance-Data/amd"},
@@ -104,8 +116,8 @@ RWKV 是一个大语言模型架构，基于这个架构训练出来的 RWKV 模
 ## 加入 RWKV 社区
 
 <HeroCardContainer>
-<SingleCard className="col-span-1" IconImage="L-Newspaper.png" title="RWKV 社区精选项目" description="查看 RWKV 社区的优秀项目" themeColor="blue" href="/docs/RWKV-Wiki/Links" />
-<SingleCard className="col-span-1" IconImage="L-User.png" title="为 RWKV 贡献力量" description="了解如何参与 RWKV 社区，并贡献您的力量" themeColor="blue" href="/docs/RWKV-Wiki/Contribute" />
+<SingleCard className="col-span-1" IconImage={AppStack} title="RWKV 社区精选项目" description="查看 RWKV 社区的优秀项目" themeColor="green" href="/docs/RWKV-Wiki/Links" />
+<SingleCard className="col-span-1" IconImage={Heart} title="为 RWKV 贡献力量" description="了解如何参与 RWKV 社区，并贡献您的力量" themeColor="yellow" href="/docs/RWKV-Wiki/Contribute" />
 </HeroCardContainer>
 
 ## 如何反馈文档问题？
