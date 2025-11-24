@@ -20,6 +20,7 @@ type MutiCardProps = {
 
 export const MutiCard = ({ className, IconImage, title, description, themeColor, buttons }: MutiCardProps) => {
     const colorClass = getHeroColorClasses(themeColor)
+    const processedDescription = description.replace(/\\n/g, '\n')
 
     return (
         <div className={`${className} p-5 sm:p-6 min-h-40 rounded-lg flex flex-col relative border ${colorClass.border} group overflow-hidden ${colorClass.gradient} shadow-sm hover:shadow-md transition-all duration-200 ease-out`}>
@@ -27,7 +28,7 @@ export const MutiCard = ({ className, IconImage, title, description, themeColor,
             {/* text area */}
             <div className="flex flex-col gap-2 max-w-[60%] lg:max-w-[64%] w-full">
                 <div className={`text-base sm:text-lg font-semibold tracking-tight z-10 ${colorClass.titleColor}`}>{title}</div>
-                <div className={`text-xs sm:text-sm leading-relaxed line-clamp-2 text-ellipsis z-10 ${colorClass.descriptionColor}`}>{description}</div>
+                <div className={`text-xs sm:text-sm leading-relaxed line-clamp-2 text-ellipsis z-10 whitespace-pre-line ${colorClass.descriptionColor}`}>{processedDescription}</div>
             </div>
 
             {/* buttons area */}

@@ -14,6 +14,7 @@ type SingleCardProps = {
 
 export const SingleCard = ({ className, IconImage, title, description, themeColor, href }: SingleCardProps) => {
     const colorClass = getHeroColorClasses(themeColor)
+    const processedDescription = description.replace(/\\n/g, '\n')
 
     return (
         <Link
@@ -23,7 +24,7 @@ export const SingleCard = ({ className, IconImage, title, description, themeColo
             {/* text area */}
             <div className="flex flex-col gap-2 max-w-[60%] lg:max-w-[64%] w-full">
                 <div className={`text-base sm:text-lg font-semibold tracking-tight z-10 ${colorClass.titleColor}`}>{title}</div>
-                <div className={`text-xs sm:text-sm leading-relaxed line-clamp-2 text-ellipsis z-10 ${colorClass.descriptionColor}`}>{description}</div>
+                <div className={`text-xs sm:text-sm leading-relaxed line-clamp-2 text-ellipsis z-10 whitespace-pre-line ${colorClass.descriptionColor}`}>{processedDescription}</div>
             </div>
 
             {/* icon area */}
