@@ -1,25 +1,38 @@
+import { ComponentType } from "react"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { getHeroColorClasses, HeroThemeColor } from "./hero-color-classes"
-import { ComponentType } from "react"
+
+type HeroCardIconComponent = ComponentType<{
+    width?: string | number
+    height?: string | number
+    className?: string
+}>
 
 type SingleCardProps = {
-    className: string
-    IconImage: ComponentType<{ width?: string | number; height?: string | number; className?: string }>
+    className?: string
+    IconImage: HeroCardIconComponent
     title: string
     description: string
     themeColor: HeroThemeColor
     href: string
 }
 
-export const SingleCard = ({ className, IconImage, title, description, themeColor, href }: SingleCardProps) => {
+export const SingleCard = ({
+    className,
+    IconImage,
+    title,
+    description,
+    themeColor,
+    href,
+}: SingleCardProps) => {
     const colorClass = getHeroColorClasses(themeColor)
     const processedDescription = description.replace(/\\n/g, '\n')
 
     return (
         <Link
             href={href}
-            className={`${className} p-5 sm:p-6 h-40 rounded-lg flex flex-col items-start justify-center relative border ${colorClass.border} group cursor-pointer overflow-hidden ${colorClass.gradient} shadow-sm hover:shadow-md transition-all duration-200 ease-out no-underline`}>
+            className={`${className ?? ""} p-5 sm:p-6 h-40 rounded-lg flex flex-col items-start justify-center relative border ${colorClass.border} group cursor-pointer overflow-hidden ${colorClass.gradient} shadow-sm hover:shadow-md transition-all duration-200 ease-out no-underline`}>
 
             {/* text area */}
             <div className="flex flex-col gap-2 max-w-[60%] lg:max-w-[64%] w-full">
