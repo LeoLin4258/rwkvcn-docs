@@ -81,15 +81,9 @@ RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 
 ```  bash copy
 git clone https://github.com/JL-er/RWKV-PEFT.git
-```
-
-<CallOut type='warning'>
-如果 GitHub 无法链接，请使用以下国内仓库：
-
-```  bash copy
+# 如果 GitHub 无法链接，请使用以下国内仓库：
 git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 ```
-</CallOut>
 
 克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。并运行以下命令，安装项目所需依赖：
 
@@ -245,7 +239,9 @@ python train.py --load_model $load_model \
 
 ![lora-merged-model](../imgs/lora-merged-model.png)
 
-合并后的 LoRA 微调模型可以在 RWKV Runner 或者 Ai00 中正常使用。
+合并后的 LoRA 微调模型可以在 RWKV Runner 或者 Ai00 中正常使用。将微调模型放到 RWKV Runner 的 `models` 文件夹，然后新建配置，选择微调模型即可。
+
+更多详细用法请参考 [RWKV Runner 教程](/tutorials/intermediate/RWKV-Runner/Simple-Usage) 和 [Ai00 教程](/tutorials/intermediate/ai00/Introduction)。
 
 ![lora-model-usage-of-runner](../imgs/lora-model-usage-of-runner.png)
 
