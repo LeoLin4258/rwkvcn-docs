@@ -66,15 +66,9 @@ State tuning 的显存需求可参考下表：
 
 ```  bash copy
 git clone https://github.com/JL-er/RWKV-PEFT.git
-```
-
-<CallOut type='warning'>
-如果 GitHub 无法链接，请使用以下国内仓库：
-
-```  bash copy
+# 如果 GitHub 无法链接，请使用以下国内仓库：
 git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 ```
-</CallOut>
 
 克隆完成后，使用 `cd RWKV-PEFT` 命令进入 `RWKV-PEFT` 目录。并运行以下命令，安装项目所需依赖：
 
@@ -116,12 +110,6 @@ pip install -r requirements.txt
 </Step>
 <Step>
 ### 调整重要训练参数[#adjust-important-training-parameters]
-
-<CallOut type="info">
-注意，训练数据的行数必须大于等于 `micro_bsz` 和 `epoch_steps` 的乘积；
-
-`--my_testing` 必须对应微调模型的版本。
-</CallOut>
 
 | 参数 | 描述 |
 | --- | --- |
