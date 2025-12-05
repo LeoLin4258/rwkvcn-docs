@@ -6,7 +6,7 @@ export const chartData = [
         labels: ['Average', 'ao3\nenglish', 'bbc\nnews', 'wikipedia\nenglish', 'arxiv\ncomputer\nscience', 'arxiv\nphysics', 'github\ncpp', 'github\npython'],
         datasets: [
             { label: 'Qwen3-14B-Base', data: [6.845, 10.569, 8.445, 7.942, 7.001, 7.210, 3.439, 3.312] },
-            { label: 'RWKV7-g0a4-13.3b-20251114', data: [6.870, 9.848, 8.202, 7.636, 7.108, 7.380, 4.026, 3.892] },
+            { label: 'rwkv7-g0b-13.3b-20251114', data: [6.870, 9.848, 8.202, 7.636, 7.108, 7.380, 4.026, 3.892] },
             { label: 'gemma-3-12b-pt', data: [6.945, 10.540, 7.914, 7.607, 7.286, 7.387, 3.883, 3.997] },
             { label: 'Qwen2.5-14B', data: [6.951, 10.558, 8.317, 7.944, 7.224, 7.392, 3.625, 3.599] },
             { label: 'Mistral-Nemo-Base-2407', data: [6.970, 10.165, 8.118, 7.642, 7.287, 7.455, 4.079, 4.042] },
@@ -52,7 +52,7 @@ export const chartData = [
         labels: ['Average', 'ao3\nenglish', 'bbc\nnews', 'wikipedia\nenglish', 'arxiv\ncomputer\nscience', 'arxiv\nphysics', 'github\ncpp', 'github\npython'],
         datasets: [
             { label: 'Qwen3-1.7B-Base', data: [7.965, 12.016, 9.743, 9.352, 7.936, 8.350, 4.260, 4.095] },
-            { label: 'RWKV7-g1a3-1.5b-20251015', data: [7.969, 10.972, 9.250, 8.843, 8.110, 8.537, 5.041, 5.027] },
+            { label: 'rwkv7-g1b-1.5b-20251015', data: [7.969, 10.972, 9.250, 8.843, 8.110, 8.537, 5.041, 5.027] },
             { label: 'Qwen2.5-1.5B', data: [8.124, 12.114, 9.562, 9.393, 8.270, 8.646, 4.502, 4.384] },
             { label: 'RWKV-x070-World-1.5B-v3-20250127', data: [8.231, 11.273, 9.320, 8.965, 8.431, 8.758, 5.385, 5.483] },
             { label: 'SmolLM2-1.7B', data: [8.298, 11.536, 9.373, 9.351, 8.547, 9.047, 5.080, 5.152] },
@@ -69,39 +69,39 @@ export const chartData = [
     },
     {
     name: 'RWKV-7-MMLU-Benchmark',
-    model: ['rwkv7-g0a4-13.3b-20251114-ctx8192','rwkv7-g0a3-7-2b-20251029-ctx8192','rwkv7-g1a4-2-9b-20251118-ctx8192','rwkv7-g1a3-1-5b-20251015-ctx8192'],
+    model: ['rwkv7-g0b-13.3b','rwkv7-g0a3-7.2b','rwkv7-g1a4-2.9b','rwkv7-g1b-1.5b'],
     series: [
-        { name: 'MMLU', type: 'bar', data: [0.762, 0.651, 0.613, 0.502] },
-        { name: 'MMLU COT', type: 'bar', data: [0.821, 0.723, 0.675, 0.541] }
+        { name: 'MMLU', type: 'bar', data: [0.765, 0.651, 0.613, 0.505] },
+        { name: 'MMLU COT', type: 'bar', data: [0.827, 0.723, 0.675, 0.542] }
     ]
     },
     {
     name: 'RWKV-7-MMLU-PRO-Benchmark',
-    model: ['rwkv7-g0a4-13.3b-20251114-ctx8192','rwkv7-g0a3-7-2b-20251029-ctx8192','rwkv7-g1a4-2-9b-20251118-ctx8192','rwkv7-g1a3-1-5b-20251015-ctx8192'],
+    model: ['rwkv7-g0b-13.3b','rwkv7-g0a3-7.2b','rwkv7-g1a4-2.9b','rwkv7-g1b-1.5b'],
     series: [
-        { name: 'MMLU-PRO', type: 'bar', data: [0.5, 0.359, 0.324, 0.219] },
-        { name: 'MMLU-PRO COT', type: 'bar', data: [0.602, 0.521, 0.43, 0.285] }
+        { name: 'MMLU-PRO', type: 'bar', data: [0.502, 0.359, 0.324, 0.222] },
+        { name: 'MMLU-PRO COT', type: 'bar', data: [0.612, 0.521, 0.43, 0.292] }
     ]
     },
     {
     name: 'RWKV-7-GSM8K-Benchmark',
-    model: ['rwkv7-g0a4-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1a3-1.5b'],
+    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1b-1.5b'],
     series: [
-        { name: 'GSM8K', type: 'bar', data: [0.912, 0.839, 0.773, 0.591] }
+        { name: 'GSM8K', type: 'bar', data: [0.923, 0.839, 0.773, 0.585] }
     ]
     },
     {
     name: 'RWKV-7-MATH500-Benchmark',
-    model: ['rwkv7-g0a4-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1a3-1.5b'],
+    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1b-1.5b'],
     series: [
-        { name: 'MATH500', type: 'bar', data: [0.74, 0.678, 0.482, 0.278] }
+        { name: 'MATH500', type: 'bar', data: [0.768, 0.678, 0.482, 0.298] }
     ]
     },
     {
     name: 'RWKV-7-IFEval-Benchmark',
-    model: ['rwkv7-g0a4-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a3-2.9b', 'rwkv7-g1a3-1.5b'],
+    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a3-2.9b', 'rwkv7-g1b-1.5b'],
     series: [
-        { name: 'IFEval (strict prompt-level)', type: 'bar', data: [0.678, 0.58, 0.51, 0.425] }
+        { name: 'IFEval (strict prompt-level)', type: 'bar', data: [0.689, 0.586, 0.508, 0.421] }
     ]
     },
     {
