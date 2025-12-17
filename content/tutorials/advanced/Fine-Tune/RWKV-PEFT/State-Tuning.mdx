@@ -56,6 +56,9 @@ State tuning 的显存需求可参考下表：
 
 要 state tuning 微调 RWKV 模型，需要使用收集适合训练 RWKV 的数据（jsonl 格式），具体方法可参考[准备微调数据集](../FT-Dataset)。
 
+以下示例使用的是角色扮演数据：
+![data-example](../imgs/data-example.png)
+
 ## 配置训练环境
 
 请参考[RWKV 微调环境配置](../FT-Environment)板块，配置 Conda 等训练环境。
@@ -212,11 +215,11 @@ python train.py --load_model $load_model \
 注意：挂载 state 文件时，必须使用训练此 state 文件的同款 RWKV 模型。
 </CallOut>
 
-举个例子：这个 state 文件是基于 `RWKV-6-World-3B-v2.1` 模型微调而来，那么你在 RWKV Runner 或 Ai00 等工具中必须启动 `RWKV-6-World-3B-v2.1` 模型，挂载的 state 文件才会生效。
+举个例子：这个 state 文件是基于 `RWKV7-G1b-1.5B` 模型微调而来，那么你在 RWKV Runner 或 Ai00 等工具中必须启动 `RWKV7-G1b-1.5B` 模型，挂载的 state 文件才会生效。
 
 ![state-file-usage](../imgs/state-file-usage.png)
 
-由于我们的示例数据基于大量 emoji 且 ctx 非常短，训练出来的 State 文件效果如下：
+我们的示例数据基于大量的角色扮演，训练出来的 State 文件具备一定的通用角色扮演能力：
 
 ![state-tuning-examples](../imgs/state-tuning-examples.png)
 
