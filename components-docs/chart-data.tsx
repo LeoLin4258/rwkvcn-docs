@@ -68,41 +68,93 @@ export const chartData = [
         ]
     },
     {
-    name: 'RWKV-7-MMLU-Benchmark',
-    model: ['rwkv7-g0b-13.3b','rwkv7-g0a3-7.2b','rwkv7-g1a4-2.9b','rwkv7-g1b-1.5b'],
-    series: [
-        { name: 'MMLU', type: 'bar', data: [0.765, 0.651, 0.613, 0.505] },
-        { name: 'MMLU COT', type: 'bar', data: [0.827, 0.723, 0.675, 0.542] }
-    ]
+      name: 'RWKV-7-MMLU-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'MMLU', type: 'bar', data: [0.765, 0.660, 0.622, 0.505] },
+          { name: 'MMLU COT', type: 'bar', data: [0.827, 0.731, 0.669, 0.542] }
+      ]
     },
     {
-    name: 'RWKV-7-MMLU-PRO-Benchmark',
-    model: ['rwkv7-g0b-13.3b','rwkv7-g0a3-7.2b','rwkv7-g1a4-2.9b','rwkv7-g1b-1.5b'],
-    series: [
-        { name: 'MMLU-PRO', type: 'bar', data: [0.502, 0.359, 0.324, 0.222] },
-        { name: 'MMLU-PRO COT', type: 'bar', data: [0.612, 0.521, 0.43, 0.292] }
-    ]
+      name: 'RWKV-7-MMLU-PRO-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'MMLU-PRO', type: 'bar', data: [0.502, 0.361, 0.322, 0.222] },
+          { name: 'MMLU-PRO COT', type: 'bar', data: [0.612, 0.526, 0.433, 0.292] }
+      ]
     },
     {
-    name: 'RWKV-7-GSM8K-Benchmark',
-    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1b-1.5b'],
-    series: [
-        { name: 'GSM8K', type: 'bar', data: [0.923, 0.839, 0.773, 0.585] }
-    ]
+      name: 'RWKV-7-MMLU-Variants-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'MMLU Redux', type: 'bar', data: [0.787, 0.685, 0.641, 0.529] },
+          { name: 'Redux COT', type: 'bar', data: [0.863, 0.772, 0.699, 0.569] },
+          { name: 'MMMLU', type: 'bar', data: [0.765, 0.660, 0.622, 0.505] },
+          { name: 'MMMLU COT', type: 'bar', data: [0.827, 0.731, 0.669, 0.541] }
+      ]
     },
     {
-    name: 'RWKV-7-MATH500-Benchmark',
-    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a4-2.9b', 'rwkv7-g1b-1.5b'],
-    series: [
-        { name: 'MATH500', type: 'bar', data: [0.768, 0.678, 0.482, 0.298] }
-    ]
+      name: 'RWKV-7-GSM8K-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'GSM8K COT', type: 'bar', data: [0.923, 0.851, 0.766, 0.585] }
+      ]
     },
     {
-    name: 'RWKV-7-IFEval-Benchmark',
-    model: ['rwkv7-g0b-13.3b', 'rwkv7-g0a3-7.2b', 'rwkv7-g1a3-2.9b', 'rwkv7-g1b-1.5b'],
-    series: [
-        { name: 'IFEval (strict prompt-level)', type: 'bar', data: [0.689, 0.586, 0.508, 0.421] }
-    ]
+      name: 'RWKV-7-MATH500-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'MATH500', type: 'bar', data: [0.768, 0.635, 0.495, 0.298] }
+      ]
+    },
+    {
+      name: 'RWKV-7-GeneralMath-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'Hendrycks Math', type: 'bar', data: [0.558, 0.488, 0.383, 0.246] },
+          { name: 'SVAMP', type: 'bar', data: [0.942, 0.926, 0.840, 0.683] },
+          { name: 'ASDiv', type: 'bar', data: [0.923, 0.905, 0.844, 0.735] },
+          { name: 'MAWPS', type: 'bar', data: [0.949, 0.924, 0.890, 0.813] },
+          { name: 'GSM+', type: 'bar', data: [0.767, 0.685, 0.575, 0.406] },
+          { name: 'Algebra 222', type: 'bar', data: [0.892, 0.856, 0.795, 0.658] },
+          { name: 'Math Odyssey', type: 'bar', data: [0.494, 0.401, 0.320, 0.202] }
+      ]
+    },
+    {
+      name: 'RWKV-7-IFEval-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'IFEval (strict prompt-level)', type: 'bar', data: [0.689, 0.579, 0.494, 0.421] }
+      ]
+    },
+    {
+      name: 'RWKV-7-GPQA-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'GPQA Main', type: 'bar', data: [0.379, 0.308, 0.333, 0.283] },
+          { name: 'GPQA Main COT', type: 'bar', data: [0.429, 0.317, 0.326, 0.279] },
+          { name: 'SuperGPQA', type: 'bar', data: [0.288, 0.220, 0.194, 0.158] }
+      ]
+    },
+    {
+      name: 'RWKV-7-Coding-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'HumanEval', type: 'bar', data: [0.817, 0.640, 0.537, 0.396] },
+          { name: 'HumanEval+', type: 'bar', data: [0.762, 0.604, 0.494, 0.348] },
+          { name: 'MBPP', type: 'bar', data: [0.820, 0.757, 0.627, 0.439] },
+          { name: 'MBPP+', type: 'bar', data: [0.706, 0.640, 0.550, 0.368] }
+      ]
+    },
+    {
+      name: 'RWKV-7-Chinese-Benchmark',
+      model: ['rwkv7-g0b-13.3b', 'rwkv7-g0b-7.2b', 'rwkv7-g1b-2.9b', 'rwkv7-g1b-1.5b'],
+      series: [
+          { name: 'C-Eval', type: 'bar', data: [0.640, 0.540, 0.496, 0.427] },
+          { name: 'C-Eval COT', type: 'bar', data: [0.674, 0.563, 0.513, 0.426] },
+          { name: 'CMMLU', type: 'bar', data: [0.667, 0.564, 0.523, 0.422] },
+          { name: 'CMMLU COT', type: 'bar', data: [0.689, 0.598, 0.556, 0.442] }
+      ]
     },
     {
         name: 'RULER-Datas',
