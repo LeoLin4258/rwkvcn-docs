@@ -2,6 +2,13 @@
 title: RWKV-LM 预训练教程
 description: 基于 RWKV-LM 的预训练方法
 keywords: [RWKV预训练教程, RWKV-LM预训练方法, RWKV预训练步骤, RWKV-LM预训练, RWKV-LM预训练模型]
+recommendedLinks:   
+  - title: RWKV 的架构变迁
+    link: /docs/RWKV-Wiki/RWKV-Architecture
+  - title: RWKV 的 benchmark 跑分
+    link: /docs/RWKV-Eval-Data/RWKV-Evals
+  - title: 如何调整 RWKV 的解码参数
+    link: /tutorials/basic/RWKV-Parameters
 ---
 import React from 'react';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
@@ -51,7 +58,7 @@ git clone https://github.com/RWKV-Vibe/RWKV-LM-V7.git
 # 或者国内镜像仓库
 git clone https://gitee.com/rwkv-vibe/RWKV-LM-V7.git
 ```
-无法克隆？复制并运行以下命令，下载 RWKV-LM-V7 仓库压缩包并解压：
+无法克隆？复制并依次运行以下命令，下载 RWKV-LM-V7 仓库压缩包并解压：
 
 ```bash
 wget -O rwkv.zip https://github.com/RWKV-Vibe/RWKV-LM-V7/archive/refs/heads/main.zip && \
@@ -278,6 +285,17 @@ python make_data.py demo.jsonl 30 4096
 | 2.9/3B       | 32   | 2560 | 
 | 7/7.2B       | 32   | 4096 | 
 | 13.3/14B      | 61   | 4096 |
+
+<CallOut type="warning">
+继续预训练 RWKV7-G1 模型时，请手动对齐 `src/model.py` 文件 [Line 126](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v7/train_temp/src/model.py#L126) 处的 LORA 维度，确保 LORA 维度与 RWKV 模型参数完全对齐。
+</CallOut>
+
+| | params | 0.1B | 0.4B | 1.5B | 2.9B | 7.2B | 13.3B |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **D_DECAY_LORA** | w | 64 | 64 | 96 | 96 | 128 | 192 |
+| **D_AAA_LORA** | a | 64 | 64 | 96 | 96 | 128 | 192 |
+| **D_MV_LORA** | v | 32 | 32 | 64 | 64 | 96 | 128 |
+| **D_GATE_LORA** | g | 128 | 128 | 256 | 320 | 480 | 384 |
 
 ## 附录[#appendix]
 
