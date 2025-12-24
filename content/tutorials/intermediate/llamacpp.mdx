@@ -2,6 +2,11 @@
 title: llama.cpp 推理教程
 description: 详细介绍如何使用llama.cpp推理RWKV模型。
 keywords: [llama.cpp RWKV推理, RWKV模型llamacpp推理, RWKV模型llamacpp推理教程, RWKV模型量化推理]
+recommendedLinks:   
+  - title: 下载 RWKV gguf 模型
+    link: https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a
+  - title: llama.cpp 推理教程
+    link: /tutorials/intermediate/RWKV-Inference/Ollama
 ---
 
 
@@ -61,7 +66,7 @@ llama.cpp 支持 `.gguf` 格式的模型，但 RWKV 官方仅发布了 `.pth` �
 
 <Tabs items={[' 直接下载 gguf 模型（推荐）', '从 pth 转换成 gguf']}>
   <Tab> 
-可以从 [RWKV-GGUF 合集](https://modelscope.cn/organization/RWKV?tab=collection) 下载 gguf 格式的 RWKV 模型。
+可以从 [RWKV-GGUF 合集](https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a) 下载 gguf 格式的 RWKV 模型。
 
 <CallOut type="info">
 请在 llama.cpp 目录下新建一个 models 文件夹，将下载的 gguf 模型放入 models 文件夹中。
