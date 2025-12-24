@@ -138,7 +138,6 @@ Uncheatable Eval 测试的结果是压缩率，因此其评分越低，意味着
 </Tabs>
 
 ## MMLU 测试[#mmlu-eval]
-
 <CallOut type="info">
 MMLU 测试（Massive Multitask Language Understanding）评估模型的多任务语言理解能力的基准测试。MMLU 涵盖了从初中到研究生水平的 57 个不同学科，包括数学、物理、历史、法律、生物学等，测试语言模型是否能够在不同领域内进行推理、回答问题和表现出跨学科的知识。
 </CallOut>
@@ -151,8 +150,8 @@ MMLU 测试（Massive Multitask Language Understanding）评估模型的多任�
     | Model | MMLU | MMLU COT |
     | --- | --- | --- |
     | **rwkv7-g0b-13.3b** | 0.765 | 0.827 |
-    | **rwkv7-g0a3-7.2b** | 0.651 | 0.723 |
-    | **rwkv7-g1a4-2.9b** | 0.613 | 0.675 |
+    | **rwkv7-g0b-7.2b** | 0.660 | 0.731 |
+    | **rwkv7-g1b-2.9b** | 0.622 | 0.669 |
     | **rwkv7-g1b-1.5b** | 0.505 | 0.542 |
    </Tab>
 </Tabs>
@@ -169,9 +168,27 @@ MMLU-Pro 是一个更稳健且更具挑战性的大规模多任务理解数据�
     | Model | MMLU-PRO | MMLU-PRO COT |
     | --- | --- | --- |
     | **rwkv7-g0b-13.3b** | 0.502 | 0.612 |
-    | **rwkv7-g0a3-7.2b** | 0.359 | 0.521 |
-    | **rwkv7-g1a4-2.9b** | 0.324 | 0.43 |
+    | **rwkv7-g0b-7.2b** | 0.361 | 0.526 |
+    | **rwkv7-g1b-2.9b** | 0.322 | 0.433 |
     | **rwkv7-g1b-1.5b** | 0.222 | 0.292 |
+   </Tab>
+</Tabs>
+
+## MMLU 变体测试[#mmlu-variants]
+<CallOut type="info">
+MMLU Redux 是 MMLU 的精简和修正版本，移除了部分错误标签；MMMLU (Multilingual MMLU) 则是多语言版本的测试。
+</CallOut>
+<Tabs items={[' 条形图 ', ' 原始数据 ']}>
+  <Tab> 
+      <LineChart name="RWKV-7-MMLU-Variants-Benchmark" seriesFilter="0,4"/>
+  </Tab>
+  <Tab> 
+    | Model | MMLU Redux | Redux COT | MMMLU | MMMLU COT |
+    | --- | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.787 | 0.863 | 0.765 | 0.827 |
+    | **rwkv7-g0b-7.2b** | 0.685 | 0.772 | 0.660 | 0.731 |
+    | **rwkv7-g1b-2.9b** | 0.641 | 0.699 | 0.622 | 0.669 |
+    | **rwkv7-g1b-1.5b** | 0.529 | 0.569 | 0.505 | 0.541 |
    </Tab>
 </Tabs>
 
@@ -184,11 +201,11 @@ GSM8K (Grade School Math 8K) 是一个包含 8500 道高质量、语言表达多
       <LineChart name="RWKV-7-GSM8K-Benchmark" seriesFilter="0,1"/>
   </Tab>
   <Tab> 
-    | Model | GSM8K |
+    | Model | GSM8K COT |
     | --- | --- |
     | **rwkv7-g0b-13.3b** | 0.923 |
-    | **rwkv7-g0a3-7.2b** | 0.839 |
-    | **rwkv7-g1a4-2.9b** | 0.773 |
+    | **rwkv7-g0b-7.2b** | 0.851 |
+    | **rwkv7-g1b-2.9b** | 0.766 |
     | **rwkv7-g1b-1.5b** | 0.585 |
    </Tab>
 </Tabs>
@@ -203,14 +220,86 @@ MATH-500 是衡量 AI 模型数学推理能力的权威基准测试，包含 500
       <LineChart name="RWKV-7-MATH500-Benchmark" seriesFilter="0,1"/>
   </Tab>
   <Tab> 
-    | Model | MATH500 |
+    | Model | MATH500 COT |
     | --- | --- |
     | **rwkv7-g0b-13.3b** | 0.768 |
-    | **rwkv7-g0a3-7.2b** | 0.678 |
-    | **rwkv7-g1a4-2.9b** | 0.482 |
+    | **rwkv7-g0b-7.2b** | 0.635 |
+    | **rwkv7-g1b-2.9b** | 0.495 |
     | **rwkv7-g1b-1.5b** | 0.298 |
    </Tab>
 </Tabs>
+
+## 通用数学与推理测试[#general-math]
+<CallOut type="info">
+包含 Hendrycks Math, SVAMP, ASDiv, MAWPS 等数据集，以及 Algebra 222 和 Math Odyssey。涵盖了从基础算术、代数到几何等多种类型的数学问题，重点考察模型的思维链（CoT）能力。
+</CallOut>
+<Tabs items={[' 条形图 ', ' 原始数据 ']}>
+  <Tab> 
+      <LineChart name="RWKV-7-GeneralMath-Benchmark" seriesFilter="0,6"/>
+  </Tab>
+  <Tab> 
+    | Model | Hendrycks Math | SVAMP | ASDiv | MAWPS |
+    | --- | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.558 | 0.942 | 0.923 | 0.949 |
+    | **rwkv7-g0b-7.2b** | 0.488 | 0.926 | 0.905 | 0.924 |
+    | **rwkv7-g1b-2.9b** | 0.383 | 0.840 | 0.844 | 0.890 |
+    | **rwkv7-g1b-1.5b** | 0.246 | 0.683 | 0.735 | 0.813 |
+
+    | Model | GSM+ | Algebra 222 | Math Odyssey |
+    | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.767 | 0.892 | 0.494 |
+    | **rwkv7-g0b-7.2b** | 0.685 | 0.856 | 0.401 |
+    | **rwkv7-g1b-2.9b** | 0.575 | 0.795 | 0.320 |
+    | **rwkv7-g1b-1.5b** | 0.406 | 0.658 | 0.202 |
+   </Tab>
+</Tabs>
+
+## 代码生成能力测试[#coding-eval]
+<CallOut type="info">
+包含 HumanEval 和 MBPP (Mostly Basic Python Problems) 及其扩展版本。这些测试评估模型将自然语言描述转换为可执行代码的能力，涵盖了基础编程逻辑到复杂算法实现。
+</CallOut>
+<Tabs items={[' 条形图 ', ' 原始数据 ']}>
+  <Tab> 
+      <LineChart name="RWKV-7-Coding-Benchmark" seriesFilter="0,4"/>
+  </Tab>
+  <Tab> 
+    | Model | HumanEval | HumanEval+ | MBPP | MBPP+ |
+    | --- | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.817 | 0.762 | 0.820 | 0.706 |
+    | **rwkv7-g0b-7.2b** | 0.640 | 0.604 | 0.757 | 0.640 |
+    | **rwkv7-g1b-2.9b** | 0.537 | 0.494 | 0.627 | 0.550 |
+    | **rwkv7-g1b-1.5b** | 0.396 | 0.348 | 0.439 | 0.368 |
+   </Tab>
+</Tabs>
+<CallOut type="warning">
+HumanEval Fix / CN 补充数据：
+*   **rwkv7-g0b-13.3b**: Fix 0.823 / CN 0.799
+*   **rwkv7-g0b-7.2b**: Fix 0.585 / CN 0.659
+*   **rwkv7-g1b-2.9b**: Fix 0.524 / CN 0.524
+*   **rwkv7-g1b-1.5b**: Fix 0.323 / CN 0.390
+</CallOut>
+
+## 中文综合能力测试[#chinese-eval]
+<CallOut type="info">
+C-Eval 和 CMMLU 是针对中文大模型的综合性能力评测基准，涵盖了人文、社科、理工等多个学科，考察模型在中文语境下的知识和推理能力。
+</CallOut>
+<Tabs items={[' 条形图 ', ' 原始数据 ']}>
+  <Tab> 
+      <LineChart name="RWKV-7-Chinese-Benchmark" seriesFilter="0,4"/>
+  </Tab>
+  <Tab> 
+    | Model | C-Eval | C-Eval COT | CMMLU | CMMLU COT |
+    | --- | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.640 | 0.674 | 0.667 | 0.689 |
+    | **rwkv7-g0b-7.2b** | 0.540 | 0.563 | 0.564 | 0.598 |
+    | **rwkv7-g1b-2.9b** | 0.496 | 0.513 | 0.523 | 0.556 |
+    | **rwkv7-g1b-1.5b** | 0.427 | 0.426 | 0.422 | 0.442 |
+   </Tab>
+</Tabs>
+<CallOut type="warning">
+**Gaokao 2023 English COT** (高考英语):
+13.3b: 0.665 | 7.2b: 0.535 | 2.9b: 0.447 | 1.5b: 0.273
+</CallOut>
 
 ## IFEval [#ifeval-eval]
 <CallOut type="info">
@@ -224,8 +313,26 @@ IFEval（Instruction-Following Evaluation）是一个专门用于评估大模型
     | Model | IFEval (strict prompt-level) |
     | --- | --- |
     | **rwkv7-g0b-13.3b** | 0.689 |
-    | **rwkv7-g0a3-7.2b** | 0.58 |
-    | **rwkv7-g1a3-2.9b** | 0.51 |
+    | **rwkv7-g0b-7.2b** | 0.579 |
+    | **rwkv7-g1b-2.9b** | 0.494 |
     | **rwkv7-g1b-1.5b** | 0.421 |
+   </Tab>
+</Tabs>
+
+## GPQA 测试[#gpqa-eval]
+<CallOut type="info">
+GPQA (Graduate-Level Google-Proof Q&A Benchmark) 是一个极具挑战性的问答数据集，包含生物、物理和化学领域的研究生水平问题。这些问题设计为"Google-Proof"，即通过简单的搜索引擎查询很难找到直接答案。
+</CallOut>
+<Tabs items={[' 条形图 ', ' 原始数据 ']}>
+  <Tab> 
+      <LineChart name="RWKV-7-GPQA-Benchmark" seriesFilter="0,2"/>
+  </Tab>
+  <Tab> 
+    | Model | GPQA Main | GPQA Main COT | SuperGPQA |
+    | --- | --- | --- | --- |
+    | **rwkv7-g0b-13.3b** | 0.379 | 0.429 | 0.288 |
+    | **rwkv7-g0b-7.2b** | 0.308 | 0.317 | 0.220 |
+    | **rwkv7-g1b-2.9b** | 0.333 | 0.326 | 0.194 |
+    | **rwkv7-g1b-1.5b** | 0.283 | 0.279 | 0.158 |
    </Tab>
 </Tabs>
