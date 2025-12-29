@@ -5,10 +5,230 @@ keywords: [RWKV pip使用指南, RWKV pip开发应用, RWKV pip API_DEMO_CHAT.py
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-以下内容将指引你**使用 [RWKV pip 库](https://pypi.org/project/rwkv/)开发基于 RWKV 模型的应用**。
+以下内容将通过两份**推理示例代码**，指引你**使用 [RWKV pip 库](https://pypi.org/project/rwkv/)**。RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/ChatRWKV)** 仓库中找到。
 
-RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/ChatRWKV)** 仓库中找到。
+## 带 CUDA Graph 的加速推理代码
 
+以下是 RWKV 模型的两种推理模式：**常规模式（Slow）** 和 **带 CUDA Graph 的加速模式（Fast/CUDA Graph）**，后者通过消除 Python 调用开销实现极高的 Token 生成速度。
+
+### 1. 环境设置与依赖导入
+
+```python
+import os, time
+import numpy as np
+import torch
+
+# 环境变量设置：必须在导入 rwkv 库之前设置
+os.environ["RWKV_V7_ON"] = '1'       # 显式开启 RWKV-v7 模型支持（如果你用的是 v6 模型，请注释掉或设为 0）
+os.environ['RWKV_JIT_ON'] = '1'      # 开启 JIT (Just-In-Time) 编译，加速算子加载
+os.environ["RWKV_CUDA_ON"] = '1'     # 开启 CUDA 自定义算子（需系统安装了 CUDA 编译器，速度显著提升）
+
+from rwkv.model import RWKV
+from rwkv.utils import PIPELINE
+```
+
+<CallOut type="warning">
+**注意：** `RWKV_V7_ON` 仅适用于 RWKV-v7 架构的模型。如果加载的是 v6 或 v5 模型，请务必将其关闭或删除。
+
+此外，`RWKV_CUDA_ON='1'` 需要你的环境中配置好了 `nvcc` 编译器（通常包含在 CUDA Toolkit 中），否则会回退到较慢的 PyTorch 原生实现或报错。
+</CallOut>
+
+这里设置了运行 RWKV 所需的核心环境变量，并导入了必要的库。
+
+
+
+### 2. 模型加载与参数配置
+
+```python
+# 初始化模型
+# strategy='cuda fp16': 使用 GPU (cuda) 进行计算，精度为 fp16
+model = RWKV(model='/mnt/e/RWKV-Runner/models/rwkv7-g1a-0.1b-20250728-ctx4096', strategy='cuda fp16')
+
+# 初始化 Pipeline
+# 用于将文本转换为 token id (encode) 以及将 token id 转换回文本 (decode)
+pipeline = PIPELINE(model, "rwkv_vocab_v20230424")
+
+# 生成参数设置
+LENGTH_PER_TRIAL = 256  # 每次生成的 token 长度
+TEMPERATURE = 1.0       # 温度：越高越随机，越低越确定
+TOP_P = 0.0             # Nucleus 采样：0.0 通常意味着贪婪采样（或由库的具体实现决定，RWKV中 0 通常指argmax）
+
+# 提示词 (Prompt)
+prompt = "User: simulate SpaceX mars landing using python\n\nAssistant: <think"
+```
+
+这一部分加载了具体的模型权重文件，并设定了生成任务的“超参数”。
+
+`strategy='cuda fp16'` 是最推荐的配置，如果你显存不足，可以尝试 `cuda fp16i8`（Int8 量化）。更多配置选项请参考 [RWKV pip 库的推理精度与显存需求](#RWKV-pip-strategy-and-vram-requirements)。
+
+### 3. 常规推理 (Slow Inference)
+
+```python
+print('='*80 + '\nSlow inference\n' + '='*80)
+print(prompt, end="")
+
+all_tokens = []
+out_last = 0
+
+# 1. 预处理 Prompt (Prefill)
+# 将提示词编码并输入模型，获取初始的 logits (out) 和状态 (state)
+# state 包含了对 prompt 的所有记忆
+out, state = model.forward(pipeline.encode(prompt), None)
+
+times = []
+all_times = []
+t000 = time.perf_counter()
+
+# 2. Token 生成循环
+for i in range(LENGTH_PER_TRIAL):
+    t00 = time.perf_counter()
+    
+    # 采样：根据模型输出的 logits 选择下一个 token
+    token = pipeline.sample_logits(out, temperature=TEMPERATURE, top_p=TOP_P)
+    all_tokens += [token]
+
+    # 解码并打印：将生成的 token 实时转回文本显示
+    tmp = pipeline.decode(all_tokens[out_last:])
+    if '\ufffd' not in tmp: # 过滤掉无效的 UTF-8 字符（通常是多字节字符未接收完整时出现）
+        print(tmp, end="", flush=True) 
+        out_last = i+1    
+
+    torch.cuda.synchronize() # 等待 GPU 完成上述操作，确保计时准确
+    t0 = time.perf_counter()
+
+    # 模型前向传播 (Forward)
+    # 将选出的 token 和上一步的 state 输入模型，计算下一个 token 的概率
+    out, state = model.forward(token, state)
+
+    torch.cuda.synchronize()
+    t1 = time.perf_counter()
+    
+    # 记录时间
+    times.append(t1 - t0)       # 纯模型计算时间
+    all_times.append(t1 - t00)  # 包含采样和 Python 逻辑的总时间
+
+# 计算并打印速度统计
+times = np.percentile(times, 50)      # 取中位数
+all_times = np.percentile(all_times, 50)
+print(f'\n\nToken/s = {round(1/times,2)} (forward), {round(1/all_times,2)} (full)')
+```
+
+这是标准的 PyTorch 逐个 Token 生成流程。
+
+<CallOut type="info">
+**为什么叫 Slow？**
+
+在 Python 中，`for` 循环每一次 `model.forward(token, state)` 都会发起一次从 CPU 到 GPU 的内核启动调用。对于小模型或快速 GPU，Python 发起调用的时间开销（Overhead）可能比 GPU 实际计算的时间还要长。
+</CallOut>
+
+
+### 4. 准备快速推理：CUDA Graph 录制
+
+```python
+print('='*80 + '\nFast inference (CUDAGraph, requires rwkv pip pkg v0.8.31+)\n' + '='*80)
+print(prompt, end="")
+
+all_tokens = []
+out_last = 0
+
+# 重置状态，获取一个全零的初始状态结构
+state = model.generate_zero_state()
+
+#  关键步骤：分配静态显存 (Static Memory) 
+# CUDA Graph 要求输入和输出的内存地址必须固定，不能变动。
+
+# 1. 静态输入 Tensor (存放当前 Token 的 Embedding)
+static_input = torch.empty((model.n_embd), device="cuda", dtype=torch.half)
+
+# 2. 静态状态 Tensor (存放 RNN 隐状态)
+# 需要两组：in 用于输入上一刻状态，out 用于输出当前刻状态
+static_state_in = [torch.empty_like(x, device="cuda") for x in state]
+static_state_out = [torch.empty_like(x, device="cuda") for x in state]
+
+# 3. 静态输出 Tensor (存放预测下一个词的 Logits)
+static_output = torch.empty((model.args.vocab_size), device="cuda", dtype=torch.half)
+
+#  关键步骤：录制图 (Graph Capture) 
+g = torch.cuda.CUDAGraph()
+with torch.cuda.graph(g):
+    # 在这个上下文管理器中，执行一次特殊的 forward 操作。
+    # GPU 不会真的计算数据，而是"记住"了所有的计算步骤和依赖关系。
+    # model.forward_one_alt 是专门为 CUDAGraph 优化的单步前向函数
+    static_output, static_state_out = model.forward_one_alt(static_input, static_state_in)
+```
+
+<CallOut type="info">
+**核心原理：**
+CUDA Graph 将一系列 GPU 操作打包成一个单一的“超级操作”。运行时，只需向预先分配好的 `static_` 内存中填入数据，然后告诉 GPU Replay 这个图即可。这个过程绕过了 Python 对每一层算子的调度开销。
+</CallOut>
+
+### 5. 执行快速推理：Graph Replay
+
+```python
+# 1. 预处理 Prompt (Prefill)
+# Prompt 处理阶段无法使用 CUDAGraph（因为长度不固定），所以使用常规 forward
+out, state = model.forward(pipeline.encode(prompt), state)
+
+# 2. 将 Prompt 计算后的状态复制到静态内存中，为 Graph 运行做准备
+for i in range(len(state)):
+    static_state_in[i].copy_(state[i])
+    
+# 将初始输出也复制进去（虽然如果是 greedy decoding 可能只用 state 就够，但保持一致性）
+static_output.copy_(out)
+
+times = []
+all_times = []
+t000 = time.perf_counter()
+
+# 3. 快速生成循环
+for i in range(LENGTH_PER_TRIAL):
+    t00 = time.perf_counter()
+    
+    # 采样 (Sample) - 注意：这里直接从 static_output 读取数据
+    token = pipeline.sample_logits(static_output, temperature=TEMPERATURE, top_p=TOP_P)
+    all_tokens += [token]
+
+    # 解码打印 (Decode)
+    tmp = pipeline.decode(all_tokens[out_last:])
+    if '\ufffd' not in tmp:
+        print(tmp, end="", flush=True)
+        out_last = i+1
+
+    torch.cuda.synchronize()
+    t0 = time.perf_counter()
+
+    #  核心加速步骤 
+    
+    # A. 填充输入：直接从 Embedding 表中取出对应的向量，填入 static_input
+    # 注意：这里我们不传 token id，而是直接传向量，减少图内部的查表开销
+    static_input.copy_(model.z['emb.weight'][token])
+    
+    # B. 回放图：一键执行整个模型的前向计算
+    g.replay()
+    
+    # C. 更新状态：将输出状态 (out) 复制回 输入状态 (in)，形成 RNN 的循环
+    # 这样下一次 replay 时，使用的就是更新后的状态了
+    for n in range(len(state)):
+        static_state_in[n].copy_(static_state_out[n])
+    
+    # --
+    
+    torch.cuda.synchronize()
+    t1 = time.perf_counter()
+    times.append(t1 - t0)
+    all_times.append(t1 - t00)
+
+# 打印统计
+times = np.percentile(times, 50)
+all_times = np.percentile(all_times, 50)
+print(f'\n\nToken/s = {round(1/times,2)} (forward), {round(1/all_times,2)} (full) (note: very inefficient sample_logits)')
+```
+
+这一段展示了如何利用录制好的图进行推理。
+*   **`g.replay()`**: 替代了 `model.forward()`。
+*   **显存拷贝 ( `.copy_` )**: 看起来是额外操作，但在 GPU 内部（D2D copy）极快，远小于 Python 调用函数的开销。
+
+这种方法使小参数量模型（如 0.1B, 0.4B, 1.5B）获得 **2 到 5 倍**推理速度提升，对于大模型的提升幅度会减小，因为大模型的主要瓶颈在于计算而非调度。
 
 ## API_DEMO_CHAT.py 详解
 
@@ -17,6 +237,8 @@ RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/Cha
 
 下文将以详细的注释，分段介绍这个聊天机器人 DEMO 的代码设计。
 </CallOut>
+
+### 1. 环境设置与依赖导入
 
 ```python
 ########################################################################################################
@@ -34,8 +256,6 @@ import torch  # 导入 pytorch 库
 - torch 版本最低 1.13 ，推荐 2.x+cu121
 - 需要先 `pip install rwkv`
 
----
-
 ```python
 # 优化 PyTorch 设置，允许使用 tf32 
 torch.backends.cudnn.benchmark = True
@@ -51,7 +271,7 @@ os.environ["RWKV_CUDA_ON"] = "0"  # 禁用原生 CUDA 算子，改成 '1
 </CallOut>
 这里是一些加快推理速度的 torch 设置和操作环境的优化项。
 
----
+### 2. 加载模型与设置参数
 
 ```python
 from rwkv.model import RWKV  # 从 RWKV 模型库中导入 RWKV 类，用于加载和操作 RWKV 模型。
@@ -65,29 +285,9 @@ args.MODEL_NAME = "E://RWKV-Runner//models//rwkv-final-v6-2.1-1b6"  # 指定 RWK
 
 这一段引入了 RWKV 工具包中的两个工具类 RWKV 和 PIPELINE ，同时指定了加载 RWKV 模型的**设备**和**精度**，以及 RWKV 模型的本地文件路径。
 
-`args.strategy` 会影响模型的生成效果和生成速度，chatRWKV 支持下表中的 strategy:
+`args.strategy` 会影响模型的生成效果和生成速度，`cuda fp16` 是最推荐的配置。
 
-
-<CallOut type="info">
-下表中 ，`fp16i8` 指在 fp16 精度基础上进行 int8 量化。
-
-量化可以减少 VRAM 需求，但在精度上略逊于 fp16。因此只要 VRAM 够用，尽量使用 fp16 层。
-</CallOut>
-
-
-| 策略                                | VRAM & RAM                        | 速度                                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **cpu fp32**                        |  7B 模型需要 32GB 内存             | 使用 CPU fp32 精度加载模型，适合 Intel。对 AMD 非常慢，因为 pytorch 的 cpu gemv 在 AMD 上有问题，并且只会运行在一个单核上。                                                                                                                                                                                                                         |
-| **cpu bf16**                        | 7B 模型需要 16GB 内存             | 使用 CPU bf16 精度加载模型。在支持 bfloat16 的新 Intel CPU（如 Xeon Platinum）上速度较快。                                                                                                                                                                                                                                                                   |
-| **cpu fp32i8**                      | 7B 模型需要 12GB 内存             | 使用 CPU int8 量化精度加载模型。速度较慢（比 cpu fp32 更慢）。                                                                                                                                                                                                                                                                                                   |
-| **cuda fp16**                       | 7B 模型需要 15GB VRAM             | 使用 fp16 精度加载模型所有层，速度最快，但对显存（VRAM）的需求也最高。                                                                                                                                                                                                                                       |
-| **cuda fp16i8**                     | 7B 模型需要 9GB VRAM              | 使用 int8 量化模型所有层，速度较快。如果设置 `os.environ["RWKV_CUDA_ON"] = '1'` 来编译 CUDA 内核，可减少 1~2GB VRAM 使用。                                                                                                                                                                                                                     |
-| **cuda fp16i8 \*20 -> cuda fp16**   | VRAM 占用介于 fp16 和 fp16i8 之间 | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8，其余层使用 fp16 加载。  如果量化后还有较多 VRAM ，则酌情减少 fp16i8 层数（减少 20）。  如果 VRAM 不足则继续增加 fp16i8 量化层数  |
-| **cuda fp16i8 \*20+**               | 比 fp16i8 使用更少 VRAM           | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8 并固定在 GPU 上，其他层按需动态加载（未固定的层加载速度会慢 3 倍，但节省 VRAM）。  如果 VRAM 不足，减少固定层数（`*20`）。  如果 VRAM 充足，增加固定层数。                                                                                                                                           |
-| **cuda fp16i8 \*20 -> cpu fp32**    | 比 fp16i8 使用更少 VRAM，但消耗更多内存          | 将模型的前 20 层（`*20`）量化为 fp16i8 并固定在 GPU 上，其他层使用 CPU fp32 加载。当 CPU 性能比较强时，此策略比上一个策略（只在 GPU 上固定 20 层）更快。  如果加载 20 层还有剩余 VRAM ，则继续增加 GPU 层数。  如果没有足够 VRAM，减少 GPU 层数。                                                                                                                           |
-| **cuda:0 fp16 \*20 -> cuda:1 fp16** | 使用双卡驱动模型                  | 使用 cuda:0（卡1） fp16 加载模型的前 20 层，然后使用 cuda:1（卡2） fp16 加载剩余的层（自动计算剩余层数）。  建议在最快的 GPU 上运行更多层。  如果某张卡的 VRAM 不够，可以将 fp16 换成 fp16i8 （int8 量化）。                                                                                                                            |
-
----
+如果你显存不足，可以尝试 `cuda fp16i8`（Int8 量化）。更多配置选项请参考 [RWKV pip 库的推理精度与显存需求](#RWKV-pip-strategy-and-vram-requirements)。
 
 ```python
 # STATE_NAME = None # 不使用 State
@@ -102,10 +302,6 @@ State 是 RWKV 这类 RNN 模型特有的状态。通过搭载自定义的 State
 
 RWKV State 的介绍和用法可以参照 [State 文件介绍和用法](https://rwkv.cn/news/read?id=343)文章。
 </CallOut>
-
->
-
----
  
 ```python
 # 设置模型的解码参数
@@ -133,7 +329,7 @@ CHUNK_LEN = 256  # 对输入进行分块处理
 
 `CHUNK_LEN` 将输入文本切分成指定大小的块。这个数值越大，模型**并行处理的文本越多**，但**使用的显存也更多**。在显存不足时建议调整到 128 或者 64。
 
----
+### 3. 初始化和 prefill 阶段
 
 ```python
 print(f"Loading model - {args.MODEL_NAME}")# 打印模型的加载消息
@@ -143,8 +339,6 @@ pipeline = PIPELINE(model, "rwkv_vocab_v20230424")  # 初始化 PIPELINE ，使�
 这一段开始使用前面设置的 **strategy** 和**解码参数**加载 RWKV 模型。
 
 如果你希望模型加载完后也有提示，可以在这一段末尾插入：`print(f"{args.MODEL_NAME} - 模型加载完毕")`
-
----
 
 ```python
 model_tokens = []
@@ -169,8 +363,6 @@ if STATE_NAME != None:
 这一段代码用于加载自定义的 State 文件，将其写入模型的初始化 State 中。
 
 通常无需修改这部分代码。
-
----
 
 ```python
 def run_rnn(ctx):
@@ -203,8 +395,6 @@ def run_rnn(ctx):
 
 要将 `out` 转换为实际的 token 或文本，需要通过采样（例如后文中的 `pipeline.sample_logits` 函数）预测下一个 **token** ，再从 token decode 成**文本**。
 
-
----
 ```python
 # 如果没有加载自定义 State ，则使用初始提示进行对话
 if STATE_NAME == None:
@@ -215,7 +405,7 @@ if STATE_NAME == None:
 ```
 如果未加载任何 State 文件，则使用一段**默认的对话文本**进行 prefill 。
 
----
+### 4. 推理阶段
 
 ```python
 # 从用户输入中读取消息、循环生成下一个 token 
@@ -272,7 +462,26 @@ while True:
     - 应用惩罚衰减参数（penalty_decay）调整 token 生成的概率
     - 把已经生成的 token 列表解码（decode）成字符文本
     - 实时输出解码得到的字符文本，判断文本里面有没有 \n\n 停止词。如果出现停止词，则退出本轮推理。
-    
----
 
 从推理过程可以看出，模型在每个时间步都更新隐藏状态（State），并利用当前的隐藏状态来生成下一个时间步的输出。这符合 RNN 的核心特性： **模型的每次输出依赖于前一步的生成结果**。
+
+## RWKV pip 库的推理精度与显存需求[#RWKV-pip-strategy-and-vram-requirements]
+
+<CallOut type="info">
+下表中 ，`fp16i8` 指在 fp16 精度基础上进行 int8 量化。
+
+量化可以减少 VRAM 需求，但在精度上略逊于 fp16。因此只要 VRAM 够用，尽量使用 fp16 层。
+</CallOut>
+
+
+| 策略                                | VRAM & RAM                        | 速度                                                                                                                                                                                                                                                                                                                       |
+| -- |  | -- |
+| **cpu fp32**                        |  7B 模型需要 32GB 内存             | 使用 CPU fp32 精度加载模型，适合 Intel。对 AMD 非常慢，因为 pytorch 的 cpu gemv 在 AMD 上有问题，并且只会运行在一个单核上。                                                                                                                                                                                                                         |
+| **cpu bf16**                        | 7B 模型需要 16GB 内存             | 使用 CPU bf16 精度加载模型。在支持 bfloat16 的新 Intel CPU（如 Xeon Platinum）上速度较快。                                                                                                                                                                                                                                                                   |
+| **cpu fp32i8**                      | 7B 模型需要 12GB 内存             | 使用 CPU int8 量化精度加载模型。速度较慢（比 cpu fp32 更慢）。                                                                                                                                                                                                                                                                                                   |
+| **cuda fp16**                       | 7B 模型需要 15GB VRAM             | 使用 fp16 精度加载模型所有层，速度最快，但对显存（VRAM）的需求也最高。                                                                                                                                                                                                                                       |
+| **cuda fp16i8**                     | 7B 模型需要 9GB VRAM              | 使用 int8 量化模型所有层，速度较快。如果设置 `os.environ["RWKV_CUDA_ON"] = '1'` 来编译 CUDA 内核，可减少 1~2GB VRAM 使用。                                                                                                                                                                                                                     |
+| **cuda fp16i8 \*20 -> cuda fp16**   | VRAM 占用介于 fp16 和 fp16i8 之间 | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8，其余层使用 fp16 加载。  如果量化后还有较多 VRAM ，则酌情减少 fp16i8 层数（减少 20）。  如果 VRAM 不足则继续增加 fp16i8 量化层数  |
+| **cuda fp16i8 \*20+**               | 比 fp16i8 使用更少 VRAM           | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8 并固定在 GPU 上，其他层按需动态加载（未固定的层加载速度会慢 3 倍，但节省 VRAM）。  如果 VRAM 不足，减少固定层数（`*20`）。  如果 VRAM 充足，增加固定层数。                                                                                                                                           |
+| **cuda fp16i8 \*20 -> cpu fp32**    | 比 fp16i8 使用更少 VRAM，但消耗更多内存          | 将模型的前 20 层（`*20`）量化为 fp16i8 并固定在 GPU 上，其他层使用 CPU fp32 加载。当 CPU 性能比较强时，此策略比上一个策略（只在 GPU 上固定 20 层）更快。  如果加载 20 层还有剩余 VRAM ，则继续增加 GPU 层数。  如果没有足够 VRAM，减少 GPU 层数。                                                                                                                           |
+| **cuda:0 fp16 \*20 -> cuda:1 fp16** | 使用双卡驱动模型                  | 使用 cuda:0（卡1） fp16 加载模型的前 20 层，然后使用 cuda:1（卡2） fp16 加载剩余的层（自动计算剩余层数）。  建议在最快的 GPU 上运行更多层。  如果某张卡的 VRAM 不够，可以将 fp16 换成 fp16i8 （int8 量化）。                                                                                                                            |

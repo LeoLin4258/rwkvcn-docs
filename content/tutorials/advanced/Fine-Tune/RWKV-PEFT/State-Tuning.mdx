@@ -22,6 +22,22 @@ RWKV 是纯 RNN，因此可以做 transformer 难以做到的事情。例如，�
   <Card  title="RWKV-7-G1 通用角色扮演 State" href="https://modelscope.cn/models/shoumenchougou/RWKV7_G1_RolePlay_State" /> 
 </Cards>
 
+## 视频教程
+
+<div className="iframe-container">
+ <iframe 
+ src="https://player.bilibili.com/player.html?isOutside=true&aid=115744855557576&bvid=BV18sqdBPE3e&cid=34837695336&high_quality=1&autoplay=0"
+ scrolling="no"
+ frameBorder="0"
+ allowFullScreen={true}
+ sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+>
+</iframe>
+</div>
+<CallOut type="info">
+高画质视频请[跳转到 B 站](https://www.bilibili.com/video/BV18sqdBPE3e/)观看。
+</CallOut>
+
 ## State tuning 的显存需求[#vram-of-state-tuning]
 
 State tuning 的显存需求可参考下表：
@@ -127,7 +143,7 @@ pip install -r requirements.txt
 下面列出了脚本中其他可修改的训练参数，及其修改的效果。
 
 <CallOut type="warning">
-注意：微调 state 时，建议 `--lr_init 1e-2` 、`--lr_final 1e-4` ，以及尽可能短的 ctxlen 。
+注意：微调 state 时，建议 `--lr_init 1e-3` 、`--lr_final 1e-5` ，以及尽可能短的 ctxlen 。
 </CallOut>
 
 | 参数 | 描述 |
@@ -136,8 +152,8 @@ pip install -r requirements.txt
 | `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
 | `--epoch_count 5` | 总训练轮次，可根据效果调整 |
 | `--pre_ffn 0` | 用 ffn 替换第一个 att 层，有时可能有益 |
-| `--lr_init 1e-2` | 初始学习率，state tuning 建议为 `1e-2`，其他微调建议不超过 `1e-4` |
-| `--lr_final 1e-4` | 最终学习率，state tuning 建议为 `1e-4`，其他微调建议不超过 `1e-4`  |
+| `--lr_init 1e-3` | 初始学习率，state tuning 建议为 `1e-3`，其他微调建议不超过 `1e-4` |
+| `--lr_final 1e-5` | 最终学习率，state tuning 建议为 `1e-5`，其他微调建议不超过 `1e-4`  |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`， `cpu` 基本不支持训练 |
 | `--devices 1` | 单显卡填 `1`，多卡按实际数量填写 |
 | `--precision bf16` | 训练精度，默认为 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
