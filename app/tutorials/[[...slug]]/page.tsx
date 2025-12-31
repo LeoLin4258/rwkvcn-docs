@@ -1,44 +1,40 @@
-import { source } from '@/lib/tutorials-source';
-import { DocsPage, DocsBody, DocsTitle } from 'fumadocs-ui/page';
+import { getPageImage, sourceTutorials } from '@/lib/source-tutorials';
+import {
+  DocsBody,
+  DocsPage,
+  DocsTitle,
+} from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
-import defaultMdxComponents, { createRelativeLink } from 'fumadocs-ui/mdx';
-import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
-import DocsFooter from 'components-docs/ui/footer';
-import RecomandLink from 'components-docs/ui/recomand-link';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { getMDXComponents } from '@/mdx-components';
+import type { Metadata } from 'next';
+import { createRelativeLink } from 'fumadocs-ui/mdx';
+import DocsFooter from '@/components-docs/ui/footer';
 
-export default async function Page(props: {
-  params: Promise<{ slug?: string[] }>;
-}) {
+export default async function Page(props: PageProps<'/tutorials/[[...slug]]'>) {
   const params = await props.params;
-  const page = source.getPage(params.slug);
+  const page = sourceTutorials.getPage(params.slug);
   if (!page) notFound();
 
-  const MDXContent = page.data.body;
+  const MDX = page.data.body;
 
   return (
-    <DocsPage
-      toc={page.data.toc}
+    <DocsPage 
+      toc={page.data.toc} 
       full={page.data.full}
-      tableOfContent={{
-        footer: <RecomandLink links={page.data.recommendedLinks} />,
-      }}
       footer={
         {
           enabled: true,
-          component: (<DocsFooter filePath={`tutorials/${page.file.path}`} />)
+          component: (<DocsFooter filePath={`tutorials/${page.path}`} />)
         }
       }
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsBody>
-        <MDXContent
-          components={{
-            ...defaultMdxComponents,
-            a: createRelativeLink(source, page),
-            img: (props) => <ImageZoom {...(props as any)} />,
-          }}
+        <MDX
+          components={getMDXComponents({
+            // this allows you to link to other pages with relative file paths
+            a: createRelativeLink(sourceTutorials, page),
+          })}
         />
       </DocsBody>
     </DocsPage>
@@ -46,42 +42,5 @@ export default async function Page(props: {
 }
 
 export async function generateStaticParams() {
-  return [];
+  return sourceTutorials.generateParams();
 }
-
-export async function generateMetadata(props: {
-  params: Promise<{ slug?: string[] }>;
-}) {
-  const params = await props.params;
-  const page = source.getPage(params.slug);
-  if (!page) return {};
-
-  let title = page.data.title;
-
-  // For nested pages (depth >= 2), include parent section title in page title
-  if (params.slug && params.slug.length >= 2) {
-    try {
-      const parentSlug = params.slug.slice(0, -1);
-      const metaPath = join(process.cwd(), 'content', 'tutorials', ...parentSlug, 'meta.json');
-      const metaContent = readFileSync(metaPath, 'utf-8');
-      const meta = JSON.parse(metaContent);
-
-      // Append parent title: "Page Title | Parent Title"
-      // Root layout template will add " - RWKV 中国" suffix
-      if (meta.title) {
-        title = `${page.data.title} | ${meta.title}`;
-      }
-    } catch (error) {
-      // Fallback to default title if parent meta.json is missing or unreadable
-    }
-  }
-
-  return {
-    title,
-    description: page.data.description,
-    keywords: page.data.keywords,
-    alternates: {
-      canonical: `https://www.rwkv.cn/tutorials/${params.slug?.join('/') || ''}`,
-    },
-  };
-} 
