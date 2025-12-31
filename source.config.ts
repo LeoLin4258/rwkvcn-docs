@@ -1,26 +1,25 @@
-import { defineDocs, defineConfig } from 'fumadocs-mdx/config';
-import rehypeKatex from 'rehype-katex';
+import {
+  defineConfig,
+  defineDocs,
+  frontmatterSchema,
+  metaSchema,
+} from 'fumadocs-mdx/config';
 import remarkMath from 'remark-math';
-import { remarkMermaid } from '@theguild/remark-mermaid';
-import { z } from 'zod';
+import rehypeKatex from 'rehype-katex';
+import { remarkMdxMermaid } from 'fumadocs-core/mdx-plugins';
 
-const recommendedLinkSchema = z.object({
-  title: z.string(),
-  link: z.string(),
-});
 
-const metaSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  icon: z.string().optional(),
-  full: z.boolean().optional(),
-  keywords: z.array(z.string()).optional(),
-  recommendedLinks: z.array(recommendedLinkSchema).optional(),
-});
-
+// You can customise Zod schemas for frontmatter and `meta.json` here
+// see https://fumadocs.dev/docs/mdx/collections
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
+    schema: frontmatterSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
     schema: metaSchema,
   },
 });
@@ -28,14 +27,21 @@ export const docs = defineDocs({
 export const tutorials = defineDocs({
   dir: 'content/tutorials',
   docs: {
+    schema: frontmatterSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
     schema: metaSchema,
   },
 });
 
 export default defineConfig({
   mdxOptions: {
-    // MDX options
-    remarkPlugins: [remarkMath, remarkMermaid],
-    rehypePlugins: (v) => [rehypeKatex, ...v],
+    remarkPlugins: [remarkMath, remarkMdxMermaid],
+    // Use MathML-only output to avoid KaTeX's default html+mathml DOM explosion
+    // on pages with many formulas (greatly improves hydration/render perf).
+    rehypePlugins: (v) => [[rehypeKatex, { output: 'mathml' }], ...v],
   },
 });

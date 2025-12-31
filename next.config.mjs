@@ -4,14 +4,13 @@ const withMDX = createMDX();
 
 /** @type {import('next').NextConfig} */
 const config = {
+  // output: 'standalone',
   reactStrictMode: true,
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'api.rwkv.cn',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
       },
     ],
   },
