@@ -67,8 +67,10 @@ export const LineChart = ({ name, seriesFilter }: {
 
     // Calculate dynamic height based on number of models
     // Base height + (height per bar * number of models)
+    // Add extra height for legend when there are multiple series
     // Minimum height 350px to ensure legend and axis labels are visible
-    const chartHeight = Math.max(sortedModels.length * 50 + 120, 350);
+    const legendHeight = processedSeries.length > 2 ? 60 : 40;
+    const chartHeight = Math.max(sortedModels.length * 50 + 120 + legendHeight, 400);
 
     useEffect(() => {
         if (!sortedModels.length || !chartRef.current) return;
@@ -116,7 +118,8 @@ export const LineChart = ({ name, seriesFilter }: {
                 grid: {
                     left: isMobile ? '10%' : '3%',
                     right: '4%',
-                    bottom: '3%',
+                    bottom: processedSeries.length > 2 ? '15%' : '10%',
+                    top: '10%',
                     containLabel: true
                 },
                 xAxis: {
