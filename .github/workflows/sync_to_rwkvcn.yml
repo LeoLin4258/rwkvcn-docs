@@ -3,7 +3,7 @@ name: Sync docs to RWKVCN
 on:
   push:
     branches:
-      - main  # 监听 RWKVCN-DOCS 仓库的 main 分支
+      - main # 监听 RWKVCN-DOCS 仓库的 main 分支
 
 jobs:
   sync:
@@ -18,7 +18,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           # 克隆 RWKVCN 仓库
-          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn-v4.git rwkvcn-v4
+          git clone https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn-v4.git rwkvcn-v4
           cd rwkvcn-v4
 
           # 确保我们在 rwkvcn-docs-v2 分支上，如果不存在则创建
@@ -44,6 +44,6 @@ jobs:
           cd rwkvcn-v4
           git add content/ components-docs/ public/docs/
           git commit -m "Sync docs from RWKVCN-DOCS main to rwkvcn-docs"
-          
+
           # 使用 force push 来确保更新成功
           git push -f origin rwkvcn-docs-v2
