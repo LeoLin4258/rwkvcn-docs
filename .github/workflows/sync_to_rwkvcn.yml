@@ -18,8 +18,8 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           # 克隆 RWKVCN 仓库
-          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn.git rwkvcn
-          cd rwkvcn
+          git clone --branch docs https://$PERSONAL_ACCESS_TOKEN@github.com/LeoLin4258/rwkvcn-v4.git rwkvcn-v4
+          cd rwkvcn-v4
 
           # 确保我们在 rwkvcn-docs-v2 分支上，如果不存在则创建
           git fetch origin rwkvcn-docs-v2 || true
@@ -36,12 +36,12 @@ jobs:
 
           # 同步文件
           cd ..
-          rsync -av --delete --exclude='.git' content/ rwkvcn/content/
-          rsync -av --delete --exclude='.git' components-docs/ rwkvcn/components-docs/
-          rsync -av --delete --exclude='.git' public/docs/ rwkvcn/public/docs/
+          rsync -av --delete --exclude='.git' content/ rwkvcn-v4/content/
+          rsync -av --delete --exclude='.git' components-docs/ rwkvcn-v4/components-docs/
+          rsync -av --delete --exclude='.git' public/docs/ rwkvcn-v4/public/docs/
 
           # 提交更改
-          cd rwkvcn
+          cd rwkvcn-v4
           git add content/ components-docs/ public/docs/
           git commit -m "Sync docs from RWKVCN-DOCS main to rwkvcn-docs"
           
