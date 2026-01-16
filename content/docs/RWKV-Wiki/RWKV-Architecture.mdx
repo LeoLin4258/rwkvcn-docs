@@ -631,6 +631,7 @@ RWKV-7-Pile 是基于 Pile 数据集进行实验的模型，因此存在各种�
 ### RWKV-V8
 
 RWKV-V8 的架构代号是 "Heron"（鹭）。
+
 RWKV-V8 首个特性 `DeepEmbed` 在 2025 年 5 月[公布](https://rwkv.cn/news/read?id=20250527)。`DeepEmbed` 可以实现类似 MoE 的优秀推理性能，同时无需占用显存，甚至无需占用内存，可以让稀疏的大模型真正部署到所有端侧设备。
 
 #### RWKV-V8 的 DeepEmbed
@@ -674,17 +675,124 @@ return self.value(x * self.deepemb(idx))
 由于查表操作在推理时不占用 VRAM，这些向量在参数量层面几乎是"免费的"。因此，还可以进一步引入 n-gram（如 `bigram`、`trigram`），提升模型对词组/片段的建模能力。如果词表规模较大，也可结合 LoRA 技术降低显存和训练开销。
 </CallOut>
 
+#### RWKV-V8 的 ROSA 机制
 
-{/*
-## RWKV 与经典 RNN 的区别
+RWKV-V8 的第二个特性 `ROSA` 已于 2025 年 10 月[正式发布](https://zhuanlan.zhihu.com/p/1960369250049951081)。
 
-由于 RNN 本身具有顺序性质，传统的 RNN 需要完全处理**一个 token 及其隐藏状态**才能处理下一个 token。因此，传统 RNN 很难并行化地用 GPU 集群训练。在 RWKV 架构之前，训练大参数的 RNN 语言模型是一件非常困难的事情。
+ROSA（**Rapid Online Suffix Automaton，快速在线后缀自动机**） 是一种神经符号无限长程无损信息传播器，旨在取代注意力机制（Attention）。
 
-而 RWKV 的并行化是 head-wise 和 channel-wise 的，也就是“逐头”和“逐通道”的。在 time mixing 每一层中，不同的头可以独立计算，在 channel mixing 中，不同的通道也可以独立计算，因此 RWKV 模型架构具有较好的并行性。
+给定一个 Token 序列 $x = x_0x_1 \dots x_{n-1}$，定义 $x_{a:b} = x_ax_{a+1} \dots x_b$。我们的目标是高效计算一个新序列 $y = y_0y_1 \dots y_{n-1}$，其中：
 
-![RWKV 语言建模的隐藏状态流动图解](./imgs/RWKV-Architecture/rwkv-architecture-for-language-modeling.jpg)
+$$
+y_i = \begin{cases} x_{j+1}, & \text{若存在 } j < i \text{ 且 } m \geq 0 \text{ 使得 } x_{j-m:j} = x_{i-m:i} \\ -1, & \text{否则} \end{cases}
+$$
 
-*/}
+在此公式中，我们选择唯一的 $j$ 使匹配长度 $m$ 最大化；若 $m$ 存在多个匹配点，则取最大的 $j$（即最近出现的匹配）。
+
+ROSA 基于经典的后缀自动机（Suffix Automaton）构建：
+
+```python
+def ROSA(x): # space = O(n), time = adaptive, typical O(n), worst-case O(n^2)
+	n=len(x); y=[-1]*n; s=2*n+1; b=[None]*s; c=[-1]*s; d=[0]*s; e=[-1]*s; b[0]={}; g=0; z=1
+	for i,t in enumerate(x):
+		r=z; z+=1; b[r]={}; d[r]=d[g]+1; p=g
+		while p!=-1 and t not in b[p]: b[p][t]=r; p=c[p]
+		if p==-1: c[r]=0
+		else:
+			q=b[p][t]
+			if d[p]+1==d[q]: c[r]=q
+			else:
+				u=z; z+=1; b[u]=b[q].copy(); d[u]=d[p]+1; c[u]=c[q]; e[u]=e[q]
+				while p!=-1 and b[p][t]==q: b[p][t]=u; p=c[p]
+				c[q]=c[r]=u
+		v=g=r; a=-1
+		while v!=-1:
+			if d[v]>0 and e[v]>=0: a=x[e[v]+1]; break
+			v=c[v]
+		y[i]=a; v=g
+		while v!=-1 and e[v]<i: e[v]=i; v=c[v]
+	return y
+```
+
+$\text{ROSA}(x)$ 是一种针对 $x$ 的高效、无参数 Next-token 预测器。下图展示了其在 Pile 数据集 10000 份长文档上的预测错误率与 Token 位置的关系。可以看到，随着上下文长度的增加，错误率持续下降。
+
+![prediction-error](./imgs/RWKV-Architecture/prediction-error.png)
+
+Naïve ROSA 在设计上即可实现 100% 的 MQAR（多查询关联检索）和 100% 的 NIAH（“大海捞针”测试，例如 “best thing to do in San Francisco is”），且不受上下文长度影响。但出于一些人尽皆知的原因（缺乏语义泛化能力、对噪声极为敏感等），**在直接用于大多数实际任务时， Naïve ROSA 的效果非常有限**。
+
+RWKV-8 ROSA 则是**为了解决实际任务而生**：
+
+- 将 $\text{Emb}(\text{ROSA}(x))$ 添加到 LLM 中合适的张量（尤其是早期层）中。**这里的 $\text{Emb}$ 指某种 Embedding。这是实现 kNN+LLM 的正确方法，且对 RAG（检索增强生成）非常有用。**
+- 将 $\text{Emb}(\text{ROSA}(\text{Sampling}(z_a)))$ 添加到 $z_b$ 中，其中 $z_a$ 是一个 LLM 张量，$z_b$ 是另一个张量（如下一层）。**如此便具有神经符号特性：LLM+ROSA 会进化出其特有的“内心独白”语言**。每一层 LLM 都可以生成多个具有小词表的序列，以便进行快速并行的 ROSA 处理。该模型可使用 STE（直通估计器）、Soft/Stochastic（软性/随机）或强化学习（RL）方法进行训练，能够解决广泛的任务。
+- Bookmark tokens：例如使用 `<C_begin><C_3><C_6><C_end>` 来标记第 36 轮对话的开始，这样 ROSA 就可以利用相应的 Token（硬编码匹配书签，而非自身）完美地检索任何历史对话。此外，可利用**投机采样**（Speculative decoding）进行加速。这是一个端到端的解决方案：让 LLM 在 Prefilling 或 Decoding 过程中自行决定**何时**以及**如何**插入书签标记。
+
+与注意力机制相比，ROSA 直接处理离散标记（Discrete tokens），从而实现了卓越的效率：**无点积运算、无 Softmax、无浮点开销、无 KV 缓存**。它可以在 CPU 上运行，并与 GPU 上的神经网络层并行处理。
+
+#### 社区 ROSA 项目
+
+- [rosa_soft](https://github.com/wjie98/rosa_soft) (训练 ROSA)：提供了一个 ROSA 算子强大且端到端训练的实现。
+- [ROSA-Tuning](https://github.com/zyaaa-ux/ROSA-Tuning) (训练 ROSA)：将 ROSA 机制与现代 LLM 相结合。该项目使模型能够仅通过固定长度的注意力窗口处理任意长度的输入，同时实现接近全全局注意力（Global Attention）的性能表现。
+- [ROSA+](https://github.com/bcml-ai/rosa-plus)：ROSA+ ROSA 机制的扩展版本。它提供了直观的 Python 接口，并引入了 Witten–Bell 预测器作为处理未知序列时的回退（Fallback）方案。
+- [RASP](https://github.com/x-0D/RASP)：一种混合语言模型，通过条件随机场（CRF）和 spaCy 依存句法分析，将 ROSA+ 的高效性与句法理解能力相结合。RASP 生成的文本在语法连贯性和结构感知方面具有显著优势。
+
+#### ROSA 相关实验
+
+<TabsCN defaultValue="scales" className="">
+  <TabsListCN>
+    <TabsTriggerCN value="scales">ROSA simply scales</TabsTriggerCN>
+    <TabsTriggerCN value="7+rosa">RWKV7 + ROSA</TabsTriggerCN>
+    <TabsTriggerCN value="digits">解决 40 位加减法</TabsTriggerCN>
+    <TabsTriggerCN value="reversing">翻转 1-60 位数字</TabsTriggerCN>
+  </TabsListCN>
+  <TabsContentCN value="scales" >
+RWKV8 ROSA 可轻松 scale，并在模型内部创造出神秘的新语言。
+
+- 介绍：[RWKV8多层ROSA：AI自动发明内部语言解决问题](https://zhuanlan.zhihu.com/p/1962160045564359483)
+- 介绍：[RWKV8 ROSA直接可scale：准备开练小语言模型](https://zhuanlan.zhihu.com/p/1962686633699684521)
+- demo: [RWKV-LM/RWKV-v8](https://github.com/BlinkDL/RWKV-LM/tree/main/RWKV-v8)
+
+![experiments-ROSA-simply-scales](./imgs/RWKV-Architecture/experiments-ROSA-simply-scales.png)
+
+语言模型创造内心独白语言，由 RWKV 8 多层 ROSA 实现，完全端到端训练 (next-token prediction)
+
+![experiments-ROSA-inner-monologue-languages](./imgs/RWKV-Architecture/experiments-ROSA-inner-monologue-languages.png)
+  </TabsContentCN>
+  <TabsContentCN value="7+rosa" >
+ROSA 是一个可以添加到任何模型中的组件。RWKV8 风格的 ROSA（比简单版的 ROSA 强大得多），可以添加到 RWKV7 上。
+
+首个[实验](https://x.com/BlinkDL_AI/status/1980011043788390565?s=20)是学习对很大的随机数进行加和减。以下是 RWKV7 与 RWKV7+ROSAv251020 的 loss 对比（未使用 loss mask，因此 loss 会显得更高）。
+
+![experiments-ROSA-0](./imgs/RWKV-Architecture/experiments-ROSA-0.jpg)
+
+[另一组实验](https://x.com/BlinkDL_AI/status/1980504396820804086?s=20) , RWKV7 vs RWKV7+ROSAv251020 vs RWKV7+ROSAv251021 的 loss 对比（架构和参数与 v251020 相同，但训练方法更好）。
+
+![experiments-ROSA-1](./imgs/RWKV-Architecture/experiments-ROSA-1.jpg)
+  </TabsContentCN>
+  <TabsContentCN value="digits" >
+RWKV7+ROSA 使用 4 层 128 宽度仅 1.1M 参数可解决 40 位加减法，准确度达 99%（无 CoT）。
+
+- 介绍：[RWKV7+ROSA用1M参数做40位加减法（纯端对端训练）](https://zhuanlan.zhihu.com/p/1963457913143165394)
+- demo: [251024_rosaQKV_run.py](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v8/251024_rosaQKV_run.py)
+
+![experiments-ROSA-40digits-Add-Sub](./imgs/RWKV-Architecture/experiments-ROSA-40digits-Add-Sub.png)
+
+灰色是纯 RWKV7 模型。绿色是 RWKV7+ROSA（自动生成内部语言）后，出现了两次 grok，显著更强。
+
+![experiments-ROSA-40digits-loss.png](./imgs/RWKV-Architecture/experiments-ROSA-40digits-loss.png)
+  </TabsContentCN>
+  <TabsContentCN value="reversing" >
+RWKV7+ROSA 模型，拥有 40 K 参数（L2-D32），在翻转 1 至 60 位数字的输入时，能够实现 99.8% 的数字准确率。
+
+- 介绍：[RWKV7+ROSA用39564个参数颠倒60位数字输入](https://zhuanlan.zhihu.com/p/1970228984378791304)
+- demo: [251105_reverse_run.py](https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v8/251105_reverse_run.py). 
+
+![experiments-ROSA-Reversing](./imgs/RWKV-Architecture/experiments-ROSA-Reversing.png)
+
+RWKV7+ROSA（黄）与纯 RWKV7（蓝）的 loss 对比（虽然 RWKV7 最终 loss 只高一点，测试准确率只有 98.9%，也就是，错误率高几倍）
+
+![experiments-ROSA-Reversing-loss](./imgs/RWKV-Architecture/experiments-ROSA-Reversing-loss.png)
+  </TabsContentCN>
+</TabsCN>
 
 ## RWKV 架构特性[#features]
 
