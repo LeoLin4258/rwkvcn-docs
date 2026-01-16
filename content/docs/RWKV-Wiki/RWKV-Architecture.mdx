@@ -714,11 +714,11 @@ def ROSA(x): # space = O(n), time = adaptive, typical O(n), worst-case O(n^2)
 	return y
 ```
 
-$\text{ROSA}(x)$ 是一种针对 $x$ 的高效、无参数次标记（Next-token）预测器。下图展示了其在 Pile 数据集 10,000 份长文档上的预测错误率与 Token 位置的关系。可以看到，随着上下文长度（Ctxlen）的增加，错误率持续下降。
+$\text{ROSA}(x)$ 是一种针对 $x$ 的高效、无参数 Next-token 预测器。下图展示了其在 Pile 数据集 10000 份长文档上的预测错误率与 Token 位置的关系。可以看到，随着上下文长度的增加，错误率持续下降。
 
 ![prediction-error](./imgs/RWKV-Architecture/prediction-error.png)
 
-Naïve ROSA 在设计上即可实现 100% 的 MQAR（多查询关联检索）和 100% 的 NIAH（“大海捞针”测试，例如 “best thing to do in San Francisco is”），且不受上下文长度影响。但出于一些显而易见的原因，它**直接用于大多数实际任务时效果有限**。
+Naïve ROSA 在设计上即可实现 100% 的 MQAR（多查询关联检索）和 100% 的 NIAH（“大海捞针”测试，例如 “best thing to do in San Francisco is”），且不受上下文长度影响。但出于一些人尽皆知的原因（缺乏语义泛化能力、对噪声极为敏感等），**在直接用于大多数实际任务时， Naïve ROSA 的效果非常有限**。
 
 RWKV-8 ROSA 则是**为了解决实际任务而生**：
 
