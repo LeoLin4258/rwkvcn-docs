@@ -117,12 +117,16 @@ x = self.head(x) + c
 RWKV-2 的自注意力层简化表达：
 
 $$
-\begin{align*}
-a_{t + 1} &= \exp(W) \odot a_t + \exp(Kz_t) \odot (Vz_t) \qquad b_{t+1} = \exp(W) \odot b_t + \exp(Kz_t)  
-\\ \\
-y_t &= \sigma(Rz_t) \odot \frac{a_t + \exp(Kz_t + X) \odot Vz_t}{ b_t + \exp(Kz_t + X) }
-\end{align*}
+a_{t+1} = \exp(W) \odot a_t + \exp(Kz_t) \odot (Vz_t)
 $$
+$$
+b_{t+1} = \exp(W) \odot b_t + \exp(Kz_t)
+$$
+
+```math
+y_t = \sigma(Rz_t) \odot \frac{a_t + \exp(Kz_t + X) \odot Vz_t}{b_t + \exp(Kz_t + X)}
+```
+
 
 ### RWKV-3
 
@@ -690,6 +694,12 @@ def RWKV_x070_CMix_one(x, x_prev, x_k, K_, V_, semb_, s1_, s2_, s0_):
 #### RWKV-8 的 ROSA 机制[#rwkv-8-rosa-mechanism]
 
 RWKV-8 的第二个特性 `ROSA` 已于 2025 年 10 月[正式发布](https://zhuanlan.zhihu.com/p/1960369250049951081)。
+
+<CallOut type="info" >
+RWKV-8 ROSA 可视化 demo：[ROSA-Visualizer](https://huggingface.co/spaces/Jellyfish042/ROSA-Visualizer)
+
+![ROSA-Visualizer](./imgs/RWKV-Architecture/ROSA-Visualizer.png)
+</CallOut>
 
 ROSA（**Rapid Online Suffix Automaton，快速在线后缀自动机**） 是一种神经符号无限长程无损信息传播器，旨在取代注意力机制（Attention）。
 
