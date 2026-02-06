@@ -34,6 +34,39 @@ RWKV 模型在 AMD 硬件上的推理性能，包括各类专业显卡、消费�
 - driver_info: "radv Mesa 25.0.3-1ubuntu2"
 </CallOut>
 
+## AMD Radeon RX 6750 GRE 12GB 
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 | 48.69 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8 | 70.79 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 | 74.98 | 2.4GB |
+
+数据来源：[issue #26](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/26)
+
+<CallOut type="info">
+测试环境：
+- CPU：AMD Ryzen 5 3600
+- OS: Windows11 Pro 25H2 
+- AMD Software:Adrenalin Edition 25.12.1 Vulkan
+</CallOut>
+
+## AMD Radeon RX 6650 XT
+
+| 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
+| :---: |:---:|:---:|:---:| :----------:|
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | fp16 | 37.71 | 5.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | int8 | 52.88 | 3.9GB |
+| [web-rwkv](https://github.com/cryscan/web-rwkv) | RWKV7-G1 2.9B | nf4 | 66.69 | 2.4GB |
+
+数据来源：[issue #25](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test/issues/25)
+
+<CallOut type="info">
+测试环境：
+- CPU：Intel(R) Core(TM) i7-10700F CPU @ 2.90GHz
+- Driver: 25.10.16.01
+</CallOut>
+
 ## AMD Radeon PRO W7900
 
 | 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
