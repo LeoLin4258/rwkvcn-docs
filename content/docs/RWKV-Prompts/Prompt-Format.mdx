@@ -19,7 +19,15 @@ QA（问答）格式是 RWKV 的默认训练格式。
 其中 `User:` 是用户提问的问题，`Assistant:` 是模型的回答。因此我们需要在**最后一个** `Assistant:` 后面留空，让模型进行续写。
 </CallOut>
 
-<Tabs items={["不思考模式","思考模式", "快思考模式"]}>
+<Tabs items={["思考模式", "不思考模式","快思考模式"]}>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+
+Assistant: <think
+```
+</Tab>
 
 <Tab>
 ```bash
@@ -33,26 +41,53 @@ Assistant:
 ```bash
 User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
-Assistant: <think>
-```
-</Tab>
-<Tab>
-```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
-
-Assistant: <think>
-</think>
+Assistant: <think></think
 ```
 <CallOut type="info">
 快思考模式是直接使用上面示例的标签跳过思考过程，从而使模型以为自己进行了思考。
 
-注意，快思考模式的标签必须是 `<think>` 加`换行`加 `</think>`。
+注意，快思考模式的标签必须是 `<think>` 加 `</think`。
 
 此模式会让模型比思考模式回答的更快，同时回答质量比不思考更好。
 </CallOut>
 </Tab>
 </Tabs>
 
+### 新推理风格
+
+<CallOut type="info">
+新的推理风格**适用于 G1c 及更新版本模型**。注意在提示词后的 `(think)` 前面有一个空格。
+</CallOut>
+
+<Tabs items={["常规模式","短思考模式", "长思考模式"]}>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think)
+
+Assistant: <think
+```
+
+</Tab>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think a bit)
+
+Assistant: <think
+```
+同样的思考风格，更简短的思考内容。
+</Tab>
+
+<Tab>
+```bash
+User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think a lot)
+
+Assistant: <think
+```
+同样的思考风格，更长的思考内容。
+</Tab>
+</Tabs>
 
 ## 指令问答格式 prompt[#Instruction-Format-Prompt]
 
