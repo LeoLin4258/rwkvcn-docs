@@ -8,7 +8,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 基于 [Albatross](https://github.com/BlinkDL/Albatross) 和 [Robyn](https://github.com/sparckles/Robyn) 的 RWKV 批量推理后端，具备原生的批量推理能力，同时设计了多种一键调用的批量推理 API 调用方式。
 
-实测在单卡 5090 上以 320 路并发可以达到 10000+token/s。
+原生支持 Nvidia 显卡和 AMD 显卡的高并发推理，实测在单卡 5090 上以 960 路并发可以达到 10000+token/s。
+
 
 - 项目地址：[https://github.com/RWKV-Vibe/rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)
 
@@ -84,18 +85,10 @@ MyFunction = torch.compile(mode='max-autotune-no-cudagraphs')
 MyStatic = torch.compile(mode='max-autotune-no-cudagraphs')
 ```
 
-<CallOut type="info">
-**关于 BatchSize == 1 使用 CUDA graph 的参数建议：**
-
-* **用于文本生成时**，请确保：
-  `"temperature": 0.8`, `"top_k": 1`, `"top_p": 0`, `"alpha_presence": 0`, `"alpha_frequency": 0`, `"alpha_decay": 0.96`
-* **用于写代码时**，请确保：
-  `"temperature": 0.5`, `"top_k": 100`, `"top_p": 0.5`, `"alpha_presence": 1.0`, `"alpha_frequency": 0.1`, `"alpha_decay": 0.99`
-</CallOut>
 
 ## API 文档[#api-documents]
 
-rwkv_lightning 高并发推理库支持多种 API 调用格式，下面我们将给出调用端点和对应的解释。
+rwkv_lightning 高并发推理库支持多种 API 调用格式，下面我们将给出不同端点的调用示例和对应的解释。
 
 
 
@@ -107,7 +100,7 @@ rwkv_lightning 高并发推理库支持多种 API 调用格式，下面我们将
 
 对于 V1 端点的调用方法，解码参数功能和使用其他工具调用 RWKV 系列模型时一致；
 
-进行批量推理时，要使用相同的批量推理输入，格式如下面的 `contents` 所示，使用 `""` 包裹单条数据，数据间使用 `,` 分隔。
+进行批量推理时，要使用指定格式的批量输入，格式如下面的 `contents` 所示，使用 `""` 包裹单条数据，数据间使用 `,` 分隔。
 
 最终会得到如下格式的输出：
 ```
