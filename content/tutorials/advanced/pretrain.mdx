@@ -13,6 +13,7 @@ recommendedLinks:
 import React from 'react';
 import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
 预训练教程基于 [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7) 仓库，训练流程和 RWKV 官方模型完全一致。
 
@@ -40,16 +41,36 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 预训练需要的显存**比微调训练要高得多**。
 
-以下是 `micro_bsz="1"`，`CTX_LEN="4096"`，预训练不同参数的 RWKV 模型所需的显存：
+以下是基于 `HEAD_CHUNK=4096`，`GRAD_CP=1`，`KERNEL="@rwkv3"` 参数，在不同 `CTX_LEN` 下预训练 RWKV 模型所需的显存：
 
-| 模型参数 | 层数 | 维度 | 显存需求                                     |
-| -------- | ---- | ---- | -------------------------------------------- |
-| 0.1B     | 12   | 768  | 6540MB（6.39GB）  BSZ=8 23634MB（23.08GB）   |
-| 0.4B     | 24   | 1024 | 12414MB（12.12GB）  BSZ=6 23046MB（22.51GB） |
-| 1.5B     | 24   | 2048 | 42104MB（41.12GB）                           |
-| 3B       | 32   | 2560 | 91354MB（89.21GB）                           |
-| 7B       | 32   | 4096 | 4*4090 OOM                                   |
-| 14B      | 61   | 4096 | 4*4090 OOM                                   |
+<Tabs items={["CTX_LEN=8192", "CTX_LEN=4096"]}>
+<Tab>
+
+| 模型参数 | 层数 | 维度 | M_BSZ=1 显存 | 其他 M_BSZ 显存 |
+| -------- | ---- | ---- | --------- | ------------- |
+| 0.1B     | 12   | 768  | 6786MB（6.63GB） | BSZ8：11412MB（11.14GB）<br />BSZ48：40556MB（39.61GB） × 4 |
+| 0.4B     | 24   | 1024 | 12938MB（12.63GB） | BSZ6：18828MB（18.39GB）<br />BSZ8：20366MB（19.89GB） |
+| 1.5B     | 24   | 2048 | 37300MB（36.43GB） | BSZ4：21340MB（20.84GB） × 4 |
+| 3B       | 32   | 2560 | 67766MB（66.18GB） | - |
+| 7B       | 32   | 4096 | 55424MB（54.13GB） × 4 | - |
+| 14B      | 61   | 4096 | 4 × Pro 6000 OOM | - |
+
+</Tab>
+<Tab>
+
+| 模型参数 | 层数 | 维度 | M_BSZ=1 显存 | 其他 M_BSZ 显存 |
+| -------- | ---- | ---- | --------- | ------------- |
+| 0.1B     | 12   | 768  | 6446MB（6.29GB） | BSZ8：9018MB（8.81GB） |
+| 0.4B     | 24   | 1024 | 12374MB（12.08GB） | BSZ6：14894MB（14.54GB） |
+| 1.5B     | 24   | 2048 | 36114MB（35.27GB） | - |
+| 3B       | 32   | 2560 | 66132MB（64.58GB） | - |
+| 7B       | 32   | 4096 | 54864MB × 4（53.58GB × 4） | - |
+| 14B      | 61   | 4096 | 4 × Pro 6000 OOM | - |
+</Tab>
+
+</Tabs>
+
+表格中标注 `× 4` 指通过 `GPU_PER_NODE=4` 指定四张 GPU 并行训练时，每张 GPU 所需的显存。
 
 ## 克隆仓库[#clone-repo]
 
@@ -112,7 +133,7 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 pip3 install -r requirements.txt
 ```
 <CallOut type="info">
-下载缓慢？尝试在命令后添加 `-i https://mirrors.aliyun.com/pypi/simple` 参数，使用阿里源加快下载速度。
+下载缓慢？尝试添加 `-i https://mirrors.aliyun.com/pypi/simple` 参数，使用阿里源加快下载速度。
 </CallOut>
 
 安装完成后，使用以下命令验证 pytorch 和 CUDA 版本：
@@ -120,7 +141,7 @@ pip3 install -r requirements.txt
 ```bash
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 ```
-输出为 `2.7.1+cu128 True`，表示已安装 CUDA 12.8 版本的 pytorch 2.7.1， CUDA 12.8 工具包可用。
+若输出类似 `2.7.1+cu128 True`，表示已安装 CUDA 12.8 版本的 pytorch 2.7.1， CUDA 工具包可用。
 
 ## 准备训练数据[#prepare-dataset]
 
@@ -221,19 +242,21 @@ python make_data.py demo.jsonl 30 4096
 | 参数                           | 参数解释                                                                                                                                                                          |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `PROJ_DIR`                     | 模型输出目录，必须和预训练阶段保持一致，建议保持默认                                                                                                                           |
-| `M_BSZ=16`                     | 建议为 2 的幂，越大越好，显存不够为止。                                                                                                                                        |
+| `M_BSZ=16`                     | 建议为 2 的幂，越大越好，**调整此参数直到接近显存上限**                                                                                                                                   |
 | `LR_INIT="6e-4"`               | **初始学习率，计算公式为 `0.45 / N_EMBD` 并适当取整。** 比如 L12-D768 0.1B 模型，初始学习率为 `0.45/768=0.0005859375`，取整为 `6e-4`。继续预训练的学习率和从头预训练稍有不同。 |
 | `LR_FINAL="6e-5"`              | **最终学习率，计算公式为 `0.04 / N_EMBD` 并适当取整。**                                                                                                                        |
 | `GRAD_CP=1`                    | 梯度累积步数，`GRAD_CP=1` 节省显存，`GRAD_CP=0` 加快训练但消耗更多显存                                                                                                         |
+| `HEAD_CHUNK=4096`              | LM HEAD；填 `0` 训练快但消耗的 VRAM 更多；`65536` 较慢但消耗的 VRAM 较少；`4096` 更慢，但需要的 VRAM 更少。（注意：这是 LM HEAD，非 RWKV HEAD）                                                |
+|  `KERNEL="@rwkv3"`             | 建议保持 "@rwkv3" ，运行更快，尤其是针对 H100 系列。可通过设置为 `""` 调整为旧版 kernel                                                           |
 | `EPOCH_SAVE=10`                | 每隔多少个 "miniepochs" 保存一次训练模型（1 miniepoch = 40320 * ctx_len tokens）                                                                                               |
-| `epoch_steps`                  | 不存在，会自动根据 M_BSZ 等参数进行计算，计算公式为 `epoch_steps = 40320 / M_BSZ / N_NODE / GPU_PER_NODE `。                                                                   |
+| `epoch_steps`                  | 会自动根据 `M_BSZ` 等参数进行计算，计算公式为 `epoch_steps = 40320 / M_BSZ / N_NODE / GPU_PER_NODE `。                                                                   |
 | `N_NODE=1`                     | 节点数，通常保持默认值 `1`                                                                                                                                                     |
 | `GPU_PER_NODE=1`               | 每个节点上的 GPU 数量，单显卡填 `1`，多卡则改为实际数量                                                                                                                        |
-| `DS_BUCKET_MB=2`               | deepspeed bucket size（单位 MB），消费级 GPU 设置 `2`，A100 / H100 设置为 `200`                                                                                                |
+| `DS_BUCKET_MB=2`               | deepspeed bucket size（单位 MB），消费级 GPU 设置 `2`，A100 / H100 设置为 `200`。**此参数在新版 deepspeed 疑似 buggy，暂时弃用**                                                                                         |
 | `--load_model "0"`             | 保持默认值 `0`。训练中断后，继续训练会自动检测最新检查点                                                                                                                       |
 | `--wandb "Test"`               | **建议注册一个 WandB 账号并填写你的项目名称，以便观察和比较 loss。详情查看附录 [使用 WandB 监控训练过程](#使用-wandb-监控训练过程)**                                                             |
 | `--train_stage 3`              | 预训练阶段，保持默认值 `3`。                                                                                                                                                   |
-| `--epoch_count 999999`         | 总训练轮次，该参数不生效。训练进程会在达到 `--my_exit_tokens` 指定的 tokens 数量后自动退出                                                                                     |
+| `--epoch_count 999999`         | 总训练轮次，该参数**不生效**。训练进程会在达到 `--my_exit_tokens` 指定的 tokens 数量后自动退出                                                                                     |
 | `--epoch_begin 0`              | 初始训练轮次，始终写 `0`，自动加载最新的检查点                                                                                                                                 |
 | `--warmup_steps 10`            | 预热步骤，应当根据优化器和学习率的选取进行实验                                                                                                                                 |
 | `--beta1 0.9`                  | Adam 优化器 beta1 参数，保持默认值                                                                                                                                             |
@@ -245,7 +268,7 @@ python make_data.py demo.jsonl 30 4096
 | `--head_size 64`               | 头大小，保持默认值 `64`                                                                                                                                                        |
 | `--accelerator gpu`            | 加速器类型，必须是 `gpu`                                                                                                                                                       |
 | `--precision bf16`             | 训练精度，默认为 `bf16`，也支持 `fp32`, `tf32`                                                                                                                                 |
-| `--strategy deepspeed_stage_2` | **训练策略，默认 deepspeed_stage_2**，更多训练策略请参考[DeepSpeed 训练策略](#deepspeed-训练策略)                                                                              |
+| `--strategy deepspeed_stage_2` | 训练策略，默认 `deepspeed_stage_2`，更多训练策略请参考[DeepSpeed 训练策略](#deepspeed-训练策略)                                                                              |
 | `--enable_progress_bar True`   | 是否在终端显示进度条，通常保持默认值 `True`                                                                                                                                    |
 
 
