@@ -19,7 +19,7 @@ QA（问答）格式是 RWKV 的默认训练格式。
 其中 `User:` 是用户提问的问题，`Assistant:` 是模型的回答。因此我们需要在**最后一个** `Assistant:` 后面留空，让模型进行续写。
 </CallOut>
 
-<Tabs items={["思考模式", "不思考模式","快思考模式"]}>
+<Tabs items={["思考模式", "快思考模式","不思考模式"]}>
 
 <Tab>
 ```bash
@@ -33,23 +33,21 @@ Assistant: <think
 ```bash
 User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
-Assistant:
+Assistant: <think></think
 ```
+<CallOut type="info">
+快思考模式是通过直接闭合 `<think></think` 标签来跳过思考过程，从而使模型以为自己进行了思考。此模式比“思考模式”回答得更快，同时回答质量比“不思考模式”更好。
+
+快思考模式的标签可选 `<think></think>` 或 `<think>\n</think`。
+</CallOut>
 </Tab>
 
 <Tab>
 ```bash
 User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
 
-Assistant: <think>\n</think
+Assistant:
 ```
-<CallOut type="info">
-快思考模式是直接使用上面示例的标签跳过思考过程，从而使模型以为自己进行了思考。
-
-注意，快思考模式的标签必须是 `<think>` 加 `\n` 加 `</think`。
-
-此模式会让模型比思考模式回答的更快，同时回答质量比不思考更好。
-</CallOut>
 </Tab>
 </Tabs>
 
@@ -121,35 +119,44 @@ Response:
 }
 ```
 
-## RWKV7-G1 专用格式
+## 材料问答格式
 
-RWKV7-G1 模型专用的提示词格式如下：
+推荐使用以下材料问答格式：
 
-```bash
-材料文本
+```markdown
+User:\n材料：\n{context}\n问题：{question}\n只根据下文回答；没有就答null。\n\nAssistant: {"answer": 
 
-Question: 问题? Answer:
+User:\n下文：\n{context}\n问题：{question}\n只写材料中的答案；没有就答null。\n\nAssistant: {"answer": 
+
+User:\n材料：\n{context}\n问题：{question}\n只回答材料中的答案；没有就答null。\n\nAssistant: {"answer": 
+
+User:\n下文：\n{context}\n根据上文回答：{question}\n只根据上文回答；没有就答null。\n\nAssistant: {"answer": 
 ```
-<CallOut type="info">
-这是 RWKV7-G1 系列的专用 Prompt 格式，尤其适合 RAG 等总结材料总结场景。其中 `Question: ` 后面是用户给模型的问题，`Answer:` 后面留空，让模型进行回答。
-</CallOut>
+可以根据具体的材料内容，修改问题和限制条件。例如：
+```markdown
+User: 材料：
+# 下载最新的 MiniConda 安装包
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+# 运行 MiniConda 安装包的安装脚本，安装期间一定要注意进展，及时输入 yes  ！
+sh Miniconda3-latest-Linux-x86_64.sh -u
+# 重启环境变量，激活 Conda 环境
+source ~/.bashrc
+# 创建名为 rwkv-lm-v7 的 conda 环境, 并指定 python 版本为 3.12
+conda create -n rwkv-lm-v7 python=3.12
+# 激活 rwkv 环境
+conda activate rwkv-lm-v7
+问题：用中文简单解释这段材料的含义
+只写答案，不解释。
 
-![RWKV7-G1 Prompt](../../docs/RWKV-Prompts/imgs/rwkv-g1-rag-prompt.png)
-
-也可以把 `Question:` 和 `Answer:` 换成 `User:` 和 `Assistant:`:
-
-```bash
-材料文本
-
-User: 问题
-
-Assistant:
+Assistant: {"answer": 
 ```
+在 [web demo](https://www.modelscope.cn/studios/BlinkDL/RWKV-CHN-2) 中并发 16 路测试：
 
-![RWKV7-G1 Prompt-2](../../docs/RWKV-Prompts/imgs/rwkv-g1-rag-prompt-user-assistant.png)
+![RWKV7-G1 Prompt](../../tutorials/basic/imgs/prompt-example.png)
+
 
 <CallOut type="info">
-推荐把 Temperature、Top-p、Penalty 等**解码参数调整为 0**。
+推荐参数： Temperature=1、Topp=0.2、Penalty 参数调整为 0。
 </CallOut>
 
 ## few-shot[#Few-Shot]
