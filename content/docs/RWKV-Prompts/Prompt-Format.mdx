@@ -5,6 +5,7 @@ keywords: [RWKV prompt格式, RWKV提示词怎么写, RWKV prompt例子, RWKV pr
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
+import { LinkCard } from 'components-docs/link-card/link-card.tsx'
 
 
 **RWKV 是 RNN 的变体。出于架构原理，RWKV 对提示词的格式比 Transformer 更敏感。**
@@ -19,11 +20,11 @@ QA（问答）格式是 RWKV 的默认训练格式。
 其中 `User:` 是用户提问的问题，`Assistant:` 是模型的回答。因此我们需要在**最后一个** `Assistant:` 后面留空，让模型进行续写。
 </CallOut>
 
-<Tabs items={["思考模式", "快思考模式","不思考模式"]}>
+<Tabs items={["思考模式", "快思考模式"]}>
 
 <Tab>
 ```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+User: 将下面的英语翻译成中文：RWKV (pronounced RwaKuv) is an RNN with great LLM performance and parallelizable like a Transformer.
 
 Assistant: <think
 ```
@@ -31,68 +32,24 @@ Assistant: <think
 
 <Tab>
 ```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
+User: 将下面的英语翻译成中文：RWKV (pronounced RwaKuv) is an RNN with great LLM performance and parallelizable like a Transformer.
 
 Assistant: <think></think
 ```
 <CallOut type="info">
-快思考模式是通过直接闭合 `<think></think` 标签来跳过思考过程，从而使模型以为自己进行了思考。此模式比“思考模式”回答得更快，同时回答质量比“不思考模式”更好。
+快思考模式直接闭合 `<think></think` 标签，跳过思考内容，缩短生成时间。
 
-快思考模式的标签可选 `<think></think>` 或 `<think>\n</think`。
 </CallOut>
 </Tab>
 
-<Tab>
-```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文
-
-Assistant:
-```
-</Tab>
-</Tabs>
-
-### 新推理风格
-
-<CallOut type="info">
-新的推理风格**适用于 G1c 及更新版本模型**。注意在提示词后的 `(think)` 前面有一个空格。
-</CallOut>
-
-<Tabs items={["常规模式","短思考模式", "长思考模式"]}>
-
-<Tab>
-```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think)
-
-Assistant: <think
-```
-
-</Tab>
-
-<Tab>
-```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think a bit)
-
-Assistant: <think
-```
-同样的思考风格，更简短的思考内容。
-</Tab>
-
-<Tab>
-```bash
-User: 将瑞典语 hur l?ng tid tog det att bygga twin towers 翻译成中文 (think a lot)
-
-Assistant: <think
-```
-同样的思考风格，更长的思考内容。
-</Tab>
 </Tabs>
 
 ## 指令问答格式 prompt[#Instruction-Format-Prompt]
 
 ```bash
-Instruction: 请将下列瑞典语翻译成中文
+Instruction: 请将下列英语翻译成中文
 
-Input: hur l?ng tid tog det att bygga twin towers
+Input: RWKV (pronounced RwaKuv) is an RNN with great LLM performance and parallelizable like a Transformer.
 
 Response:
 ```
@@ -198,80 +155,54 @@ Assistant:
 
 ## function call[#function-call]
 
-<CallOut type="info">
-RWKV7-G1 模型包含函数调用（function call）数据，可以通过特定格式的 prompt 实现 function call 功能。
+<CallOut type="warning">
+请使用最新的 RWKV-7 G1x 模型。其他模型即使套用相同提示词，也不具备可靠的 Function Call 能力。
 </CallOut>
 
-RWKV7-G1 2.9B 模型，在续写模式下构造 function call 功能：
+<LinkCard content="RWKV-7 G1x 官方提示词模板" link="https://github.com/BlinkDL/RWKV-LM/blob/main/RWKV-v7/RWKV7-G1x-templates.txt" isNewTab />
 
-```bash
-User: 你可以使用以下工具：
-{
-  "tools": [
-    {
-      "type": "function",
-      "function": {
-        "name": "get_current_weather",
-        "description": "获取指定地区的当前天气信息",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "location": {
-              "type": "string",
-              "description": "城市或地区名称，例如：'北京'"
-            },
-            "unit": {
-              "type": "string",
-              "enum": ["celsius", "fahrenheit"],
-              "description": "温度单位，默认为摄氏度"
-            }
-          },
-          "required": ["location"]
-        }
-      }
-    },
-    {
-      "type": "function",
-      "function": {
-        "name": "calculate_math_expression",
-        "description": "计算数学表达式结果",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "expression": {
-              "type": "string",
-              "description": "数学表达式，例如：'(12+3.4)*5/2'"
-            }
-          },
-          "required": ["expression"]
-        }
-      }
-    }
-  ]
-}
-请问：北京现在的天气如何？请给出json格式的调用格式
- 
-Assistant: <think>
-```
-参考的回复：
-````bash
-...模型的思考过程...
-</think>
-```json
-{
-  "name": "get_current_weather",
-  "parameters": {
-    "location": "北京",
-    "unit": "celsius"
-  }
-}
-```
+工具定义必须放在 `System: Tools:` 后，并明确要求模型只返回 JSON 函数调用。
+
+<Tabs items={["单次调用", "连续调用"]}>
+<Tab>
+````text
+System: Tools:
+- get_weather(location: string, unit?: "celsius" | "fahrenheit")
+- get_stock_price(ticker: string)
+- translate_text(text: string, target_language: string)
+Return only a JSON function call.
+
+User: Translate "Will it rain tomorrow?" into Japanese.
+
+Assistant: ```json
 ````
+</Tab>
 
-通过在 Agent 或者 RAG 系统中解析此 json 请求，可以实现 function call 功能。
+<Tab>
+````text
+System: Tools:
+[
+{"name":"find_free_slots","description":"Find free calendar slots","arguments":{"date":{"type":"string"},"duration_minutes":{"type":"integer"},"time_window":{"type":"string"}}},
+{"name":"create_calendar_event","description":"Create a calendar event","arguments":{"title":{"type":"string"},"start_time":{"type":"string"},"end_time":{"type":"string"},"attendees":{"type":"array","items":{"type":"string"}}}}
+]
+Return only a JSON function call.
 
-<CallOut type="warning">
-RWKV 基底模型未进行后训练，因此不支持 native tool calling。如果需要保持极高的 function call 准确度，建议对模型进行[微调](../../tutorials/advanced/Fine-Tune/Introduction)。
+User: Schedule a 30-minute sync with Bob on 2026-05-08 afternoon.
+
+Assistant: ```json
+{"name":"find_free_slots","arguments":{"date":"2026-05-08","duration_minutes":30,"time_window":"afternoon"}}
+```
+
+User: Function output:
+{"free_slots":[{"start":"2026-05-08T15:00:00+09:00","end":"2026-05-08T15:30:00+09:00"}],"bob_email":"bob@example.com"}
+
+Assistant: ```json
+````
+</Tab>
+</Tabs>
+
+<CallOut type="tips">
+应用需要解析并校验模型返回的 JSON、限制可调用的工具，并处理参数缺失与执行失败；模型只负责生成调用请求，不会替应用执行工具。
 </CallOut>
 
 ## 视频介绍[#video-introduction]
