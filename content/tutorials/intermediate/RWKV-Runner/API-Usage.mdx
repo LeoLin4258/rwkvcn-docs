@@ -280,6 +280,7 @@ import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-re
   method="GET"
   path="/v1/models"
   title="列出模型"
+  showTitle
   description="返回服务当前声明的模型列表。"
   examples={[
     {
@@ -312,6 +313,7 @@ import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-re
   method="GET"
   path="/status"
   title="读取 Runner 状态"
+  showTitle
   description="用于监控模型加载状态和后端进程。"
   examples={[
     {
@@ -343,6 +345,7 @@ import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-re
   method="POST"
   path="/switch-model"
   title="加载或切换模型"
+  showTitle
   description="加载由 RWKV Pip 或 Albatross 运行的 .pth 模型，或加载由 llama.cpp 运行的 .gguf 模型。部署模式下不可调用。"
   examples={[
     {
@@ -416,6 +419,7 @@ import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-re
   method="POST"
   path="/update-config"
   title="更新默认生成配置"
+  showTitle
   description="字段均可选；新值会在下一次生成时应用。State 路径会立即尝试加载。"
   examples={[
     {
