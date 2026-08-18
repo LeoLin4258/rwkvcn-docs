@@ -1,462 +1,942 @@
 ---
 title: rwkv_lightning 批量推理教程
-description: 基于 Albatross 和 Robyn 的 RWKV 批量推理后端，具备原生的批量推理能力，同时设计了多种一键调用的批量推理 API 调用方式。
-keywords: [RWKV, rwkv_lightning, 批量推理后端, Albatross, Robyn]
+description: 基于 Albatross、PyTorch 和 FastAPI 的 RWKV 批量推理后端，支持原生批量推理、OpenAI 风格聊天、State Cache、FIM 与大批量推理 API。
+keywords: [RWKV, rwkv_lightning, 批量推理后端, Albatross, FastAPI]
 ---
+
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-reference/api-reference.tsx'
 
-基于 [Albatross](https://github.com/BlinkDL/Albatross) 和 [Robyn](https://github.com/sparckles/Robyn) 的 RWKV 批量推理后端，具备原生的批量推理能力，同时设计了多种一键调用的批量推理 API 调用方式。
+rwkv_lightning 是基于 [Albatross](https://github.com/BlinkDL/Albatross)、PyTorch 和 FastAPI 的 RWKV 批量推理后端。它原生支持 NVIDIA CUDA 与 AMD ROCm，并提供批量补全、OpenAI 风格聊天、State Cache、FIM 等 HTTP API。
 
-原生支持 Nvidia 显卡和 AMD 显卡的高并发推理，实测在单卡 5090 上以 960 路并发可以达到 10000+token/s。
+实测在单张 RTX 5090 上进行 960 路并发推理时，吞吐量可以达到 10000+ token/s。
 
-
-- 项目地址：[https://github.com/RWKV-Vibe/rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)
+- 项目地址：[RWKV-Vibe/rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)
+- 上游 API 文档：[rwkv_lightning_api_doc.md](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/rwkv_lightning_api_doc.md)
 
 ## 安装依赖[#install-dependencies]
 
-<Tabs items={["Nvidia CUDA", "AMD ROCm"]}>
+先克隆仓库并进入项目目录，再按显卡平台安装 PyTorch 和服务依赖。
+
+~~~bash
+git clone https://github.com/RWKV-Vibe/rwkv_lightning.git
+cd rwkv_lightning
+~~~
+
+<Tabs items={["NVIDIA CUDA", "AMD ROCm"]}>
 
 <Tab>
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
-pip install robyn pydantic ninja numpy 
-[可选] pip install flashinfer-python
-```
+~~~bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu132
+pip install fastapi pydantic ninja numpy
+~~~
 </Tab>
 
 <Tab>
-<CallOut type="warning">
-Flashinfer-python 目前尚未官方移植到 AMD ROCm，请等待官方兼容。我们实际尝试过移植它，但 Flash Infer 库有点抽象且庞大。本项目使用了基于 Pytorch 的 top_k top_p 解码来实现 Flash infer CUDA GPU 解码内核。
-</CallOut>
-
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/rocm6.4
-pip install robyn pydantic ninja numpy 
-```
-</Tab>
-</Tabs>
-
-## 启动应用[#usage]
-
-<CallOut type="info">
-如果不需要密码，可以不添加 `--password` 标志。
-</CallOut>
-
-<Tabs items={["单 GPU", "多 GPU 并行"]}>
-
-<Tab>
-```bash
-python app.py --model-path <your model path> --port <your port number> --password rwkv7_7.2b
-```
-</Tab>
-
-<Tab>
-```bash
-python app.py --model-path <your model path> --port <your port number> --password rwkv7_7.2b --pp-devices [0,1,2,3] 
-```
+~~~bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/rocm7.2
+pip install fastapi pydantic ninja numpy
+~~~
 </Tab>
 </Tabs>
 
-如果出现图示输出，则说明启动成功。
+## 启动服务[#usage]
 
-![](./images/rwkv_lightning/usage.png)
+先选择与模型文件相匹配的推理引擎。普通 `.pth` 模型使用 FP16；GemLite 与 CUTLASS 需要先按上游仓库中的量化说明转换模型，二者的模型文件不能混用。
 
-<CallOut type="info">
-启动后，可以使用以下指令测试。
-</CallOut>
-```bash
+<Tabs items={["FP16", "GemLite", "CUTLASS W8A16"]}>
+
+<Tab>
+~~~bash
+python app.py \
+  --model-path /path/to/model \
+  --inference-engine fp16 \
+  --port 8000 \
+  --password rwkv7_7.2b
+~~~
+</Tab>
+
+<Tab>
+~~~bash
+python app.py \
+  --model-path /path/to/model-gemlite-int8 \
+  --inference-engine gemlite \
+  --port 8000 \
+  --password rwkv7_7.2b
+~~~
+</Tab>
+
+<Tab>
+~~~bash
+python app.py \
+  --model-path /path/to/model-w8a16 \
+  --inference-engine cutlass \
+  --port 8000 \
+  --password rwkv7_7.2b
+~~~
+</Tab>
+</Tabs>
+
+| 参数 | 是否必需 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `--model-path` | 是 | 无 | 模型路径，可以带或不带 `.pth` 后缀 |
+| `--inference-engine` / `--backend` | 否 | `fp16` | 可选 `fp16`、`gemlite` 或 `cutlass` |
+| `--port` | 否 | `8000` | HTTP 服务端口 |
+| `--password` | 否 | 不启用 | API 密码；省略后不校验密码 |
+
+服务固定监听 `0.0.0.0`。终端出现 Uvicorn 启动信息后，可以运行仓库自带的测试脚本：
+
+~~~bash
 bash ./test/test_curl.sh
-```
-
-
-
-## 性能优化提示[#tips]
+~~~
 
 <CallOut type="warning">
-如果想获得最大程度的性能优化，可以使用 `torch.compile(mode='max-autotune-no-cudagraphs')`。
-
-**因为需要先编译 Triton 内核，首次推理请求时会很慢。**
+如果服务需要暴露到公网，请启用密码并在反向代理或防火墙中限制访问。`/v1/models` 与 `/translate/v1/batch-translate` 当前不校验服务密码，不能只依赖应用层鉴权保护这两个端点。
 </CallOut>
-
-可以修改 `rwkv_batch/rwkv7.py` 第 30、31 行的代码来实现该优化：
-```python
-MyFunction = torch.compile(mode='max-autotune-no-cudagraphs')
-MyStatic = torch.compile(mode='max-autotune-no-cudagraphs')
-```
-
 
 ## API 文档[#api-documents]
 
-rwkv_lightning 高并发推理库支持多种 API 调用格式，下面我们将给出不同端点的调用示例和对应的解释。
+默认地址为 `http://127.0.0.1:8000`。所有 POST 请求都需要发送 `Content-Type: application/json`。普通端点通过请求主体中的 `password` 鉴权；`/openai/v1/*` 还支持 `Authorization: Bearer <password>`。
 
+### 端点速览
 
+| 方法 | 路径 | 用途 | 流式响应 |
+| --- | --- | --- | --- |
+| `GET` | `/v1/models` | 查询当前加载的模型 | 否 |
+| `POST` | `/v1/chat/completions` | 原生多 prompt 批量补全 | 可选 |
+| `POST` | `/v2/chat/completions` | 使用 V2 采样器批量补全 | 可选 |
+| `POST` | `/translate/v1/batch-translate` | 批量翻译 | 否 |
+| `POST` | `/FIM/v1/batch-FIM` | FIM 批量补全 | 可选 |
+| `POST` | `/big_batch/completions` | 超大 batch 补全 | 始终流式 |
+| `POST` | `/state/chat/completions` | 单分支 State 会话补全 | 可选 |
+| `POST` | `/multi_state/chat/completions` | 可分叉的 State 会话补全 | 可选 |
+| `POST` | `/state/status` | 查询三级 State Cache | 否 |
+| `POST` | `/state/delete` | 删除 State Cache | 否 |
+| `GET` | `/openai/v1/models` | OpenAI 风格模型列表 | 否 |
+| `POST` | `/openai/v1/chat/completions` | OpenAI 风格单路聊天补全 | 可选 |
 
-### 1. `v1/chat/completions`[#v1-chat-completions]
+### 原生生成参数
 
-<CallOut type="info">
-使用 Rapid-Sampling，支持所有解码参数。
-</CallOut>
+下表适用于原生补全、State、FIM 等端点；专用端点只会读取与自身有关的字段。
 
-对于 V1 端点的调用方法，解码参数功能和使用其他工具调用 RWKV 系列模型时一致；
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `model` | string | `rwkv7` | 仅作为响应标签，不会切换已经加载的模型 |
+| `contents` | string[] | `[]` | prompt 数组 |
+| `max_tokens` | integer | `8192` | 每条结果最多生成的 token 数 |
+| `stop_tokens` | string[] | `["\nUser:"]` | 文本停止序列；不是整数 token ID |
+| `temperature` | number | `1.0` | 采样温度 |
+| `top_k` | integer | `50` | Top-K |
+| `top_p` | number | `0.6` | Top-P |
+| `alpha_presence` | number | `2.0` | Presence repetition penalty |
+| `alpha_frequency` | number | `0.2` | Frequency repetition penalty |
+| `alpha_decay` | number | `0.996` | 重复惩罚衰减 |
+| `stream` | boolean | `false` | 是否返回 SSE |
+| `chunk_size` | integer | `4` | 流式输出累计多少 token 后刷新一次 |
+| `password` | string \| null | `null` | 普通端点的 JSON 鉴权凭据 |
 
-进行批量推理时，要使用指定格式的批量输入，格式如下面的 `contents` 所示，使用 `""` 包裹单条数据，数据间使用 `,` 分隔。
+### 查询模型
 
-最终会得到如下格式的输出：
-```
-data: {"object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"content": "输出内容"}}]}
-``` 
+<ApiReference
+  method="GET"
+  path="/v1/models"
+  title="查询当前模型"
+  description="返回当前已经加载的模型。此端点当前不校验密码。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl http://127.0.0.1:8000/v1/models`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "list",
+  "data": [
+    {
+      "id": "rwkv7-g1-1.5b",
+      "object": "model",
+      "owned_by": "rwkv_lightning"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="固定为 list。" />
+    <ApiField name="data" type="array<Model>" required description="当前服务加载的模型列表。">
+      <ApiField name="id" type="string" required description="模型文件名。" />
+      <ApiField name="object" type="string" required description="固定为 model。" />
+      <ApiField name="owned_by" type="string" required description="固定为 rwkv_lightning。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
 
-其中 `index` 为当前回复对应的条数（从 0 开始），`content` 为输出的具体内容。
+### 原生 V1 批量补全
 
-<Tabs items={["流式同步批处理", "非流式同步批处理"]}>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [
-      "English: After a blissful two weeks, Jane encounters Rochester in the gardens. He invites her to walk with him, and Jane, caught off guard, accepts. Rochester confides that he has finally decided to marry Blanche Ingram and tells Jane that he knows of an available governess position in Ireland that she could take.\n\nChinese:",
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
-    "alpha_presence": 1.0,
-    "alpha_frequency": 0.1,
-    "alpha_decay": 0.99,
-    "stream": true,
-    "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [
-      "English: After a blissful two weeks, Jane encounters Rochester in the gardens. He invites her to walk with him, and Jane, caught off guard, accepts. Rochester confides that he has finally decided to marry Blanche Ingram and tells Jane that he knows of an available governess position in Ireland that she could take.\n\nChinese:",
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
-    "alpha_presence": 1.0,
-    "alpha_frequency": 0.1,
-    "alpha_decay": 0.99,
-    "stream": false,
-    "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
-</Tabs>
-
-### 2. `v2/chat/completions`[#v2-chat-completions]
-
-<CallOut type="info">
-使用 FlashInfer Sampling，支持所有解码参数。
-</CallOut>
-
-和 V1 基本一致，使用的 Sampling 方法不同，在不同设备上时存在性能差异。
-
-<Tabs items={["流式同步连续批处理", "非流式同步连续批处理"]}>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/v2/chat/completions \
-  -H "Content-Type: application/json" \
-  -N \
-  -d '{
-    "contents": [
-      "English: After a blissful two weeks, Jane encounters Rochester in the gardens. He invites her to walk with him, and Jane, caught off guard, accepts. Rochester confides that he has finally decided to marry Blanche Ingram and tells Jane that he knows of an available governess position in Ireland that she could take.\n\nChinese:",
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 1.0,
-    "top_k": 1,
-    "top_p": 0.3,
-    "pad_zero": true,
-    "alpha_presence": 0.8,
-    "alpha_frequency": 0.8,
-    "alpha_decay": 0.996,
-    "chunk_size": 128,
-    "stream": true,
-    "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/v2/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [
-      "English: After a blissful two weeks, Jane encounters Rochester in the gardens. He invites her to walk with him, and Jane, caught off guard, accepts. Rochester confides that he has finally decided to marry Blanche Ingram and tells Jane that he knows of an available governess position in Ireland that she could take.\n\nChinese:",
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 1.0,
-    "top_k": 1,
-    "top_p": 0.3,
-    "pad_zero": true,
-    "alpha_presence": 0.8,
-    "alpha_frequency": 0.8,
-    "alpha_decay": 0.996,
-    "chunk_size": 32,
-    "stream": false,
-    "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
-</Tabs>
-
-### 3. `/big_batch/completions`[#big-batch-completions]
-
-<CallOut type="info">
-**最快的批处理 API**，输入输出格式和 V1 基本一致。
-
-仅支持 `noise` 和 `temperature` 解码参数。
-</CallOut>
-
-```bash
-curl -X POST 'http://localhost:8000/big_batch/completions' \
-  --header 'Content-Type: application/json' \
+<ApiReference
+  method="POST"
+  path="/v1/chat/completions"
+  title="创建 V1 批量补全"
+  description="输入 contents 数组并按位置返回多条结果。它不是 OpenAI messages 接口。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -N -X POST http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
   --data '{
     "contents": [
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:",
-      "English: That night, a bolt of lightning splits the same chestnut tree under which Rochester and Jane had been sitting that evening.\n\nChinese:"
+      "English: Hello world!\\n\\nChinese:",
+      "English: Good morning\\n\\nChinese:"
     ],
     "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 1.0,
+    "stop_tokens": ["\\nUser:"],
+    "temperature": 0.8,
+    "top_k": 50,
+    "top_p": 0.6,
+    "alpha_presence": 1.0,
+    "alpha_frequency": 0.1,
+    "alpha_decay": 0.99,
     "chunk_size": 8,
     "stream": true,
     "password": "rwkv7_7.2b"
-  }'
-```
+  }'`,
+    },
+    {
+      label: '非流式响应',
+      language: 'json',
+      code: `{
+  "id": "rwkv7-batch",
+  "object": "chat.completion",
+  "model": "rwkv7",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "你好，世界！"
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}`,
+    },
+    {
+      label: 'SSE 响应',
+      language: 'text',
+      code: `data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"你好"}}]}
 
-### 4. `/openai/v1/chat/completions`[#openai-completions]
+data: [DONE]`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="contents" type="array<string>" required description="批量 prompt；每个元素对应一条 choice。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
+    <ApiField name="top_k" type="integer" defaultValue="50" description="Top-K。" />
+    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
+    <ApiField name="alpha_presence" type="number" defaultValue="2.0" description="Presence repetition penalty。" />
+    <ApiField name="alpha_frequency" type="number" defaultValue="0.2" description="Frequency repetition penalty。" />
+    <ApiField name="alpha_decay" type="number" defaultValue="0.996" description="重复惩罚衰减。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="为 true 时返回 SSE，并以 [DONE] 结束。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式结构；流式请求返回 SSE。">
+    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
+    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
+    <ApiField name="model" type="string" required description="请求中的模型标签。" />
+    <ApiField name="choices" type="array<Choice>" required description="按 contents 位置排列的生成结果。">
+      <ApiField name="index" type="integer" required description="对应 contents 中的下标。" />
+      <ApiField name="message" type="object" required description="助手消息。">
+        <ApiField name="role" type="string" required description="固定为 assistant。" />
+        <ApiField name="content" type="string" required description="生成文本。" />
+      </ApiField>
+      <ApiField name="finish_reason" type="string" required description="当前为 stop。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
 
-<CallOut type="info">
-支持 Open AI 格式。
+### 原生 V2 批量补全
 
-相关专项测试脚本：
-```bash
-python test/test_openai_adapter.py
-python test/test_openai_routes.py
-```
-</CallOut>
-
-<Tabs items={["流式异步", "非流式异步", "有状态增量"]}>
-
-<Tab>
-```bash
-curl -X POST 'http://localhost:8000/openai/v1/chat/completions' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer your-password-if-set' \
+<ApiReference
+  method="POST"
+  path="/v2/chat/completions"
+  title="创建 V2 批量补全"
+  description="请求与响应结构和 V1 相同，但使用 V2 batch sampler，并采用不同的默认采样参数。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/v2/chat/completions \
+  -H 'Content-Type: application/json' \
   --data '{
-    "model": "rwkv7",
-    "messages": [
-      {"role": "user", "content": "please tell me about the history of artificial intelligence"}
-    ],
-    "top_p": 0.6,
-    "max_tokens": 2048,
-    "temperature": 0.8,
-    "stream": true
-  }'
-```
-</Tab>
-
-<Tab>
-```bash
-curl -X POST 'http://localhost:8000/openai/v1/chat/completions' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer your-password-if-set' \
-  --data '{
-    "model": "rwkv7",
-    "messages": [
-      {"role": "system", "content": "You are a helpful assistant."},
-      {"role": "user", "content": "please tell me about the history of artificial intelligence"}
-    ],
-    "top_p": 0.6,
-    "max_tokens": 2048,
-    "temperature": 1,
-    "stream": false
-  }'
-```
-</Tab>
-
-<Tab>
-带有 `session_id` 的有状态增量 Open AI API：
-
-```bash
-curl -X POST 'http://localhost:8000/openai/v1/chat/completions' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer your-password-if-set' \
-  --data '{
-    "model": "rwkv7",
-    "messages": [
-      {"role": "system", "content": "You are a helpful assistant."},
-      {"role": "user", "content": "Please continue from our last turn and give me 3 short ideas."}
-    ],
-    "top_p": 0.6,
-    "max_tokens": 2048,
-    "temperature": 1,
-    "stream": false
-  }'
-```
-</Tab>
-</Tabs>
-
-### 5. 批量同步翻译[#batch-translate]
-
-<CallOut type="info">
-兼容沉浸式翻译自定义 API。
-</CallOut>
-
-<Tabs items={["英译中", "中译英"]}>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/translate/v1/batch-translate \
-         -H "Content-Type: application/json" \
-         -d '{
-           "source_lang": "en",
-           "target_lang": "zh-CN",
-           "text_list": ["Hello world!", "Good morning"]
-         }'
-```
-</Tab>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/translate/v1/batch-translate \
-         -H "Content-Type: application/json" \
-         -d '{
-           "source_lang": "zh-CN",
-           "target_lang": "en",
-           "text_list": ["你好世界", "早上好"]
-         }'
-```
-</Tab>
-</Tabs>
-
-### 6. `state/chat/completions`[#state-chat-completions]
-
-单条输入和回复专用端点，进行了推理速度上的优化。
-
-<CallOut type="info">
-**支持状态缓存管理器，设计了 3 级缓存设计：**
-- **L1 缓存 (显存) 16**
-- **L2 缓存 (内存) 32**
-- **L3 缓存 (Sqlite3 数据库)**
-
-关闭服务器时，所有缓存的状态都将存储在数据库中。可以在 `./state_pool.py` 的第 14-16 行修改缓存大小。
-</CallOut>
-
-<CallOut type="warning">
-**注意：**
-- 需要在请求体中添加唯一的 `"session_id": "XXX"` 作为每个会话的唯一标识符 
-</CallOut>
-
-<Tabs items={["流式异步批处理(CUDA Graph)", "非流式异步批处理(CUDA Graph)"]}>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/state/chat/completions \
-  -H "Content-Type: application/json" \
-  -N \
-  -d '{
-    "contents": [
-      "User: What should we eat for dinner? Any brief suggestions?\n\nAssistant: <think>\n</think>\n"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
-    "alpha_presence": 1.0,
-    "alpha_frequency": 0.1,
-    "alpha_decay": 0.99,
-    "stream": true,
-    "chunk_size": 128,
-    "password": "rwkv7_7.2b",
-    "session_id": "session_one"
-  }'
-```
-</Tab>
-
-<Tab>
-```bash
-curl -X POST http://localhost:8000/state/chat/completions \
-      -H "Content-Type: application/json" \
-      -d '{
-    "contents": [
-      "User: What should we eat for dinner? Any brief suggestions?\n\nAssistant: <think>\n</think>\n"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": [0, 261, 24281],
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
+    "contents": ["User: 用一句话介绍 RWKV。\\n\\nAssistant:"],
+    "max_tokens": 256,
+    "stop_tokens": ["\\nUser:"],
+    "top_k": 500,
+    "top_p": 0.5,
     "alpha_presence": 1.0,
     "alpha_frequency": 0.1,
     "alpha_decay": 0.99,
     "stream": false,
-    "password": "rwkv7_7.2b",
-    "session_id": "session_one"
-  }'
-```
-</Tab>
-</Tabs>
+    "password": "rwkv7_7.2b"
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "id": "rwkv7-batch-v2",
+  "object": "chat.completion",
+  "model": "rwkv7",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "RWKV 是一种兼具 RNN 推理效率与 Transformer 训练方式的语言模型。"
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="contents" type="array<string>" required description="批量 prompt。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
+    <ApiField name="top_k" type="integer" defaultValue="500" description="V2 默认 Top-K。" />
+    <ApiField name="top_p" type="number" defaultValue="0.5" description="V2 默认 Top-P。" />
+    <ApiField name="alpha_presence" type="number" defaultValue="1.0" description="Presence repetition penalty。" />
+    <ApiField name="alpha_frequency" type="number" defaultValue="0.1" description="Frequency repetition penalty。" />
+    <ApiField name="alpha_decay" type="number" defaultValue="0.99" description="重复惩罚衰减。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="结构与 V1 相同，非流式 id 为 rwkv7-batch-v2。">
+    <ApiField name="id" type="string" required description="固定为 rwkv7-batch-v2。" />
+    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
+    <ApiField name="model" type="string" required description="请求中的模型标签。" />
+    <ApiField name="choices" type="array<Choice>" required description="生成结果；字段结构与 V1 相同。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-### 7. 状态管理 API[#state-management-api]
+### 批量翻译
+
+<ApiReference
+  method="POST"
+  path="/translate/v1/batch-translate"
+  title="批量翻译文本"
+  description="兼容沉浸式翻译的自定义 API。此端点当前不校验服务密码。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/translate/v1/batch-translate \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "source_lang": "en",
+    "target_lang": "zh-CN",
+    "text_list": ["Hello world!", "Good morning"]
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "translations": [
+    {
+      "detected_source_lang": "en",
+      "text": "你好，世界！"
+    },
+    {
+      "detected_source_lang": "en",
+      "text": "早上好"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="source_lang" type="string" defaultValue="auto" description="源语言代码。auto 目前不会运行独立语言检测器。" />
+    <ApiField name="target_lang" type="string" required description="目标语言代码，例如 zh-CN 或 en。" />
+    <ApiField name="text_list" type="array<string>" required description="需要翻译的文本数组。" />
+    <ApiField name="placeholders" type="array<string> | null" defaultValue="null" description="Schema 接受此字段，但当前翻译路由尚未使用。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="translations" type="array<Translation>" required description="与 text_list 按位置对应的翻译结果。">
+      <ApiField name="detected_source_lang" type="string" required description="报告的源语言；source_lang=auto 时当前固定为 en。" />
+      <ApiField name="text" type="string" required description="翻译后的文本。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
+
+### FIM 批量补全
+
+<ApiReference
+  method="POST"
+  path="/FIM/v1/batch-FIM"
+  title="创建 FIM 批量补全"
+  description="面向 RWKV-7 G1c 系列模型的 Fill-In-the-Middle 接口，按位置配对 prefix 与 suffix。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/FIM/v1/batch-FIM \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "prefix": [
+      "The rain had stopped, but the street still glistened"
+    ],
+    "suffix": [
+      "and then the door opened."
+    ],
+    "max_tokens": 1024,
+    "temperature": 0.8,
+    "top_k": 50,
+    "top_p": 0.6,
+    "stream": false,
+    "password": "rwkv7_7.2b"
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "id": "rwkv7-batch",
+  "object": "FIM.completion",
+  "model": "rwkv7",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": " under the pale streetlights, "
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="prefix" type="array<string>" required description="中间缺失内容之前的文本数组。" />
+    <ApiField name="suffix" type="array<string>" required description="中间缺失内容之后的文本数组；应与 prefix 等长。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
+    <ApiField name="top_k" type="integer" defaultValue="50" description="Top-K。" />
+    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
+    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="流式请求使用通用 batch SSE 格式。">
+    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
+    <ApiField name="object" type="string" required description="固定为 FIM.completion。" />
+    <ApiField name="model" type="string" required description="请求中的模型标签。" />
+    <ApiField name="choices" type="array<Choice>" required description="按 prefix 与 suffix 配对位置返回的补全文本。" />
+  </ApiSchemaSection>
+</ApiReference>
 
 <CallOut type="info">
-用于状态管理,支持状态缓存管理器
+`prefix` 与 `suffix` 当前通过 `zip` 配对，长度不一致时多出的元素会被忽略。FIM 路由固定使用空停止序列，因此请求中的 `stop_tokens` 不生效。
 </CallOut>
 
-<Tabs items={["检查状态", "删除状态"]}>
+### 超大 batch 补全
 
-<Tab>
-使用 `state/status` 接口检查会话的状态池状态：
-
-```bash
-curl -X POST http://localhost:8000/state/status \
-  -H "Content-Type: application/json" \
-  -d '{
+<ApiReference
+  method="POST"
+  path="/big_batch/completions"
+  title="创建超大 batch 补全"
+  description="面向尽可能大的并行 batch，只使用 temperature 采样，并始终返回 SSE。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -N -X POST http://127.0.0.1:8000/big_batch/completions \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "contents": [
+      "English: Hello\\n\\nChinese:",
+      "English: Good morning\\n\\nChinese:"
+    ],
+    "max_tokens": 1024,
+    "stop_tokens": ["\\nUser:"],
+    "temperature": 1.0,
+    "chunk_size": 8,
     "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
+  }'`,
+    },
+    {
+      label: 'SSE 响应',
+      language: 'text',
+      code: `data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"你好"}}]}
 
-<Tab>
-使用 `state/delete` 接口删除会话的状态：
+data: {"object":"chat.completion.chunk","choices":[{"index":1,"delta":{"content":"早上好"}}]}
 
-```bash
-curl -X POST http://localhost:8000/state/delete \
-  -H "Content-Type: application/json" \
-  -d '{
-    "session_id": "your_session_id_to_delete",
+data: [DONE]`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="contents" type="array<string>" required description="批量 prompt。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="唯一生效的采样参数。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="text/event-stream" description="即使 stream=false，此端点也始终返回 SSE。">
+    <ApiField name="choices[].index" type="integer" required description="对应 contents 中的输入下标。" />
+    <ApiField name="choices[].delta.content" type="string" required description="该输入本次新增的文本。" />
+    <ApiField name="[DONE]" type="sentinel" required description="全部生成结束后的终止事件。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+### 单分支 State 会话
+
+<ApiReference
+  method="POST"
+  path="/state/chat/completions"
+  title="继续 State 会话"
+  description="为一个稳定的 session_id 保存并复用 RWKV State。每次请求只能包含一个 prompt。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -N -X POST http://127.0.0.1:8000/state/chat/completions \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "session_id": "session_one",
+    "contents": [
+      "User: 晚饭吃什么？请给三个简短建议。\\n\\nAssistant:"
+    ],
+    "max_tokens": 512,
+    "stop_tokens": ["\\nUser:"],
+    "stream": true,
+    "chunk_size": 8,
     "password": "rwkv7_7.2b"
-  }'
-```
-</Tab>
-</Tabs>
+  }'`,
+    },
+    {
+      label: '非流式响应',
+      language: 'json',
+      code: `{
+  "id": "rwkv7-batch",
+  "object": "chat.completion",
+  "model": "rwkv7",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "可以考虑番茄炒蛋、鸡肉沙拉或一碗热汤面。"
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="session_id" type="string" required description="稳定且唯一的会话标识；后续请求使用同一值继续会话。" />
+    <ApiField name="contents" type="array<string>" required description="必须且只能包含一个 prompt。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature / top_k / top_p" type="number" description="采样参数，默认值见上方公共参数表。" />
+    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式结构与 V1 相同；流式请求使用通用 batch SSE。">
+    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
+    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
+    <ApiField name="model" type="string" required description="请求中的模型标签。" />
+    <ApiField name="choices" type="array<Choice>" required description="当前会话的生成结果。" />
+  </ApiSchemaSection>
+</ApiReference>
 
+<CallOut type="warning">
+不要并发写入同一个 `session_id`。首次请求会创建零 State，后续请求会读取并更新同一 State；复用已有 State 时，服务会在没有前导空行的 prompt 前自动补上两个换行。
+</CallOut>
 
+### 可分叉的 State 会话
 
+<ApiReference
+  method="POST"
+  path="/multi_state/chat/completions"
+  title="创建或继续对话分支"
+  description="在一个会话下保存多个可分叉的对话节点；每次成功生成都会返回新的 dialogue_idx。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/multi_state/chat/completions \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "session_id": "conversation-a",
+    "dialogue_idx": 0,
+    "contents": [
+      "User: 给我三个部署方案。\\n\\nAssistant:"
+    ],
+    "max_tokens": 512,
+    "stream": false,
+    "password": "rwkv7_7.2b"
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "id": "rwkv7-multi-state",
+  "object": "chat.completion",
+  "model": "rwkv7",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "可以选择本机服务、局域网服务或反向代理后的公网服务。"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "dialogue_idx": 1
+}`,
+    },
+    {
+      label: '流式元数据',
+      language: 'json',
+      code: `{
+  "object": "multi_state.dialogue_idx",
+  "session_id": "conversation-a:1",
+  "dialogue_idx": 1
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="session_id" type="string" required description="会话主标识。" />
+    <ApiField name="dialogue_idx" type="integer" required defaultValue="0" description="要继续的对话节点；根节点使用 0。" />
+    <ApiField name="contents" type="array<string>" required description="必须且只能包含一个 prompt。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature / top_k / top_p" type="number" description="采样参数，默认值见上方公共参数表。" />
+    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
+    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式响应直接返回新节点；流式响应会在 [DONE] 前发送新节点元数据。">
+    <ApiField name="id" type="string" required description="固定为 rwkv7-multi-state。" />
+    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
+    <ApiField name="model" type="string" required description="请求中的模型标签。" />
+    <ApiField name="choices" type="array<Choice>" required description="生成结果。" />
+    <ApiField name="dialogue_idx" type="integer" required description="本次生成后创建的新节点编号。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+非零 `dialogue_idx` 必须已经存在，否则返回 `404`。若要从旧节点分叉，继续传入该旧节点的编号；服务会为新回复分配另一个编号，并将 State 保存为 `<session_id>:<new_dialogue_idx>`。
+
+### 查询 State Cache
+
+<ApiReference
+  method="POST"
+  path="/state/status"
+  title="查询 State Cache"
+  description="返回 VRAM、RAM 与 SQLite 三级缓存中的会话数量和明细。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/state/status \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "password": "rwkv7_7.2b"
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "status": "success",
+  "total_sessions": 1,
+  "l1_cache_count": 1,
+  "l2_cache_count": 0,
+  "database_count": 0,
+  "sessions": [
+    {
+      "session_id": "session_one",
+      "cache_level": "L1 (VRAM)",
+      "last_updated": "In Memory",
+      "timestamp": 1787040000.0
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供；未启用密码时可发送空对象。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="status" type="string" required description="成功时为 success。" />
+    <ApiField name="total_sessions" type="integer" required description="缓存中的会话总数。" />
+    <ApiField name="l1_cache_count" type="integer" required description="VRAM 中的会话数。" />
+    <ApiField name="l2_cache_count" type="integer" required description="RAM 中的会话数。" />
+    <ApiField name="database_count" type="integer" required description="SQLite 中的会话数。" />
+    <ApiField name="sessions" type="array<Session>" required description="会话缓存明细。">
+      <ApiField name="session_id" type="string" required description="会话或分支标识。" />
+      <ApiField name="cache_level" type="string" required description="L1 (VRAM)、L2 (RAM) 或 Database (Disk)。" />
+      <ApiField name="last_updated" type="string" required description="内存标识或数据库更新时间。" />
+      <ApiField name="timestamp" type="number" required description="Unix 时间戳。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
+
+### 删除 State Cache
+
+<ApiReference
+  method="POST"
+  path="/state/delete"
+  title="删除 State Cache"
+  description="删除指定会话；可同时删除该会话的全部分支。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/state/delete \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "session_id": "conversation-a",
+    "delete_prefix": true,
+    "password": "rwkv7_7.2b"
+  }'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "status": "success",
+  "message": "Session conversation-a deleted successfully"
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="session_id" type="string" required description="要删除的会话标识。" />
+    <ApiField name="delete_prefix" type="boolean" defaultValue="false" description="为 true 时同时删除所有 <session_id>:* 分支。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="status" type="string" required description="成功时为 success。" />
+    <ApiField name="message" type="string" required description="删除结果说明。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="未找到" kind="response" statusCode="404" contentType="application/json" description="未找到精确会话且 delete_prefix=false 时返回。">
+    <ApiField name="status" type="string" required description="固定为 not_found。" />
+    <ApiField name="message" type="string" required description="未找到的会话说明。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+### OpenAI 风格模型列表
+
+<ApiReference
+  method="GET"
+  path="/openai/v1/models"
+  title="查询 OpenAI 风格模型列表"
+  description="返回与 /v1/models 相同的核心列表结构，并在服务启用密码时执行 Bearer 鉴权。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl http://127.0.0.1:8000/openai/v1/models \
+  -H 'Authorization: Bearer rwkv7_7.2b'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "list",
+  "data": [
+    {
+      "id": "rwkv7-g1-1.5b",
+      "object": "model",
+      "owned_by": "rwkv_lightning"
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求头" kind="headers">
+    <ApiField name="Authorization" type="string" location="header" description="服务启用密码后填写 Bearer <password>。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="固定为 list。" />
+    <ApiField name="data" type="array<Model>" required description="当前服务加载的模型列表。">
+      <ApiField name="id" type="string" required description="模型文件名。" />
+      <ApiField name="object" type="string" required description="固定为 model。" />
+      <ApiField name="owned_by" type="string" required description="固定为 rwkv_lightning。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
+
+### OpenAI 风格聊天补全
+
+<ApiReference
+  method="POST"
+  path="/openai/v1/chat/completions"
+  title="创建 OpenAI 风格聊天补全"
+  description="面向 OpenAI 客户端的单 choice 文本聊天接口，支持普通响应与 SSE。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -N -X POST http://127.0.0.1:8000/openai/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer rwkv7_7.2b' \
+  --data '{
+    "model": "rwkv7",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant."
+      },
+      {
+        "role": "user",
+        "content": "请简单介绍 RWKV。"
+      }
+    ],
+    "max_tokens": 512,
+    "temperature": 1.0,
+    "top_k": 20,
+    "top_p": 0.6,
+    "enable_think": false,
+    "stream": true
+  }'`,
+    },
+    {
+      label: '非流式响应',
+      language: 'json',
+      code: `{
+  "id": "chatcmpl-8a34f9d6",
+  "object": "chat.completion",
+  "created": 1787040000,
+  "model": "rwkv7-g1-1.5b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "RWKV 是一种线性复杂度的语言模型架构。"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 42,
+    "completion_tokens": 20,
+    "total_tokens": 62
+  }
+}`,
+    },
+    {
+      label: 'SSE 响应',
+      language: 'text',
+      code: `data: {"id":"chatcmpl-8a34f9d6","object":"chat.completion.chunk","created":1787040000,"model":"rwkv7-g1-1.5b","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-8a34f9d6","object":"chat.completion.chunk","created":1787040000,"model":"rwkv7-g1-1.5b","choices":[{"index":0,"delta":{"content":"RWKV"},"finish_reason":null}]}
+
+data: [DONE]`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求头" kind="headers">
+    <ApiField name="Authorization" type="string" location="header" description="服务启用密码后填写 Bearer <password>；也可以改用请求主体中的 password。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json" description="messages、system 或 contents 至少需要提供一段有效文本。">
+    <ApiField name="messages" type="array<Message>" description="推荐使用的文本消息列表。">
+      <ApiField name="role" type="system | developer | user | assistant" required description="消息角色。" />
+      <ApiField name="content" type="string | array<TextPart>" required description="消息文本；数组中当前只读取 type=text 的部分。" />
+    </ApiField>
+    <ApiField name="system" type="string | null" defaultValue="null" description="额外系统提示；会与 system、developer 消息合并。" />
+    <ApiField name="contents" type="array<string>" defaultValue="[]" description="不使用 messages 时，可将第一项作为 user 文本。" />
+    <ApiField name="model" type="string" defaultValue="rwkv7" description="当前不会切换已经加载的模型。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="4096" description="最多生成的 token 数。" />
+    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
+    <ApiField name="top_k" type="integer" defaultValue="20" description="Top-K。" />
+    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
+    <ApiField name="alpha_presence" type="number" defaultValue="1.0" description="Presence repetition penalty。" />
+    <ApiField name="alpha_frequency" type="number" defaultValue="0.1" description="Frequency repetition penalty。" />
+    <ApiField name="alpha_decay" type="number" defaultValue="0.996" description="重复惩罚衰减。" />
+    <ApiField name="enable_think" type="boolean" defaultValue="false" description="为 true 时让 prompt 以 Assistant: <think 结尾。" />
+    <ApiField name="use_prefix_cache" type="boolean" defaultValue="true" description="是否复用匹配的 prompt 前缀 State。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 OpenAI 风格 SSE。" />
+    <ApiField name="chunk_size" type="integer | null" defaultValue="null" description="默认流式为 1，非流式为 16。" />
+    <ApiField name="password" type="string | null" defaultValue="null" description="Bearer header 的替代鉴权方式。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式响应；流式请求返回 chat.completion.chunk。">
+    <ApiField name="id" type="string" required description="随机生成的 chatcmpl-* 标识。" />
+    <ApiField name="object" type="string" required description="非流式为 chat.completion。" />
+    <ApiField name="created" type="integer" required description="Unix 时间戳。" />
+    <ApiField name="model" type="string" required description="当前加载的模型文件名。" />
+    <ApiField name="choices" type="array<Choice>" required description="当前只返回一个 choice。">
+      <ApiField name="index" type="integer" required description="固定为 0。" />
+      <ApiField name="message" type="object" required description="助手消息。">
+        <ApiField name="role" type="string" required description="固定为 assistant。" />
+        <ApiField name="content" type="string" required description="生成文本。" />
+      </ApiField>
+      <ApiField name="finish_reason" type="string" required description="推理层返回的结束原因。" />
+    </ApiField>
+    <ApiField name="usage" type="object" required description="非流式 token 用量。">
+      <ApiField name="prompt_tokens" type="integer" required description="输入 token 数。" />
+      <ApiField name="completion_tokens" type="integer" required description="输出 token 数。" />
+      <ApiField name="total_tokens" type="integer" required description="输入与输出 token 总数。" />
+    </ApiField>
+  </ApiSchemaSection>
+</ApiReference>
+
+<CallOut type="info">
+当前 OpenAI 风格端点只处理文本形式的 `system`、`developer`、`user` 与 `assistant` 消息，不支持图片、音频、工具调用或结构化输出。`use_prefix_cache` 是自动复用匹配的 prompt 前缀，与显式 `session_id` 的 State 会话不同。
+</CallOut>
+
+### 流式响应与常见错误
+
+原生 V1、V2、State、FIM 和 big-batch 使用项目自有的轻量 SSE 格式；只有 `/openai/v1/chat/completions` 返回 OpenAI 风格的 ID、role chunk 和结束原因。两种流式响应都以 `data: [DONE]` 结束。
+
+| HTTP 状态码 | 常见原因 |
+| --- | --- |
+| `400` | 请求 batch 超过 prefill 上限、缺少 `session_id` / `dialogue_idx`，或 JSON 无效 |
+| `401` | 服务启用了密码，但凭据缺失或错误 |
+| `404` | State 或对话分支不存在 |
+| `422` | FastAPI / Pydantic 字段校验失败 |
+| `499` | 非流式请求完成前客户端已经断开连接 |
+| `500` | 推理或服务内部错误 |
+
+客户端断开连接后，服务会取消排队或正在运行的生成。流式请求在 prefill 队列阶段超出 batch 上限时，错误也可能以 SSE `data:` 事件返回。
 
 ## 鸣谢
 
-感谢 [Triang-jyed-driung](https://github.com/Triang-jyed-driung) 提供的 [Rapid-Sampling](https://github.com/Triang-jyed-driung/Rapid-Sampling) 内核，它还具有兼容 ROCm 的原生 HIP 内核。
+感谢 [Triang-jyed-driung](https://github.com/Triang-jyed-driung) 提供的 [Rapid-Sampling](https://github.com/Triang-jyed-driung/Rapid-Sampling) 内核，它还包含兼容 ROCm 的原生 HIP 内核。
