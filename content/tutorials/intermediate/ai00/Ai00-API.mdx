@@ -1,761 +1,705 @@
 ---
-title: Ai00 的 API 文档
-description: Ai00 的 API 文档，包含所有 API 的详细说明。
-keywords: [Ai00 API, Ai00 API文档, Ai00 API使用, Ai00 API教程, Ai00 API指南]
+title: Ai00 API 文档
+description: Ai00 Server 0.7.1 当前 API、请求字段、响应结构与管理接口
+keywords: [Ai00 API, RWKV-7, OpenAI API, WebGPU, Vulkan, State]
 ---
+
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-reference/api-reference.tsx'
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 
-以下是 Ai00 的 API 文档，包含所有 API 的详细说明。
+本页介绍 Ai00 Server **v0.7.1** 当前提供的推理与管理接口。如果你第一次调用 Ai00，可以先完成下面的最小聊天请求；需要查找字段时，再展开对应接口的请求主体和响应结构。
 
-本地启动 Ai00 后，可以通过 `http://localhost:65530/api-docs/` 打开 Ai00 的 API 文档。
+- 默认地址：`http://localhost:65530`
+- Swagger UI：[http://localhost:65530/api-docs](http://localhost:65530/api-docs)
+- OpenAPI JSON：[http://localhost:65530/api-docs/openapi.json](http://localhost:65530/api-docs/openapi.json)
+- 上游路由源码：[crates/ai00-server/src/api](https://github.com/Ai00-X/ai00_server/tree/main/crates/ai00-server/src/api)
 
-## api/oai/chat/completions
+## 发送第一个聊天请求
 
-**API 功能**：`api/oai/chat/completions` 和 `api/oai/v1/chat/completions` 是相同的 API ，用于 RWKV 的聊天续写模式，也就是和模型对话。
+开始之前，请先按照 [Ai00 轻松使用](./Simple-Usage) 启动服务并加载一个 RWKV 模型。可以先查询当前模型：
 
-**API 地址**：（post）`http://localhost:65530/api/oai/chat/completions`
+```bash
+curl http://localhost:65530/api/oai/v1/models
+```
 
-**参数列表**：
+如果响应的 `data` 中出现模型名称，说明服务和模型已经准备完成。接着发送一条最小聊天请求：
 
+<Tabs items={['Bash', 'PowerShell']}>
+<Tab>
 
-| 参数名称         | 是否可选 | 类型                     | 参数解释                                                                  |
-| ---------------- | -------- | ------------------------ | ------------------------------------------------------------------------- |
-| messages         | 必选     | array\<object\>          | 对话历史记录，每个对象包含 role(角色)和 content(内容)两个字段             |
-| names            | 必选     | object\<Role, string\>   | 角色名称映射，可以自定义 system/user/assistant/observation 等角色的显示名 |
-| state            | 可选     | string                   | 指定使用的 RWKV state 文件 UUID                                         |
-| max_tokens       | 可选     | integer                  | 生成文本的最大 token 数                                  |
-| stop             | 可选     | array\<string\>          | 停止词列表，当生成内容包含这些词时会停止生成，默认值为 ["\n\n"]           |
-| stream           | 可选     | boolean                  | 是否以流模式生成文本，默认值为 false                                      |
-| bias             | 可选     | object\<number, number\> | token id 到权重的映射，用于调整特定 token 的生成概率，默认为空            |
-| bnf_schema       | 可选     | string \| null           | BNF 语法规则，用于约束模型输出格式，默认为 null                           |
-| sampler          | 可选     | object                   | 默认的采样参数（Nucleus 类型）                                            |
-| sampler_override | 可选     | Option\<SamplerParams\>  | 覆盖默认采样参数，可以选择不同的采样方法                                  |
+```bash
+curl http://localhost:65530/api/oai/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      { "role": "user", "content": "请用一句话介绍 RWKV" }
+    ],
+    "max_tokens": 128,
+    "stream": false
+  }'
+```
 
+</Tab>
+<Tab>
 
-**参考的 API 请求主体**
+```powershell
+$body = @{
+  messages = @(
+    @{ role = "user"; content = "请用一句话介绍 RWKV" }
+  )
+  max_tokens = 128
+  stream = $false
+} | ConvertTo-Json -Depth 4
 
-``` json copy
-{
-  "max_tokens": 1000,
+Invoke-RestMethod `
+  -Uri "http://localhost:65530/api/oai/v1/chat/completions" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $body
+```
+
+</Tab>
+</Tabs>
+
+成功响应的 `choices[0].message.content` 是模型生成的回答。如果请求无法连接，请先确认 Ai00 的监听地址、端口和 TLS 配置；如果接口可以访问但不能生成，请检查模型是否已经加载，以及终端中是否出现显存或模型格式错误。
+
+上面的请求只使用了最必要的字段。`names`、`template`、采样器和 State 等配置可以在确认基础调用成功后逐步添加。
+
+## 按任务选择接口
+
+大多数应用只会使用聊天补全或文本续写。State、候选排序和管理接口用于更具体的集成场景，不需要在第一次调用时全部实现。
+
+### OpenAI 风格与推理接口
+
+| 方法与路径 | 说明 |
+| --- | --- |
+| `POST /api/oai/v1/chat/completions` | 聊天补全，支持普通和 SSE 流式响应 |
+| `POST /api/oai/v1/completions` | 单条或批量文本续写 |
+| `POST /api/oai/v1/chooses` | 按困惑度为候选文本排序 |
+| `POST /api/oai/v1/states` | 从输入文本生成 RWKV State |
+| `POST /api/oai/v1/embeds` | 可选外部 Embedding 模型；仅启用 `embed` feature 时存在 |
+| `GET /api/oai/v1/models` | 返回当前模型名称 |
+
+`/api/oai/v1/embeds` 使用独立的文本 Embedding 模型，并不是从当前加载的 RWKV 模型中提取向量。只需要聊天或续写时，可以忽略这个接口。
+
+### 运行时与管理接口
+
+| 方法与路径 | 说明 |
+| --- | --- |
+| `GET /api/adapters` | 列出可用 GPU / WebGPU Adapter |
+| `GET /api/models/info` | 当前模型、量化、LoRA、State 等运行时信息 |
+| `GET /api/models/list` | 列出模型目录中的模型 |
+| `GET /api/models/state` | 每半秒推送运行时信息的 SSE |
+| `POST /api/auth/exchange` | 使用 app_id / app_secret 换取管理员 JWT |
+| `POST /admin/models/load` | 加载模型、LoRA 和初始 State |
+| `POST /admin/models/save` | 将当前模型保存为 prefab |
+| `GET /admin/models/unload` | 卸载当前运行时 |
+| `POST /admin/files/unzip` | 解压服务器文件 |
+| `POST /admin/files/dir`、`/admin/files/ls` | 列出服务器目录 |
+| `POST /admin/files/config/load` | 读取配置文件 |
+| `POST /admin/files/config/save` | 写入配置文件 |
+
+## 聊天补全
+
+聊天补全适合多轮对话，也是普通应用最常用的接口。每次请求应把当前对话所需的消息放入 `messages`；Ai00 会按照 `template` 将它们拼接后交给 RWKV 模型。
+
+<ApiReference
+  method="POST"
+  path="/api/oai/v1/chat/completions"
+  title="创建聊天补全"
+  description="按照 template 拼接 messages，并让当前 RWKV 模型继续生成。实际调用至少应提供一条有内容的消息。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/chat/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
   "messages": [
-    {
-      "content": "Hi!",
-      "role": "user"
-    },
-    {
-      "content": "Hello, I am your AI assistant. If you have any questions or instructions, please let me know!",
-      "role": "assistant"
-    },
-    {
-      "content": "Tell me about water.",
-      "role": "user"
-    }
+    { "role": "system", "content": "回答要简洁" },
+    { "role": "user", "content": "介绍 RWKV" }
   ],
   "names": {
-    "assistant": "Assistant",
-    "user": "User"
+    "system": "System",
+    "user": "User",
+    "assistant": "Assistant"
   },
-  "sampler_override": {
-    "frequency_penalty": 0.3,
-    "penalty": 400,
-    "penalty_decay": 0.99654026,
-    "presence_penalty": 0.3,
-    "temperature": 1,
-    "top_k": 128,
-    "top_p": 0.5,
-    "type": "Nucleus"
+  "template": {
+    "record": "{role}: {content}",
+    "prefix": "{assistant}:",
+    "sep": "\\n\\n"
   },
-  "state": "00000000-0000-0000-0000-000000000000",
-  "stop": [
-    "\n\nUser:"
-  ],
-  "stream": false
-}
-```
-
-**参考的 API 返回结果**
-
-``` json copy
-{
-    "object": "chat.completion",
-    "model": "assets/models\\RWKV-x060-World-1B6-v2.1-20240328-ctx4096.st",
-    "choices": [
-        {
-            "message": {
-                "role": "Assistant",
-                "content": "Water is a liquid that is essential for life on Earth. It is a mixture of hydrogen and oxygen atoms, which makes it a highly reactive and polar molecule. Water has a high surface tension and is able to form water droplets when it comes into contact with other substances. It is found in various forms, including ice, snow, rain, and fog. Water is also essential for the growth and survival of plants and animals."
-            },
-            "index": 0,
-            "finish_reason": "stop"
-        }
-    ],
-    "usage": {
-        "prompt": 41,
-        "completion": 88,
-        "total": 129,
-        "duration": {
-            "secs": 4,
-            "nanos": 381959200
-        }
-    }
-}
-```
-返回结果说明：
-
-- `object`: 返回对象类型，固定为 "chat.completion"
-- `model`: 当前使用的模型路径
-- `choices`: 生成结果数组，包含以下字段：
-  - `message`: 生成的消息对象，包含：
-    - `role`: 角色类型，固定为 "Assistant"
-    - `content`: 生成的文本内容
-  - `index`: 结果的索引号
-  - `finish_reason`: 生成停止的原因
-- `usage`: 使用统计信息，包含以下字段：
-  - `prompt`: 输入提示的 token 数量
-  - `completion`: 生成内容的 token 数量
-  - `total`: 总 token 数量
-  - `duration`: 生成耗时，包含秒和纳秒
-
-## api/oai/completions
-
-**API 功能**：`api/oai/completions`和 `api/oai/v1/completions`是相同的续写 API，用于基础续写模式，让模型接着你的 prompt 继续生成内容。
-
-**API 地址**：（post）`http://localhost:65530/api/oai/completions`
-
-**参数列表**：
-
-| 参数名称         | 是否可选 | 类型                    | 参数解释                                                       |
-| ---------------- | -------- | ----------------------- | -------------------------------------------------------------- |
-| prompt           | 必选     | Array\<String\>         | 你提供给模型的续写提示文本数组                                 |
-| state            | 可选     | string                  | 指定使用的 RWKV state 文件 UUID                              |
-| max_tokens       | 可选     | integer                 | 生成文本的最大 token 数，默认值为 256                          |
-| stop             | 可选     | Array\<String\>         | 停止词列表,当生成内容包含这些词时会停止生成，默认值为 ["\n\n"] |
-| stream           | 可选     | boolean                 | 是否以流模式生成文本，默认值为 false                           |
-| bias             | 可选     | HashMap\<u16, f32\>     | token id 到权重的映射，用于调整特定 token 的生成概率，默认为空 |
-| bnf_schema       | 可选     | Option\<String\>        | BNF 语法规则，用于约束模型输出格式，默认为 None                |
-| sampler          | 可选     | NucleusParams           | 默认的 Nucleus 采样参数                                        |
-| sampler_override | 可选     | Option\<SamplerParams\> | 覆盖默认采样参数，可以选择不同的采样方法                       |
-
-**参考的请求主体：**
-
-```json
-{
-    "prompt": [
-        "The Eiffel Tower is located in the city of"
-    ],
-    "stop": [
-        "\n\n",
-        "."
-    ],
-    "stream": false,
-    "max_tokens": 1000,
-    "sampler_override": {
-        "type": "Nucleus",
-        "top_p": 0.5,
-        "top_k": 128,
-        "temperature": 1,
-        "presence_penalty": 0.3,
-        "frequency_penalty": 0.3,
-        "penalty": 400,
-        "penalty_decay": 0.99654026
+  "max_tokens": 256,
+  "stop": ["\\n\\nUser:"],
+  "stream": false,
+  "top_p": 0.5,
+  "top_k": 128,
+  "temperature": 1
+}'`,
     },
-    "state": "00000000-0000-0000-0000-000000000000"
-    }
-```
-**参考的 API 返回结果**
-
-```json
-{
-    "object": "text_completion",
-    "model": "assets/models\\RWKV-x060-World-3B-v2.1-20240417-ctx4096.st",
-    "choices": [
-        {
-            "text": " Paris, France",
-            "index": 0,
-            "finish_reason": "stop"
-        }
-    ],
-    "usage": {
-        "prompt": 11,
-        "completion": 4,
-        "total": 15,
-        "duration": {
-            "secs": 0,
-            "nanos": 260801800
-        }
-    }
-}
-```
-返回结果说明：
-
-- `object`: 返回对象类型，固定为 "text_completion"
-- `model`: 当前使用的模型路径
-- `choices`: 生成结果数组，包含以下字段：
-  - `text`: 生成的文本内容
-  - `index`: 结果的索引号
-  - `finish_reason`: 生成停止的原因
-- `usage`: 使用统计信息，包含以下字段：
-  - `prompt`: 输入提示的 token 数量
-  - `completion`: 生成内容的 token 数量
-  - `total`: 总 token 数量
-  - `duration`: 生成耗时，包含秒和纳秒
-
-## api/oai/chooses
-
-**API 功能**：API 拥有 "input" 和 "choices" 参数，即给定输入和选项，让模型按照困惑度对选项进行排名，从而选出最合适的回答。
-
-`api/oai/chooses` 和 `api/oai/v1/chooses` 是相同的 API。
-
-**API 地址**：（post）`http://localhost:65530/api/oai/chooses`
-
-**参数列表**：
-
-| 参数名称 | 是否可选 | 类型            | 参数解释                          |
-| -------- | -------- | --------------- | --------------------------------- |
-| input    | 必选     | Array\<String\> | 提供给模型的输入文本数组          |
-| choices  | 必选     | Array\<String\> | 供模型选择的选项数组              |
-| state    | 可选     | string          | 指定使用的 RWKV state 文件 UUID |
-
-**参考的 API 请求主体**
-
-```json
-{
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "chat.completion",
+  "model": "assets/models/rwkv7-g1-2.9b.st",
   "choices": [
-    " Paris",
-    " Seattle",
-    " San Francisco",
-    " Shanghai"
-  ],
-  "input": [
-    "The Eiffel Tower is located in the city of"
-  ],
-  "state": "00000000-0000-0000-0000-000000000000"
-}
-```
-
-**参考的 API 返回结果**
-
-```json
-{
-    "object": "list",
-    "model": "assets/models\\RWKV-x060-World-3B-v2.1-20240417-ctx4096.st",
-    "data": [
-        {
-            "object": "choice",
-            "index": 0,
-            "rank": 0,
-            "choice": " Paris",
-            "perplexity": 0.031040953
-        },
-        {
-            "object": "choice",
-            "index": 2,
-            "rank": 1,
-            "choice": " San Francisco",
-            "perplexity": 6.299065
-        },
-        {
-            "object": "choice",
-            "index": 3,
-            "rank": 2,
-            "choice": " Shanghai",
-            "perplexity": 12.735298
-        },
-        {
-            "object": "choice",
-            "index": 1,
-            "rank": 3,
-            "choice": " Seattle",
-            "perplexity": 14.686427
-        }
-    ]
-}
-```
-
-返回结果说明：
-
-- `object`: 返回对象类型，固定为 "list"
-- `model`: 当前使用的模型路径
-- `data`: 选择结果数组，包含以下字段：
-  - `object`: 选项类型，固定为 "choice"
-  - `index`: 选项在原始 choices 数组中的索引
-  - `rank`: 选项在排序后的排名（0 为最佳选择）
-  - `choice`: 选项内容
-  - `perplexity`: 困惑度分数，分数越低表示该选项越合适
-
-## api/oai/embeddings
-
-**API 功能**：`api/oai/embeddings` 和 `api/oai/v1/embeddings` 是相同的 API，使用当前加载的 RWKV 模型为给定文本生成嵌入向量，可指定生成嵌入向量的模型层数。
-
-**API 地址**：（post）`http://localhost:65530/api/oai/embeddings`
-
-**参数列表**：
-
-| 参数名称 | 是否可选 | 类型                                      | 参数解释                       |
-| -------- | -------- | ----------------------------------------- | ------------------------------ |
-| input    | 是       | ( null \| string \| array&lt;string&gt; ) | 给嵌入模型的文本               |
-| layer    | 是       | integer                                   | 指定生成嵌入向量的层数         |
-| state    | 是       | string                                    | 指定使用的 RWKV state 文件路径 |
-
-**参考的 API 请求主体**
-
-``` json copy
-{
-  "input": "rwkv",
-  "layer": 0,
-  "state": "00000000-0000-0000-0000-000000000000"
-}
-```
-
-**参考的 API 返回结果**
-
-``` json copy
-{
-    "object": "list",
-    "model": "assets/models\\RWKV-x060-World-1B6-v2.1-20240328-ctx4096.st",
-    "data": [
-        {
-            "object": "embedding",
-            "index": 0,
-            "embedding":  "embedding":  [0.37109375, -0.015655518, -0.01977539, /* ... */]
-        }
-    ],
-    "usage": {
-        "prompt": 2,
-        "completion": 1,
-        "total": 3,
-        "duration": {
-            "secs": 0,
-            "nanos": 2200
-        }
+    {
+      "message": {
+        "role": "Assistant",
+        "content": "RWKV 是一种具备线性时间推理特性的语言模型架构。"
+      },
+      "index": 0,
+      "finish_reason": "stop"
     }
-}
-```
+  ],
+  "usage": {
+    "prompt": 17,
+    "completion": 24,
+    "total": 41,
+    "duration": { "secs": 1, "nanos": 420000000 }
+  }
+}`,
+    },
+    {
+      label: '自定义采样 · cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/chat/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "messages": [{ "role": "user", "content": "写一段短诗" }],
+  "sampler": {
+    "type": "Nucleus",
+    "top_p": 0.6,
+    "top_k": 128,
+    "temperature": 1.1,
+    "presence_penalty": 0.3,
+    "frequency_penalty": 0.3,
+    "penalty_decay": 0.99654026
+  }
+}'`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="messages" type="Message | array<Message>" description="对话消息。虽然源码允许省略，但空消息没有实际生成意义。">
+      <ApiField name="role" type="System | User | Assistant | Observation" required description="消息角色。" />
+      <ApiField name="content" type="string" required description="消息内容。" />
+    </ApiField>
+    <ApiField name="names" type="object<Role, string>" description="角色显示名映射；未指定时使用角色枚举名称。" />
+    <ApiField name="template" type="object" description="消息拼接模板。">
+      <ApiField name="record" type="string" defaultValue="{role}: {content}" description="单条消息模板。" />
+      <ApiField name="prefix" type="string" defaultValue="{assistant}:" description="生成前缀。" />
+      <ApiField name="sep" type="string" defaultValue="\\n\\n" description="消息分隔符。" />
+    </ApiField>
+    <ApiField name="state" type="uuid | StateValue | StateFile" description="初始 State。通常传已加载 State 的 UUID。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="256" description="最大生成 token 数。" />
+    <ApiField name="stop" type="string | array<string>" defaultValue="\\n\\n" description="停止字符串。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="为 true 时返回 SSE。" />
+    <ApiField name="bias" type="object<token_id, number>" description="Token ID 到 logit 权重的映射。" />
+    <ApiField name="bnf_schema" type="string | null" description="用 BNF 约束输出。" />
+    <ApiField name="sampler" type="Nucleus | Mirostat | Typical | null" description="完整采样器配置。" />
+    <ApiField name="top_p" type="number" defaultValue="0.5" description="未提供 sampler 时使用的 Nucleus 参数。" />
+    <ApiField name="top_k" type="integer" defaultValue="128" description="未提供 sampler 时使用的 Nucleus 参数。" />
+    <ApiField name="temperature" type="number" defaultValue="1.0" description="未提供 sampler 时使用的 Nucleus 参数。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="非流式响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="chat.completion。" />
+    <ApiField name="model" type="string" required description="当前模型路径。" />
+    <ApiField name="choices" type="array<ChatChoice>" required description="message、index 与 finish_reason。" />
+    <ApiField name="usage" type="TokenCounter" required description="prompt、completion、total 与 duration。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="流式响应" kind="response" statusCode="200" contentType="text/event-stream" defaultOpen={false}>
+    <ApiField name="object" type="string" required description="chat.completion.chunk。" />
+    <ApiField name="choices[].delta" type="object" required description="先发送 role，再发送 content 增量，最后发送空对象。" />
+    <ApiField name="choices[].finish_reason" type="stop | length | content_filter | null" required description="最后一个事件给出停止原因。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-返回结果说明：
+## 文本续写
 
-- `object`: 返回对象类型，固定为 "list"
-- `model`: 当前使用的模型路径
-- `data`: 嵌入向量结果数组，包含以下字段：
-  - `object`: 嵌入对象类型，固定为 "embedding"
-  - `index`: 结果的索引号
-  - `embedding`: 生成的嵌入向量数组，包含多个浮点数
-- `usage`: 使用统计信息，包含以下字段：
-  - `prompt`: 输入提示的 token 数量
-  - `completion`: 生成内容的 token 数量
-  - `total`: 总 token 数量
-  - `duration`: 生成耗时，包含秒和纳秒
+文本续写直接接在 `prompt` 后生成内容，不会自动组织 system、user、assistant 等聊天角色。它适合补全文本、批量续写，或由你的应用自行拼接提示词的场景。
 
-## api/oai/embeds
+<ApiReference
+  method="POST"
+  path="/api/oai/v1/completions"
+  title="创建文本续写"
+  description="prompt 可为字符串或字符串数组；非流式模式会并发处理数组中的多条输入。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "prompt": [
+    "The Eiffel Tower is located in the city of",
+    "The Great Wall is located in"
+  ],
+  "max_tokens": 64,
+  "stop": [".", "\\n\\n"],
+  "stream": false,
+  "top_p": 0.5,
+  "top_k": 128,
+  "temperature": 1
+}'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "text_completion",
+  "model": "assets/models/rwkv7-g1-2.9b.st",
+  "choices": [
+    { "text": " Paris, France", "index": 0, "finish_reason": "stop" },
+    { "text": " northern China", "index": 1, "finish_reason": "stop" }
+  ],
+  "usage": {
+    "prompt": 18,
+    "completion": 7,
+    "total": 25,
+    "duration": { "secs": 0, "nanos": 310000000 }
+  }
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="prompt" type="string | array<string>" description="一条或多条续写输入。" />
+    <ApiField name="state" type="uuid | StateValue | StateFile" description="初始 State。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="256" description="每条输入的最大生成 token 数。" />
+    <ApiField name="stop" type="string | array<string>" defaultValue="\\n\\n" description="停止字符串。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="流式模式返回 SSE。" />
+    <ApiField name="bias" type="object<token_id, number>" description="Token ID 到 logit 权重的映射。" />
+    <ApiField name="bnf_schema" type="string | null" description="BNF 输出约束。" />
+    <ApiField name="sampler" type="Nucleus | Mirostat | Typical | null" description="完整采样器配置。" />
+    <ApiField name="top_p / top_k / temperature" type="number" description="未提供 sampler 时使用。默认 0.5 / 128 / 1.0。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="非流式响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="text_completion。" />
+    <ApiField name="choices" type="array<CompletionChoice>" required description="每条输入对应一个 text、index 和 finish_reason。" />
+    <ApiField name="usage" type="TokenCounter" required description="合并后的 token 统计和耗时。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-**API 功能**：`api/oai/embeds` 和 `api/oai/v1/embeds` 是相同的 API，使用第三方模型为给定文本生成嵌入向量。
+## 候选排序
 
-<CallOut type="warning" >
-该 API 是调用**第三方的嵌入模型**来生成嵌入向量，使用 API 前需打开 `\assets\configs\Config.toml` 配置文件，将最底部五行配置代码**取消注释**：
-</CallOut>
+如果你的应用已经准备了多个候选答案，可以使用这个接口计算每个候选项的困惑度，并让 Ai00 按匹配程度排序。困惑度越低，表示候选文本越符合当前模型对输入内容的预测。
 
-```
-[embed] 
-endpoint = "https://hf-mirror.com"
-home = "assets/models/hf"
-lib = "assets/ort/onnxruntime.dll" 
-name = { MultilingualE5Small = {} }
-```
+<ApiReference
+  method="POST"
+  path="/api/oai/v1/chooses"
+  title="按困惑度选择候选文本"
+  description="对 choices 逐项计算困惑度，并按从低到高排序。calibrate 用于启用困惑度校准。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/chooses \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "input": ["The Eiffel Tower is located in the city of"],
+  "choices": [" Paris", " Seattle", " Shanghai"],
+  "calibrate": false,
+  "state": "00000000-0000-0000-0000-000000000000"
+}'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "list",
+  "model": "assets/models/rwkv7-g1-2.9b.st",
+  "data": [
+    { "object": "choice", "index": 0, "rank": 0, "choice": " Paris", "perplexity": 0.031 },
+    { "object": "choice", "index": 2, "rank": 1, "choice": " Shanghai", "perplexity": 12.73 }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="input" type="string | array<string>" description="候选文本之前的输入；数组会直接拼接。" />
+    <ApiField name="choices" type="array<string>" description="待排序候选项。" />
+    <ApiField name="calibrate" type="boolean" defaultValue="false" description="是否启用困惑度校准。" />
+    <ApiField name="state" type="uuid | StateValue | StateFile" description="初始 State。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="data[].index" type="integer" required description="候选项在原数组中的索引。" />
+    <ApiField name="data[].rank" type="integer" required description="从 0 开始的排序名次。" />
+    <ApiField name="data[].choice" type="string" required description="候选文本。" />
+    <ApiField name="data[].perplexity" type="number" required description="困惑度，越低越匹配。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-保存配置文件，重启 Ai00 即可自动下载第三方模型。终端的下载过程如图：
+## 生成 State
 
-![hf-model-downloading](./imgs/hf-model-downloading.png)
+RWKV State 可以理解为模型阅读一段文本后的内部状态。这个接口适合预先处理固定背景、角色设定或较长的公共前缀，再在后续请求中复用结果。返回的 State 数据可能很大，请不要把完整响应直接写入普通业务日志。
 
-模型下载完成后，即可使用该 API 。
+<ApiReference
+  method="POST"
+  path="/api/oai/v1/states"
+  title="从文本生成 RWKV State"
+  description="把输入文本前向计算为可复用的模型状态。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/states \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "input": ["User: Remember that my preferred language is Chinese.\\n\\nAssistant:"],
+  "state": "00000000-0000-0000-0000-000000000000"
+}'`,
+    },
+    {
+      label: '响应结构',
+      language: 'json',
+      code: `{
+  "object": "list",
+  "model": "assets/models/rwkv7-g1-2.9b.st",
+  "data": [
+    {
+      "object": "states",
+      "index": 0,
+      "data": [0.012, -0.031],
+      "shape": [64, 2, 2048, 2048]
+    }
+  ],
+  "usage": {
+    "prompt": 16,
+    "completion": 0,
+    "total": 16,
+    "duration": { "secs": 0, "nanos": 90000000 }
+  }
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="input" type="string | array<string>" description="用于构造 State 的文本；数组会直接拼接。" />
+    <ApiField name="state" type="uuid | StateValue | StateFile" description="可从已有 State 继续计算。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="data[].data" type="array<number>" required description="展平的 State 浮点数据，体积可能很大。" />
+    <ApiField name="data[].shape" type="[integer, integer, integer, integer]" required description="State 四维形状。" />
+    <ApiField name="usage" type="TokenCounter" required description="输入 token 和耗时。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-**API 地址**：（post）`http://localhost:65530/api/oai/embeds`
+## 外部 Embedding 模型
 
-**参数列表**：
+这个接口不使用当前加载的 RWKV 模型。只有在 Ai00 构建时启用了 `embed` feature，并且另外加载了文本 Embedding 模型时，路由才可用。
 
-
-| 参数名称   | 是否可选 | 类型    | 参数解释                                           |
-| ---------- | -------- | ------- | -------------------------------------------------- |
-| input      | 必选     | string  | 需要生成嵌入向量的文本                             |
-| max_tokens | 可选     | integer | 文本分块的最大 token 数，范围 1-510，默认值为 510  |
-| prefix     | 可选     | string  | 每个文本块的前缀，默认值为 "query:"                |
-
-
-**参考的 API 请求主体**
-
-``` json
-{
-  "input": "rwkv",
+<ApiReference
+  method="POST"
+  path="/api/oai/v1/embeds"
+  title="生成文本 Embedding"
+  description="仅在 Ai00 构建时启用 embed feature 且成功加载独立文本 Embedding 模型后存在。输入会按 token 上限分块。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/oai/v1/embeds \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "input": "RWKV combines efficient recurrent inference with parallel training.",
   "max_tokens": 510,
   "prefix": "query:"
-}
-```
-
-**参考的 API 返回结果**
-
-```json
-{
-    "object": "embeds",
-    "model": "intfloat/multilingual-e5-small",
-    "data": [
-        {
-            "object": "embed",
-            "index": 0,
-            "chunks": [
-                {
-                    "chunk": "第一个文本块",
-                    "embed": [
-                        [0.37109375, -0.015655518, -0.01977539, /* ... */]
-                    ]
-                },
-                {
-                    "chunk": "第二个文本块",
-                    "embed": [
-                        [0.20153809, 0.15637207, 0.24768066, /* ... */]
-                    ]
-                }
-            ]
-        }
-    ]
-}
-```
-
-返回结果说明：
-
-- `object`: 返回对象类型，固定为 "embeds"
-- `model`: 当前使用的嵌入模型
-- `data`: 嵌入向量结果数组，包含以下字段：
-  - `object`: 嵌入对象类型，固定为 "embed"
-  - `index`: 结果的索引号
-  - `chunks`: 嵌入向量分块数组，包含以下字段：
-    - `chunk`: 文本块内容
-    - `embed`: 生成的嵌入向量数组，包含多个浮点数
-
-## api/oai/models
-
-**API 功能**：`api/oai/models` 和 `api/oai/v1/models` 是相同的 API，用于获取当前加载的模型信息。
-
-**API 地址**：（get）`http://localhost:65530/api/oai/models`
-
-**参考的 API 返回结果**
-```json
-{
-    "data": [
-        {
-            "object": "models",
-            "id": "RWKV-x060-World-1B6-v2.1-20240328-ctx4096"
-        }
-    ]
-}
-```
-
-返回结果说明：
-
-- `data`: 模型结果数组，包含以下字段：
-  - `object`: 模型对象类型，固定为 "models"
-  - `id`: 模型的 id 名称
-
-## admin/models/load
-
-**API 功能**：该 API 用于重新加载模型、 LoRA 、初始状态等运行时环境。
-
-**API 地址**：（post）`http://localhost:65530/admin/models/load`
-
-**参数列表**：
-
-| 参数名称         | 是否可选 | 类型    | 参数解释                                                       |
-| ---------------- | -------- | ------- | -------------------------------------------------------------- |
-| adapter          | 可选     | string  | 指定使用的 GPU 和驱动后端，可使用 API `api/adapters` 查看，默认为 "Auto" |
-| bnf              | 可选     | object  | BNF 选项配置，用于配置 BNF 解析相关参数，默认为空                |
-| embed_device     | 可选     | string  | 在 GPU 还是 CPU 上放模型的 Embed 矩阵，默认为 "CPU"             |
-| lora             | 可选     | array   | 是否加载 LoRA 文件，填 LoRA 文件的路径和 alpha 值等属性，默认为空       |
-| max_batch        | 可选     | integer | 缓存在 GPU 上的最大批次，默认为 8                                 |
-| model_path       | 必选     | string  | 模型文件路径                                                   |
-| precision        | 可选     | string  | 中间张量的精度，默认为 "Fp16"                                   |
-| quant_type       | 可选     | string  | 量化类型 ("Int8" or "NF4")，Int8 效果比 NF4 好，但需要更多显存   |
-| quant            | 可选     | integer | 量化层数，调高会提升效率，但可能损失精度使模型效果变差，默认为 0  |
-| state            | 可选     | array   | state 文件列表，每个元素包含 path 路径属性，默认为空               |
-| token_chunk_size | 可选     | integer | 一次并行处理的最大 token 数，默认为 128                           |
-| tokenizer_path   | 必选     | string  | 指定使用的 RWKV 分词器路径                                     |
-
-**参考的 API 请求主体**
-
-``` json copy
-{
-    "model_path": "RWKV-x060-ChnNovel-3B-20240807-ctx4096.st",
-    "adapter": {
-        "Manual": 0
+}'`,
     },
-    "quant_type": "NF4",
-    "quant": 31,
-    "token_chunk_size": 128,
-    "max_batch": 16,
-    "tokenizer_path": "assets/tokenizer/rwkv_vocab_v20230424.json",
-    "embed_device": "Cpu",
-    "precision": "Fp16",
-    "lora": [
-        {
-            "alpha": 192,
-            "path": "test-x606-3B.lora"
-        }
-    ],
-    "state": [
-        {
-            "path": "rwkv-x060-chn_single_round_qa-3B-20240516-ctx2048.state"
-        }
-    ]
+    {
+      label: '响应结构',
+      language: 'json',
+      code: `{
+  "object": "embeds",
+  "model": "embedding-model-code",
+  "data": [
+    {
+      "object": "embed",
+      "index": 0,
+      "chunks": [
+        { "chunk": "RWKV combines efficient recurrent inference...", "embed": [[0.012, -0.031]] }
+      ]
+    }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="input" type="string" description="要向量化的文本；不能为空。" />
+    <ApiField name="max_tokens" type="integer" defaultValue="510" description="每个分块的 token 上限；服务端强制限制到 1..510。" />
+    <ApiField name="prefix" type="string" defaultValue="query:" description="加到每个文本分块前的模型任务前缀。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="model" type="string" required description="Embedding 模型代码。" />
+    <ApiField name="data[].chunks" type="array<ChunkData>" required description="每个分块包含原文 chunk 和二维 embed 数组。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="可用性" kind="other" badge="feature-gated" defaultOpen={false}>
+    <ApiField name="route" type="conditional" description="未启用 embed feature 时路由不会注册。" />
+    <ApiField name="model" type="conditional" description="路由存在但未加载 Embedding 模型时返回 400。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+## 模型信息
+
+在发送生成请求前，可以先调用这个接口确认 Ai00 当前加载的是哪个模型。它也适合作为应用启动时的简单连通性检查。
+
+<ApiReference
+  method="GET"
+  path="/api/oai/v1/models"
+  title="获取当前模型"
+  description="返回当前加载模型的文件名。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl http://localhost:65530/api/oai/v1/models`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "data": [
+    { "object": "models", "id": "rwkv7-g1-2.9b" }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="data" type="array<ModelChoice>" required description="当前模型数组，通常只有一项。" />
+    <ApiField name="data[].object" type="string" required description="固定为 models。" />
+    <ApiField name="data[].id" type="string" required description="模型路径的文件名部分，不包含扩展名。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+## 采样器格式
+
+普通调用可以直接使用请求顶层的 `top_p`、`top_k` 和 `temperature`。只有需要完整控制采样方法时，才传入 `sampler` 对象；一旦提供 `sampler`，其中的配置会覆盖顶层采样参数。
+
+### Nucleus
+
+```json
+{
+  "type": "Nucleus",
+  "top_p": 0.5,
+  "top_k": 128,
+  "temperature": 1,
+  "presence_penalty": 0.3,
+  "frequency_penalty": 0.3,
+  "penalty_decay": 0.99654026
 }
 ```
 
-返回结果说明：
+### Mirostat
 
-- 该 API 没有直接的返回值
-- 响应状态码 200 表示请求成功
-- 如果加载失败，会返回相应的错误状态码和错误信息
-- 加载状态和进度可在部署 Ai00 服务的终端查看
+```json
+{
+  "type": "Mirostat",
+  "tau": 3,
+  "rate": 0.1
+}
+```
 
-![admin/models/load-API](./imgs/admin-models-load-terminal.jpg)
+### Typical
 
-## admin/models/save
+```json
+{
+  "type": "Typical",
+  "tau": 0.5,
+  "top_k": 128,
+  "temperature": 1,
+  "presence_penalty": 0.3,
+  "frequency_penalty": 0.3,
+  "penalty_decay": 0.99654026
+}
+```
 
-**API 功能**：该 API 能够以 `.prefab` 格式导出**带有量化方法和量化层数两项配置**的 RWKV 模型。
+## 管理员鉴权
+
+推理接口用于生成内容，管理接口则可以加载模型、修改配置或操作服务器文件。两类接口应使用不同的访问控制策略。
+
+<CallOut type="warning">
+`/admin/*` 会读取、写入或重新加载服务器文件。生产环境应关闭 `force_pass`，通过 `/api/auth/exchange` 获取管理员 JWT，并把管理端点限制在可信网络内。
+</CallOut>
+
+先在 `Config.toml` 中配置管理应用的 `app_id` 和 `app_secret`，再调用下面的接口换取 JWT。不要把 `app_secret` 写入浏览器端代码或公开仓库。
+
+<ApiReference
+  method="POST"
+  path="/api/auth/exchange"
+  title="换取管理员 JWT"
+  description="使用 Config.toml 中配置的 app key 换取令牌。默认过期时间为 86400 秒。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/api/auth/exchange \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "app_id": "docs-admin",
+  "app_secret": "replace-with-secret"
+}'`,
+    },
+    {
+      label: '成功响应',
+      language: 'json',
+      code: `{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "code": 200,
+  "message": "SUCCESS"
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="app_id" type="string" required description="Config.toml 中的应用 ID。" />
+    <ApiField name="app_secret" type="string" required description="对应的 secret key。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="响应" kind="response" statusCode="200 / 400 / 403" contentType="application/json">
+    <ApiField name="token" type="string | null" required description="成功时返回 JWT。" />
+    <ApiField name="code" type="integer" required description="HTTP 状态码。" />
+    <ApiField name="message" type="string | null" required description="结果说明。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+换取令牌后，推荐通过 `Authorization: Bearer <token>` 请求头调用管理接口。查询参数 `admin_token=<token>` 也能提交令牌，但它更容易出现在代理和访问日志中，不建议在生产环境使用。
+
+## 加载模型、LoRA 与 State
+
+这个管理接口会销毁当前运行时，并按照请求内容重新加载模型。第一次调试时建议只填写 `model_path` 和必要的精度参数；确认模型能够加载后，再逐步加入 LoRA、State 和量化设置。
+
+<ApiReference
+  method="POST"
+  path="/admin/models/load"
+  title="重新加载 Ai00 运行时"
+  description="一个请求同时指定模型、LoRA、初始 State、量化、精度、批处理和 Adapter。需要管理员权限。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://localhost:65530/admin/models/load \\
+  -H 'Authorization: Bearer replace-with-token' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "model_path": "rwkv7-g1-2.9b.st",
+  "lora": [],
+  "state": [
+    {
+      "path": "states/assistant.state",
+      "name": "assistant",
+      "id": "00000000-0000-0000-0000-000000000000",
+      "default": true
+    }
+  ],
+  "quant": 0,
+  "quant_type": "Int8",
+  "precision": "Fp16",
+  "token_chunk_size": 128,
+  "max_batch": 8,
+  "tokenizer_path": "assets/tokenizer/rwkv_vocab_v20230424.json",
+  "bnf": {
+    "enable_bytes_cache": true,
+    "start_nonterminal": "start"
+  },
+  "adapter": "Auto"
+}'`,
+    },
+    {
+      label: '成功响应',
+      language: 'http',
+      code: `HTTP/1.1 200 OK`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="model_path" type="string" description="模型路径。路径会限制在配置的模型目录内。" />
+    <ApiField name="lora" type="array<Lora>" description="LoRA 列表。">
+      <ApiField name="path" type="string" required description="LoRA 路径。" />
+      <ApiField name="alpha" type="number" defaultValue="1.0" description="混合系数。" />
+    </ApiField>
+    <ApiField name="state" type="array<State>" description="启动时加载的 State。">
+      <ApiField name="path" type="string" required description="State 文件路径。" />
+      <ApiField name="name" type="string | null" description="显示名称。" />
+      <ApiField name="id" type="uuid" description="省略时自动生成。" />
+      <ApiField name="default" type="boolean" defaultValue="false" description="是否作为默认 State。" />
+    </ApiField>
+    <ApiField name="quant" type="integer" defaultValue="0" description="量化层数。" />
+    <ApiField name="quant_type" type="Int8 | NF4" description="量化类型。" />
+    <ApiField name="precision" type="Fp16 | Fp32" defaultValue="Fp16" description="中间张量精度。" />
+    <ApiField name="token_chunk_size" type="integer" defaultValue="128" description="每次并行处理的最大 token 数。" />
+    <ApiField name="max_batch" type="integer" defaultValue="8" description="GPU 上缓存的 State 数。" />
+    <ApiField name="tokenizer_path" type="string" description="Tokenizer 路径。" />
+    <ApiField name="bnf" type="object" description="BNF 缓存与起始非终结符配置。" />
+    <ApiField name="adapter" type="Auto | Economical | Manual(index)" defaultValue="Auto" description="GPU Adapter 选择。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" description="运行时加载成功；响应主体为空。" />
+  <ApiSchemaSection title="路径错误" kind="response" statusCode="404" description="模型、LoRA 或 State 路径越出允许目录；响应主体为空。" defaultOpen={false} />
+  <ApiSchemaSection title="加载失败" kind="response" statusCode="500" description="模型加载失败；响应主体为空。" defaultOpen={false} />
+</ApiReference>
 
 <CallOut type="info">
-`.prefab` 预制件通常指游戏开发中使用的一种资源格式，允许开发者创建、保存和复用游戏对象（GameObject）及其**组件的配置**。
-
-Ai00 支持导入和导出 `.prefab` 格式的 RWKV 模型，通过预量化 RWKV 模型节省加载时间。
+如果不确定应该选择哪张显卡，先把 `adapter` 设置为 `"Auto"`。经济模式写作 `"Economical"`；手动选择通常写作 `{ "Manual": 0 }`，其中数字来自 `GET /api/adapters` 返回的显卡索引。
 </CallOut>
 
-**API 地址**：（post）`http://localhost:65530/admin/models/save`
+## 其他管理端点
 
-**参数列表**：
+下面列出 WebUI 和自动化部署可能使用的管理接口。普通聊天客户端不需要调用这些端点。
 
-| 参数名称 | 是否可选 | 类型   | 参数解释             |
-| -------- | -------- | ------ | -------------------- |
-| path     | 必选     | string | 导出 `.prefab` RWKV 模型的路径 |
+| 端点 | 请求与响应 |
+| --- | --- |
+| `POST /admin/models/save` | `{ "path": "model.prefab" }`；成功返回空 `200` |
+| `GET /admin/models/unload` | 无请求主体；卸载完成后返回空 `200` |
+| `GET /api/models/info` | 返回 `reload`、`model`、`states` 完整运行时信息 |
+| `GET /api/models/state` | SSE，每半秒发送一次运行时信息 |
+| `GET /api/adapters` | 返回字符串数组，例如 `["NVIDIA ...", "AMD ..."]` |
+| `GET /api/models/list` | 返回允许模型目录中的模型信息 |
 
-**参考的 API 请求主体**
-
-``` json copy
-{
-  "path": "/assets/models/temp.st"
-}
-```
-返回结果说明：
-
-- 该 API 没有直接的返回值`
-- 响应状态码 200 表示请求成功
-- 导出进度和结果可在部署服务的终端查看
-- 导出成功后会在指定路径生成 `.prefab` 格式的模型文件
-
-![admin/model/save](./imgs/admin-models-save-terminal.png)
-
-## admin/models/state/load
-
-**API 功能**：挂载指定路径的 state 文件。
-
-<CallOut type="info">
-作为 RNN 模型，RWKV 模型拥有固定大小的隐藏状态（State）。可通过加载 State 文件初始化 RWKV 模型的隐藏状态，以强化 RWKV 模型在特定任务的表现（类似于模型增强插件）。
+<CallOut type="warning">
+文件管理端点接收服务器路径，适合 WebUI 自身使用，不建议作为通用公网 API。调用 `/admin/files/unzip`、`dir/ls`、`config/load` 或 `config/save` 前，应同时使用 JWT、反向代理访问控制和独立的模型目录权限。
 </CallOut>
 
-**API 地址**：（post）`http://localhost:65530/admin/models/state/load`
+## 响应与类型约定
 
-**参数列表**：
+下面这些规则在多个接口中重复出现。开发客户端时可以集中实现，避免为每个端点编写不同的解析逻辑：
 
-| 参数名称 | 是否可选 | 类型           | 参数解释                                |
-| -------- | -------- | -------------- | --------------------------------------- |
-| default  | 可选     | boolean        | 是否立即挂载此 state                          |
-| id       | 可选     | string         | state 文件的 UUID，不指定则随机分配     |
-| name     | 可选     | string \| null | 为 state 文件命名     |
-| path     | 必选     | string         |  `assets\models`目录下的某个 state 文件名 |
+- Ai00 的 token 统计字段是 `prompt`、`completion`、`total`。
+- `finish_reason` 可能是 `stop`、`length`、`content_filter` 或 `null`。
+- `stop`、`prompt`、`input` 使用 Ai00 的 `Array<T>` 类型，通常同时接受单值和数组。
+- `state` 可以是 UUID，也可以传完整 State 数据或 State 文件描述对象。
+- 流式聊天使用 `chat.completion.chunk`；流式续写使用 `text_completion.chunk`。
 
-**参考的 API 请求主体**
+## 历史与兼容接口
 
-``` json copy
-{
-  "default": false,
-  "id": "00000000-0000-0000-0000-000000000000",
-  "name": "中文单轮对话",
-  "path": "rwkv-x060-chn_single_round_qa-1B6-20240516-ctx2048.state"
-}
-```
-
-返回结果说明：
-
-- 该 API 没有直接的返回值
-- 响应状态码 200 表示请求成功
-- 如果指定了 default 为 true，该 state 会立即生效
-- state 文件的加载状态可在部署 Ai00 服务的终端查看
-
-![admin/model/save](./imgs/admin-model-state-load-terminal.png)
-
-## admin/models/unload
-
-**API 功能**：关闭当前已加载的模型和 Ai00 服务。
-
-**API 地址**：（get）`http://localhost:65530/admin/models/unload`
-
-返回结果说明：
-
-- 该 API 没有直接的返回值
-- 响应状态码 200 表示请求成功
-- 卸载成功后，需要重新加载模型才能继续使用服务
-- 卸载状态可在部署 Ai00 服务的终端查看
-  
-![admin/models/unload-API](./imgs/admin-models-unload-terminal.png)
-
-## api/adapters
-
-**API 功能**：返回当前设备所有的 GPU 和驱动，以用于加载模型时指定 GPU。
-
-**API 地址**：（get）`http://localhost:65530/api/adapters`
-
-**参考的 API 返回结果**
-
-``` json copy
-[
-    "AMD Radeon 780M Graphics (Vulkan)",
-    "AMD Radeon 780M Graphics (Vulkan)",
-    "AMD Radeon 780M Graphics (Dx12)",
-    "AMD Radeon 780M Graphics (Dx12)",
-    "AMD Radeon 780M Graphics (Gl)"
-]
-```
-返回结果说明：
-
-- 返回一个字符串数组，每个元素代表一个可用的 GPU 设备和其驱动类型
-- 数组中的每个元素格式为：`"GPU名称 (驱动类型)"`，如 `"AMD Radeon 780M Graphics (Vulkan)"`
-- 数组的索引（从 0 开始），可用于 `admin/models/load` API 中的 `adapter` 参数，例如 `"adapter": {"Manual": 0}` 指定使用第一个 GPU
-
-<CallOut type="warning" >
-截至 0.5.9 版本，Ai00 仅支持 Vulkan 驱动，不再支持 OpenGL 和 DirectX 驱动。
+<CallOut type="warning">
+以下路径和字段仅用于维护历史客户端，不应作为新集成的实现依据。标记为“已移除”的接口在当前版本中不可用。
 </CallOut>
 
-## api/auth/exchange
+### 兼容路径
 
-**API 功能**：切换带管理员权限的账号，`app_id` 和 `app_secret` 需提前在 `config.toml` 中配置。
+| 历史或兼容路径 | 已确认版本状态 | 当前接口 |
+| --- | --- | --- |
+| `POST /api/oai/chat/completions` | v0.7.1 仍兼容 | `POST /api/oai/v1/chat/completions` |
+| `POST /api/oai/completions` | v0.7.1 仍兼容 | `POST /api/oai/v1/completions` |
+| `POST /api/oai/chooses` | v0.7.1 仍兼容 | `POST /api/oai/v1/chooses` |
+| `POST /api/oai/states` | v0.7.1 仍兼容 | `POST /api/oai/v1/states` |
+| `POST /api/oai/embeds` | v0.7.1 仍兼容 | `POST /api/oai/v1/embeds` |
+| `GET /api/oai/models` | v0.7.1 仍兼容 | `GET /api/oai/v1/models` |
 
-**API 地址**：（post）`http://localhost:65530/api/auth/exchange`
+### 已移除接口
 
-**参数列表**：
+| 历史接口 | 使用版本 | 当前替代方式 |
+| --- | --- | --- |
+| `POST /api/oai/embeddings`、`POST /api/oai/v1/embeddings` | v0.4.9–v0.5.14；v0.6.0 移除 | `POST /api/oai/v1/embeds` |
+| `POST /admin/models/state/load` | v0.5.0–v0.5.14；v0.6.0 移除 | 在 `POST /admin/models/load` 的 `state` 字段中加载 |
 
-| 参数名称   | 是否可选 | 类型   | 参数解释                               |
-| ---------- | -------- | ------ | -------------------------------------- |
-| app_id     | 必选     | string | 在 `config.toml` 中配置的 `app_id`     |
-| app_secret | 必选     | string | 在 `config.toml` 中配置的 `app_secret` |
+### 兼容请求字段
 
-**参考的 API 请求主体**
-
-``` json copy
-{
-  "app_id": "admin",
-  "app_secret": "ai00_is_good"
-}
-```
-
-**参考的 API 返回结果**
-
-``` json copy
-{
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzaWQiOiJhZG1pbiIsImV4cCI6MTczMjM1MjMwMH0.06fDScO-9GxF6rlq1v7MaC608uKg8qNN-TWZ8HvyZDk",
-    "code": 200,
-    "message": "SUCCESS"
-}
-```
-返回结果说明：
-
-- `token`: 生成的 JWT 认证令牌，用于后续 API 请求的身份验证
-- `code`: 状态码，200 表示成功
-- `message`: 状态信息，"SUCCESS" 表示成功
-
-## Ai00 的采样方法[#ai00-sample]
-
-Ai00 默认使用 Nucleus （又名 top_k ）采样方法，这也是 RWKV 模型的默认解码方式。但除了 Nucleus， Ai00 也额外支持 Mirostat 和 Typical 两种采样方式。
-
-不同的采样方法有不同的解码参数，调整模型的各类解码参数，将会影响模型生成的内容风格、内容质量等指标。
-
-以下是 Ai00 三种采样方式的简要描述，和对应的模型解码参数：
-
-### Nucleus 采样
-
-Nucleus （又名 top_k ）采样方法是通过累积概率（top_p）来选择模型生成的词汇，确保文本多样化且不偏离主题。
-
-Nucleus 采样支持如下解码参数：
-
-| 参数名称          | 类型    | 参数解释                                                                             |
-| ----------------- | ------- | ------------------------------------------------------------------------------------ |
-| frequency_penalty | number  | 存在惩罚，惩罚**已经出现过的**，减少它们再次出现的机会                               |
-| penalty           | integer | 惩罚半衰期，模型在输出足够的字数后调整 penalty_decay，**不建议修改**                 |
-| penalty_decay     | number  | 频率的衰减参数，在每一步生成中逐步减小惩罚值，范围 [0.99, 0.999]，**不建议修改**     |
-| presence_penalty  | number  | 频率惩罚，惩罚**出现频率较高的词**，减少它们频繁出现的机会                           |
-| temperature       | number  | 采样温度（可以理解为随机性），数值越大随机性越强、更具创造力，也可能导致上下文不连贯 |
-| top_k             | integer | 模型生成内容时的候选词数量（类似于输入法的候选词数量）                               |
-| top_p             | number  | 模型生成的累积概率，这个值越大生成的内容更多样化，但也更容易偏离对话主题甚至胡言乱语 |
-
-在 Ai00 的 API 请求中，标准的 Nucleus 采样格式如下：
-
-``` json copy
-{
-  "sampler_override": {
-    "frequency_penalty": 0.3,
-    "penalty": 400, 
-    "penalty_decay": 0.99654026,
-    "presence_penalty": 0.3,
-    "temperature": 1,
-    "top_k": 128,
-    "top_p": 0.5,
-    "type": "Nucleus"
-  }
-}
-```
-
-### Mirostat 采样
-
-Mirostat 采样通过动态调整熵（随机性）来平衡创造性和连贯性。
-
-| 参数名称 | 类型   | 参数解释                                                                                                  |
-| -------- | ------ | --------------------------------------------------------------------------------------------------------- |
-| Rate     | number | 模型调整随机性的速度，较高的 rate 值会让模型更快适应新的上下文，但可能导致回答的主题不连贯                |
-| tau      | number | 模型生成文本时的目标随机性，较高的 tau 值会导致模型生成的文本更有创造性和多样性，但可能导致内容不太连贯。 |
-
-在 Ai00 的 API 请求中，标准的 Mirostat 采样格式如下：
-
-``` json copy
-{
-  "sampler_override": {
-    "Rate": 0.09,
-    "tau": 0.5,
-    "type": "Mirostat"
-  }
-}
-```
-
-### Typical 采样
-
-Typical 采样通过选择上下文中最有代表性的词，以避免极端概率导致的内容脱轨。
-
-| 参数名称          | 类型    | 参数解释                                                                                                  |
-| ----------------- | ------- | --------------------------------------------------------------------------------------------------------- |
-| frequency_penalty | number  | 存在惩罚，惩罚**已经出现过的词**，减少它们再次出现的机会                                                  |
-| penalty           | integer | 惩罚半衰期，模型在输出足够的字数后调整 penalty_decay，**不建议修改**                                      |
-| penalty_decay     | number  | 频率的衰减参数，在每一步生成中逐步减小惩罚值，范围 [0.99, 0.999]，**不建议修改**                          |
-| presence_penalty  | number  | 频率惩罚，惩罚**出现频率较高的词**，减少它们频繁出现的机会                                                |
-| temperature       | number  | 采样温度（可以理解为随机性），数值越大随机性越强、更具创造力，也可能导致上下文不连贯                      |
-| top_k             | integer | 模型生成内容时的候选词数量（类似于输入法的候选词数量）                                                    |
-| tau               | number  | 模型生成文本时的目标随机性，较高的 tau 值会导致模型生成的文本更有创造性和多样性，但可能导致内容不太连贯。 |
-
-在 Ai00 的 API 请求中，标准的 Typical 采样格式如下：
-
-``` json copy
-{
-  "sampler_override": {
-    "frequency_penalty": 0.3,
-    "penalty": 400, 
-    "penalty_decay": 0.99654026,
-    "presence_penalty": 0.3,
-    "temperature": 1,
-    "top_k": 128,
-    "tau": 5,
-    "type": "Typical"
-  }
-}
-```
+| 历史字段 | v0.7.1 当前字段 | 适用请求 |
+| --- | --- | --- |
+| `logit_bias` | `bias` | 聊天补全、文本续写 |
+| `sampler_override` | `sampler` | 聊天补全、文本续写 |
+| `learning_rate` | `rate` | Mirostat 采样器 |

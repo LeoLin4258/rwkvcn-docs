@@ -6,7 +6,9 @@ keywords: [RWKV Runner下载与安装, RWKV Runner配置环境, RWKV Runner模�
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-这部分文档旨在为一些刚接触 RWKV 大模型的朋友们提供指引。
+这部分文档以 RWKV Runner `1.9.12` 为例，为刚接触 RWKV 大模型的用户介绍安装、模型选择和启动流程。后续版本的模型、后端和显存预设以 Runner 界面与 release 说明为准。
+
+Runner 的“后端”是不同推理实现的入口。第一次使用时，可以先采用界面提供的预设配置；运行 RWKV-7 时，RWKV Pip 和 Albatross 都可以处理本地单会话，Albatross 还支持在 CUDA 或 ROCm GPU 上调度并发请求。两者的生成速度、首 token 延迟和显存占用需要在同一设备、模型与生成参数下实际比较。需要 GGUF 模型时则会使用 llama.cpp。详细差异见[高级配置](./Advanced-Usage)。
 
 遵循以下步骤，应该可以成功使用 RWKV Runner 驱动本地 RWKV 模型，体验 RWKV 模型的魅力。
 
@@ -85,7 +87,7 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 ![RWKV-Runner-preset](./imgs/RWKV-Runner-preset.png)
 
 每个模型配置名称的规则，依次代表着：设备-所需显存-模型规模-模型类型。例如 GPU-4G-3B-RWKV，表示该配置需要 4G 显存，模型规模为 30 亿（3B）参数，使用的是 RWKV 模型。
-模型的参数规模越大，理论上的任务效果会更好，但对**设备的内存、显存**等性能要求也会更高。
+参数规模越大的模型通常需要更多内存或显存，但实际回答效果还取决于模型版本、训练数据和具体任务，不能只根据参数量判断。第一次使用时，可以先选择设备能够稳定运行的模型，再用自己的问题比较不同版本。
 
 选择一项预设的模型配置后，点击右下角的 `运行` 按钮，即可运行对应的模型。
 <CallOut type="tips">
@@ -116,7 +118,7 @@ RWKV Runner 仓库支持 Windows、MacOS、Linux 平台。
 
 <CallOut type="tips">
 
-推荐使用 RWKV7-G0/G1 系列模型，RWKV7-G1 系列模型拥有杰出的推理能力，且原生支持世界 100+ 种语言和代码。即使是最小的 0.1B 也能回答开放性和创造性问题。
+建议优先查看仍在更新的 RWKV-7 G0 / G1 系列。G1 模型卡将其说明为使用网页、代码、合成数据以及指令、聊天和推理数据训练的基础模型，并提供从 0.1B 到 13.3B 的多个规模。较小模型更容易在本地运行，但能力边界与较大模型不同，请按任务测试后选择。
 
 - [Hugging Face 主站](https://huggingface.co/BlinkDL/rwkv7-g1/tree/main)
 - [Hugging Face 镜像站](https://hf-mirror.com/BlinkDL/rwkv7-g1/tree/main)（国内可访问）

@@ -1,515 +1,497 @@
 ---
 title: API 用法
-description: 详细介绍RWKV Runner的API用法
-keywords: [RWKV Runner API用法, RWKV Runner API文档, RWKV Runner API使用, RWKV Runner API教程, RWKV Runner API指南]
+description: RWKV Runner 1.9.12 的 HTTP API、请求字段、响应结构与部署注意事项
+keywords: [RWKV Runner API, OpenAI API, RWKV-7, Albatross, Embeddings]
 ---
-import { Step, Steps } from 'fumadocs-ui/components/steps'
+
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
+import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-reference/api-reference.tsx'
 
-本文旨在让大家更轻松、更灵活地使用 RWKV Runner 的 API 。
+以下接口适用于 RWKV Runner **v1.9.12**。
 
-此章节会列出 RWKV Runner 每个 API 的作用、请求主体的参考结构、有哪些必需和可选字段。
+- 默认地址：`http://127.0.0.1:8000`
+- 交互式 OpenAPI：启动后访问 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- 上游路由源码：[backend-python/routes](https://github.com/josStorer/RWKV-Runner/tree/master/backend-python/routes)
 
-那么，让我们先从一些 RWKV 模型的基础知识开始吧！
-
-## RWKV 模型解码参数（预备知识）
-
-你可能注意到了，很多 RWKV 部署/体验工具都支持调整 `Temperature`、`Top_P` 等 RWKV 模型解码参数。
-
-这些主要解码参数对应的效果如下：
-
-| 参数                | 效果                                                                                                                                                            |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Temperature`       | 采样温度，就像给模型喝酒，数值越大随机性越强，更具创造力，数值越小则越保守稳定。                                                                                |
-| `Top_P`             | 就像给模型喂镇静剂，优先考虑前 n% 概率质量的结果。如设置成 0.1 则考虑前 10% , 生成内容质量更高但更保守。如设置成 1 ，则考虑所有质量结果，内容质量降低但更多样。 |
-| `Presence penalty`  | 存在惩罚，正值根据“新 token 在至今的文本中是否出现过”来对其进行惩罚，从而增加了模型涉及新话题的可能性。                                                         |
-| `Frequency Penalty` | 频率惩罚，根据新内容在目前的文本中出现的频率/次数来对其进行惩罚，从而减少模型原封不动地重复相同短语/句子的可能性。                                              |
-| `max_tokens`        | 模型生成文本时的最大 token 数。如果你在对外提供服务，建议限制单个请求的 max_tokens，太高可能导致极端情况下单个响应消耗大量的服务器资源。                        |
-
-
-续写小说和对话这一类**需要创造性的任务**，需要高 `Temperature` + 低 `Top_P` 的参数组合，可以尝试以下四种参数搭配：
-
-- `Temperature` 1.2 ，`Top_P` 0.5
-- `Temperature` 1.4 ，`Top_P` 0.4 
-- `Temperature` 1.4 ，`Top_P` 0.3
-- `Temperature` 2 ，`Top_P` 0.2 
-
-举个例子，续写小说可以尝试将 `Temperature` 设为 2 （ `Temperature` 增加会提高文采，但逻辑会下降），然后将 `Top_P` 设为 0.1 ~ 0.2 （`Top_P` 越低，逻辑能力越强），这样生成的小说内容逻辑和文采都很好。
-
-完成**相对机械的任务**，例如材料问答、文章摘要等，则可将参数设为：
-
-- `Temperature` 1 ，`Top_P` 0.2
-- `Temperature` 1 ，`Top_P` 0.1
-- `Temperature` 1 ，`Top_P` 0 
-
-举个例子，如果你正在执行像关键词提取之类的机械任务，不需要模型进行任何开放性思考，则可以将 `Temperature` 设为 1 ，`Top_P`、`Presence penalty`、`Frequency Penalty` 都设为 0 。
-
-现在，你应该对 RWKV 模型最主要的四个解码参数有所了解了，现在我们开始了解 RWKV Runner 的所有 API 具体用法！
-
-## Completions (续写) API 
-
-RWKV Runner 的续写 API 分为**聊天续写**和**基础续写**两种，其中聊天续写 API 拥有“role - 角色”参数，因此支持角色扮演等进阶任务。
-
-### /chat/completions
-
-`v1/chat/completions` 和 `/chat/completions` 是相同的 API，用于 RWKV 的**聊天续写**模式，也就是和模型对话。
-
-**API 地址**：（post）`http://127.0.0.1:8000/chat/completions`
-
-**必需参数**
-
-- "messages": 消息对象列表，包含两个元素：
-  - "content": 提供给模型的 prompt ，即对话内容
-  - "role": 扮演的角色名称，可以从"user", "assistant" 和 "system"选一个。
-
-因此，聊天 API 的基础请求主体如下：
-
-
-```json copy
-{
-    "messages": [
-    {
-      "content": "hello",
-      "role": "user"
-    }
-    ]
-}
-```
-<CallOut type="warning" >
-注意，上面是一个最简单的聊天续写请求，如果你希望控制模型的创作风格/创作能力，请考虑添加以下可选参数：
+<CallOut type="warning">
+`/switch-model`、`/exit`、State Cache 和部分 MIDI 文件写入端点属于管理接口。开启 `deploy` 后，这些接口会返回 `403`；不要把未受保护的 Runner 管理端口直接暴露到公网。
 </CallOut>
 
-**可选参数**
+## 当前端点总览
 
-下面列出了聊天续写 API 的所有可选参数：
+| 类别 | 方法与路径 | 说明 |
+| --- | --- | --- |
+| 生成 | `POST /v1/chat/completions` | OpenAI 风格聊天补全 |
+| 生成 | `POST /v1/completions` | 文本续写 |
+| 向量 | `POST /v1/embeddings` | RWKV 文本向量 |
+| 模型 | `GET /v1/models` | 获取模型列表 |
+| 模型 | `GET /v1/models/{model_id}` | 获取指定模型 |
+| 配置 | `POST /switch-model` | 加载 `.pth` 或 `.gguf`，并为 `.pth` 选择 RWKV Pip 或 Albatross |
+| 配置 | `POST /update-config` | 更新默认解码参数或 State |
+| 配置 | `GET /status` | 后端状态、PID 与设备名称 |
+| Albatross | `GET /albatross/profile` | 性能计数；查询参数 `reset=true` 可读取后重置 |
+| Albatross | `POST /albatross/profile/reset` | 重置性能计数 |
+| State Cache | `POST /enable-state-cache` | 启用前缀状态缓存 |
+| State Cache | `POST /disable-state-cache` | 禁用并清空状态缓存 |
+| State Cache | `POST /reset-state` | 重置 State Cache |
+| 文件 | `POST /file-to-text` | 上传并解析 `.txt` 或 `.pdf` |
+| MIDI | `POST /text-to-midi`、`/midi-to-text` | 文本与 MIDI 互转 |
+| MIDI | `POST /txt-to-midi`、`/midi-to-wav`、`/text-to-wav` | 服务器文件转换，部署模式下禁用 |
+| 根路由 | `GET /`、`POST /exit` | 健康检查与关闭后端 |
 
-| 参数名称          | 类型                            | 参数解释                                                        |
-| ----------------- | ------------------------------- | --------------------------------------------------------------- |
-| max_tokens        | integer                         | 生成文本的最大令牌数，最大 102400，对外部署时建议限制文本长度。 |
-| temperature       | number                          | 解码参数之一，具体效果参考前文，范围[0, 3]                      |
-| top_p             | number                          | 解码参数之一，具体效果参考前文，范围 [0, 1]                     |
-| presence_penalty  | number                          | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| frequency_penalty | number                          | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| penalty_decay     | number                          | 频率的衰减参数，范围 [0.99, 0.999]，**不建议修改**              |
-| top_k             | integer                         | 模型生成内容的候选词数量，范围 [0, 25] **不建议修改**           |
-| global_penalty    | boolean                         | 是否应用全局惩罚，**不建议修改**                                |
-| state             | string                          | 指定使用的 RWKV state 文件路径                                  |
-| model             | string \| null                  | 指定使用的 RWKV 模型路径                                        |
-| stream            | boolean                         | 是否以流模式生成文本。                                          |
-| stop              | string \| array\<string\> \| null | 指定生成文本时的停止词。                                        |
-| user_name         | string \| null                  | 聊天模式的用户名，**不建议修改**                                |
-| assistant_name    | string \| null                  | 聊天模式的助手名，**不建议修改**                                |
-| system_name       | string \| null                  | 聊天模式的系统名，**不建议修改**                                |
+## 解码参数
 
-### /completions 
+聊天补全、文本续写和 `/update-config` 共用以下参数。请求中的值会覆盖 Runner 当前默认配置。
 
-`/completions`和 `v1/completions`是相同的续写 API，对应的是 RWKV Runner 的**基础续写**模式，也就是让模型接着你的 prompt 继续生成内容。
+| 字段 | 类型与范围 | 作用 |
+| --- | --- | --- |
+| `max_tokens` | integer，`1..102400` | 最大生成 token 数 |
+| `temperature` | number，`0..3` | 采样温度 |
+| `top_p` | number，`0..1` | 核采样累计概率 |
+| `top_k` | integer，`0..100` | 候选 token 数 |
+| `presence_penalty` | number，`-2..2` | 出现惩罚 |
+| `frequency_penalty` | number，`-2..2` | 频率惩罚 |
+| `penalty_decay` | number，`0.99..0.999` | 惩罚随距离衰减 |
+| `global_penalty` | boolean | 是否把输入 prompt 计入惩罚 |
+| `state` | string | State-tuned 文件路径 |
 
-**API 地址**：（post）`http://127.0.0.1:8000/completions`
+## 聊天补全
 
-**必需参数**
-
-- "prompt": 你提供给模型的续写 prompt 。
-
-因此，聊天 API 的基础请求主体如下：
-
-```json copy
-{
- "prompt": "那一天，人们又想起来被暴雨支配的恐惧..."
-}
-```
-
-**可选参数**
-
-下面列出了续写 API 的所有可选参数：
-
-| 参数名称          | 类型                            | 参数解释                                                        |
-| ----------------- | ------------------------------- | --------------------------------------------------------------- |
-| max_tokens        | integer                         | 生成文本的最大令牌数，最大 102400，对外部署时建议限制文本长度。 |
-| temperature       | number                          | 解码参数之一，具体效果参考前文，范围[0, 3]                      |
-| top_p             | number                          | 解码参数之一，具体效果参考前文，范围 [0, 1]                     |
-| presence_penalty  | number                          | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| frequency_penalty | number                          | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| penalty_decay     | number                          | 频率的衰减参数，范围 [0.99, 0.999]，**不建议修改**              |
-| top_k             | integer                         | 模型生成内容的候选词数量，范围 [0, 25] **不建议修改**           |
-| global_penalty    | boolean                         | 是否应用全局惩罚，**不建议修改**                                |
-| state             | string                          | 指定使用的 RWKV state 文件路径                                  |
-| model             | string \| null                  | 指定使用的 RWKV 模型路径                                        |
-| stream            | boolean                         | 是否以流模式生成文本。                                          |
-| stop              | string \| array\<string\> | null | 指定生成文本时的停止词。                                        |
+<ApiReference
+  method="POST"
+  path="/v1/chat/completions"
+  title="创建聊天补全"
+  description="支持普通或 SSE 流式输出、工具调用、原始消息和助手前缀补全。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/v1/chat/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "model": "rwkv",
+  "messages": [
+    { "role": "system", "content": "回答要简洁" },
+    { "role": "user", "content": "用一句话介绍 RWKV" }
+  ],
+  "max_tokens": 200,
+  "temperature": 1,
+  "top_p": 0.3,
+  "stream": false
+}'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "chat.completion",
+  "model": "rwkv",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "RWKV 是兼具 RNN 线性推理效率与 Transformer 训练方式的语言模型。"
+      },
+      "index": 0,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 18,
+    "completion_tokens": 24,
+    "total_tokens": 42
+  }
+}`,
+    },
+    {
+      label: '工具调用 · cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/v1/chat/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "messages": [{ "role": "user", "content": "北京天气如何？" }],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "查询天气",
+        "parameters": {
+          "type": "object",
+          "properties": { "city": { "type": "string" } },
+          "required": ["city"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"
+}'`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json" description="至少提供一条消息。">
+    <ApiField name="messages" type="array<Message>" required description="按顺序排列的 system、user、assistant 或 tool 消息。">
+      <ApiField name="role" type="string" required description="system、user、assistant 或 tool。" />
+      <ApiField name="content" type="string | null" required description="消息正文；工具调用的 assistant 消息可以为 null。" />
+      <ApiField name="name" type="string" description="可选消息名称。" />
+      <ApiField name="raw" type="boolean" defaultValue="false" description="system、user、assistant 消息是否按原始文本处理。" />
+      <ApiField name="prefix" type="boolean" defaultValue="false" description="仅用于最后一条 assistant 消息，让模型续写已有助手前缀。" />
+      <ApiField name="tool_calls" type="array<ToolCall>" description="assistant 发起的函数调用。" />
+      <ApiField name="tool_call_id" type="string" description="tool 消息所响应的调用 ID。" />
+    </ApiField>
+    <ApiField name="model" type="string | null" defaultValue="rwkv" description="当前实现始终使用已加载模型。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="为 true 时返回 text/event-stream，并以 [DONE] 结束。" />
+    <ApiField name="stop" type="string | array<string> | null" description="停止字符串；RWKV 文本模型还会补入用户和助手角色停止词。" />
+    <ApiField name="stop_token_ids" type="array<integer> | null" description="按 token ID 停止生成。" />
+    <ApiField name="tools" type="array<Tool> | null" description="OpenAI 风格函数工具定义。" />
+    <ApiField name="tool_choice" type="none | auto | required | object" defaultValue="auto" description="工具选择策略或指定函数。" />
+    <ApiField name="user_name" type="string | null" description="覆盖内部用户角色名。" />
+    <ApiField name="assistant_name" type="string | null" description="覆盖内部助手角色名。" />
+    <ApiField name="system_name" type="string | null" description="覆盖内部系统角色名。" />
+    <ApiField name="presystem" type="boolean" defaultValue="false" description="是否在开头插入默认系统提示。" />
+    <ApiField name="max_tokens / temperature / top_p / top_k" type="number" description="见上方公共解码参数。" />
+    <ApiField name="presence_penalty / frequency_penalty / penalty_decay" type="number" description="见上方公共解码参数。" />
+    <ApiField name="global_penalty / state" type="boolean | string" description="见上方公共解码参数。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式响应；流式请求返回 chat.completion.chunk。">
+    <ApiField name="object" type="string" required description="非流式为 chat.completion，流式为 chat.completion.chunk。" />
+    <ApiField name="model" type="string" required description="当前模型名称。" />
+    <ApiField name="choices" type="array<object>" required description="生成结果；普通响应使用 message，流式响应使用 delta。" />
+    <ApiField name="usage" type="object" description="仅非流式响应包含 token 用量。" />
+  </ApiSchemaSection>
+</ApiReference>
 
 <CallOut type="info">
-RWKV Runner 默认使用 `\n\nUser` 作为停止词，如果你希望修改默认的模型停止词，则可以指定 `stop` 字段（一个字符串或者是一个字符串列表）。
+函数调用只在 RWKV 文本模型路径启用。模型生成的 `arguments` 仍需由调用方进行 JSON 校验、参数白名单校验和权限控制。
 </CallOut>
 
-参考的停止词：
+## 文本续写
 
-```bash copy
-["\n\nUser", "\n\nQuestion", "\n\nQ", "\n\nHuman", "\n\nBob", "\n\nAssistant", "\n\nAnswer", "\n\nA", "\n\nBot", "\n\nAlice"]
-```
-
-## Embeddings API
-
-RWKV Runner 的 Embeddings API 还停留在 RWKV-4，未针对 RWKV5/6 架构更新，因此不建议使用。
-
-## Configs（配置类） API 
-
-### /switch-model 
-
-这个 API 用于切换并重新部署 RWKV 模型。
-
-**API 地址**：（post）`http://127.0.0.1:8000/switch-model`
-
-**必需字段**
-
-- "model":用于切换 RWKV 模型，填 RWKV 模型文件的路径，如 `model/xxx.pth`
-- "strategy"：模型部署的方法，如"cuda fp16" 。不同的 strategy 需要的性能也不一样，参考下表：
-
-| strategy                              | VRAM & RAM                        | 速度                                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **cpu fp32**                        |  7B 模型需要 32GB 内存             | 使用 CPU fp32 精度加载模型，适合 Intel。对 AMD 非常慢，因为 pytorch 的 cpu gemv 在 AMD 上有问题，并且只会运行在一个单核上。                                                                                                                                                                                                                         |
-| **cpu bf16**                        | 7B 模型需要 16GB 内存             | 使用 CPU bf16 精度加载模型。在支持 bfloat16 的新 Intel CPU（如 Xeon Platinum）上速度较快。                                                                                                                                                                                                                                                                   |
-| **cpu fp32i8**                      | 7B 模型需要 12GB 内存             | 使用 CPU int8 量化精度加载模型。速度较慢（比 cpu fp32 更慢）。                                                                                                                                                                                                                                                                                                   |
-| **cuda fp16**                       | 7B 模型需要 15GB VRAM             | 使用 fp16 精度加载模型所有层，速度最快，但对显存（VRAM）的需求也最高。                                                                                                                                                                                                                                       |
-| **cuda fp16i8**                     | 7B 模型需要 9GB VRAM              | 使用 int8 量化模型所有层，速度较快。                                                                                                                                                                                                                     |
-| **cuda fp16i8 \*20 -> cuda fp16**   | VRAM 占用介于 fp16 和 fp16i8 之间 | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8，其余层使用 fp16 加载。如果量化后还有较多 VRAM ，则酌情减少 fp16i8 层数（减少 20）。如果 VRAM 不足则继续增加 fp16i8 量化层数  |
-| **cuda fp16i8 \*20+**               | 比 fp16i8 使用更少 VRAM           | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8 并固定在 GPU 上，其他层按需动态加载（未固定的层加载速度会慢 3 倍，但节省 VRAM）。如果 VRAM 不足，减少固定层数（`*20`）。如果 VRAM 充足，增加固定层数。                                                                                                                                           |
-| **cuda fp16i8 \*20 -> cpu fp32**    | 比 fp16i8 使用更少 VRAM，但消耗更多内存          | 将模型的前 20 层（`*20`）量化为 fp16i8 并固定在 GPU 上，其他层使用 CPU fp32 加载。当 CPU 性能比较强时，此策略比上一个策略（只在 GPU 上固定 20 层）更快。如果加载 20 层还有剩余 VRAM ，则继续增加 GPU 层数。如果没有足够 VRAM，减少 GPU 层数。                                                                                                                           |
-| **cuda:0 fp16 \*20 -> cuda:1 fp16** | 使用双卡驱动模型                  | 使用 cuda:0（卡1） fp16 加载模型的前 20 层，然后使用 cuda:1（卡2） fp16 加载剩余的层（自动计算剩余层数）。建议在最快的 GPU 上运行更多层。如果某张卡的 VRAM 不够，可以将 fp16 换成 fp16i8 （int8 量化）。                                                                                                                            |
-
-**可选字段**
-
-| 参数名称   | 类型            | 参数解释                                               |
-| ---------- | --------------- | ------------------------------------------------------ |
-| tokenizer  | string \| nulls | 指定使用的 RWKV 分词器路径                             |
-| customCuda | boolean         | 是否启用自定义 cuda 算子                               |
-| deploy     | boolean         | 是否启用部署模式，启用部署模式会屏蔽掉**有风险的 API** |
-
-- "customCuda"：是否启用自定义 cuda 算子，**不建议修改**
-- "deploy"：是否启用服务器部署模式，启用服务器部署模式会屏蔽掉`/switch-model`、 `/exit`和其他有风险的 API
-- "tokenizer"：指定使用的 RWKV 分词器路径，**不建议修改**
-
-
-**参考的请求主体：**
-```json copy 
-{
-"customCuda":false,"
-deploy":false,
-"model":"models/RWKV-4-World-3B-v1-20230619-ctx4096.pth",
-"strategy":"cuda fp16",
-"tokenizer":""
-}
-```
-### /update-config
-
-这个 API 用于**更新 RWKV Runner 的模型配置**，包括解码参数、是否挂载 state 文件等。
-
-**API 地址**：（post）`http://127.0.0.1:8000/update-config`
-
-**可选字段**
-
-| 参数名称          | 类型    | 参数解释                                                        |
-| ----------------- | ------- | --------------------------------------------------------------- |
-| max_tokens        | integer | 生成文本的最大令牌数，最大 102400，对外部署时建议限制文本长度。 |
-| temperature       | number  | 解码参数之一，具体效果参考前文，范围[0, 3]                      |
-| top_p             | number  | 解码参数之一，具体效果参考前文，范围 [0, 1]                     |
-| presence_penalty  | number  | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| frequency_penalty | number  | 解码参数之一，具体效果参考前文，范围 [-2, 2]                    |
-| penalty_decay     | number  | 频率的衰减参数，范围 [0.99, 0.999]，**不建议修改**              |
-| top_k             | integer | 模型生成内容的候选词数量，范围 [0, 25] **不建议修改**           |
-| global_penalty    | boolean | 是否应用全局惩罚，**不建议修改**                                |
-| state             | string  | 指定使用的 RWKV state 文件路径                                  |
-
-**参考的请求主体：**
-```json copy
-{
-  "frequency_penalty": 1,
-  "global_penalty": false,
-  "max_tokens": 1000,
-  "penalty_decay": 0.996,
-  "presence_penalty": 0,
-  "state": "models/",
+<ApiReference
+  method="POST"
+  path="/v1/completions"
+  title="创建文本续写"
+  description="让当前模型从 prompt 继续生成。prompt 接受字符串或字符串数组，但当前源码只处理数组中的第一项。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/v1/completions \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "prompt": "那一天，人们又想起了被暴雨支配的恐惧……",
+  "max_tokens": 300,
   "temperature": 1,
-  "top_p": 0.3
-}
-```
+  "top_p": 0.3,
+  "stream": false
+}'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "text_completion",
+  "model": "rwkv",
+  "choices": [
+    { "text": "天空压得很低，远处的雷声滚过城墙。", "index": 0, "finish_reason": "stop" }
+  ],
+  "usage": {
+    "prompt_tokens": 16,
+    "completion_tokens": 18,
+    "total_tokens": 34
+  }
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="prompt" type="string | array<string> | null" required description="续写起始文本。空值会被替换为换行符；数组当前只使用第一项。" />
+    <ApiField name="model" type="string | null" defaultValue="rwkv" description="当前实现始终使用已加载模型。" />
+    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
+    <ApiField name="stop" type="string | array<string> | null" description="停止字符串。" />
+    <ApiField name="stop_token_ids" type="array<integer> | null" description="停止 token ID。" />
+    <ApiField name="解码参数" type="object fields" description="支持全部公共解码参数。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="text_completion。" />
+    <ApiField name="choices[].text" type="string" required description="生成文本。" />
+    <ApiField name="choices[].finish_reason" type="string" required description="通常为 stop。" />
+    <ApiField name="usage" type="object" description="prompt_tokens、completion_tokens 与 total_tokens。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-### /status
+## Embeddings
 
-这个 API 用于获取 RWKV Runner 运行的设备状态，比如 GPU 型号等。
+<ApiReference
+  method="POST"
+  path="/v1/embeddings"
+  title="读取模型状态表示"
+  description="使用当前加载的 RWKV Pip 模型读取文本对应的内部状态表示；不支持 Albatross 和 llama.cpp / GGUF 后端。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/v1/embeddings \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "input": ["RWKV is an RNN", "RWKV 可以线性时间推理"],
+  "model": "rwkv",
+  "fast_mode": false
+}'`,
+    },
+    {
+      label: '响应结构',
+      language: 'jsonc',
+      code: `{
+  "object": "list",
+  "data": [
+    {
+      "object": "embedding",
+      "index": 0,
+      "embedding": [
+        // 数值和维度取决于模型；此处不展开完整数组
+      ]
+    }
+  ],
+  "model": "rwkv7-g1i-1.5b-20260805-ctx16384",
+  "usage": { "prompt_tokens": 7, "total_tokens": 7 }
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="input" type="string | array<string> | array<array<integer>> | null" required description="单条文本、多条文本，或 text-embedding-ada-002 tokenizer 的 token ID 数组。" />
+    <ApiField name="model" type="string | null" defaultValue="rwkv" description="当前实现始终使用已加载模型。" />
+    <ApiField name="encoding_format" type="string" description="省略时返回 JSON 数值数组；设为 base64 时返回 float32 数据的 Base64 编码。当前校验器不接受显式传入 null。" />
+    <ApiField name="fast_mode" type="boolean" defaultValue="false" description="旧版快速计算路径。当前 RWKV-7 后端缺少该路径依赖的属性，设为 true 会导致请求失败，请保持 false。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="data" type="array<embedding>" required description="每项包含 index 与 embedding。embedding 的维度由模型内部状态决定，不保证是扁平向量。" />
+    <ApiField name="model" type="string" required description="实际模型名称。" />
+    <ApiField name="usage" type="object" required description="prompt_tokens 与 total_tokens。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-**API 地址**：（get）`http://127.0.0.1:8000/status`
+这里的 `embeddings` 是 Runner 对模型内部状态的封装，不能直接假定为 OpenAI 风格的定长一维向量。使用 RWKV Runner 1.9.12 和 `rwkv7-g1i-1.5b-20260805-ctx16384.pth` 实测时，每条输入返回的数组形状为 `32 × 64 × 64`。如果准备写入向量数据库，请先在目标模型上确认维度、归一化方式和相似度计算方法。
 
-参考的**响应结构**：
+## 模型与运行状态
 
-```json copy
-{
-    "status": 3, # 模型工作的状态码
-    "pid": 34776, # 模型的进程ID（Process ID）
-    "device_name": "NVIDIA GeForce RTX 3080 Laptop GPU" #模型工作的 GPU 型号
-}
-```
+<ApiReference
+  method="GET"
+  path="/v1/models"
+  title="列出模型"
+  description="返回服务当前声明的模型列表。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl http://127.0.0.1:8000/v1/models`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "object": "list",
+  "data": [
+    { "id": "rwkv", "object": "model", "owned_by": "rwkv", "root": "rwkv", "parent": null }
+  ]
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="object" type="string" required description="固定为 list。" />
+    <ApiField name="data" type="array<Model>" required description="模型条目数组。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="模型详情" kind="other" defaultOpen={false}>
+    <ApiField name="GET /v1/models/{model_id}" type="route" description="按 ID 获取指定模型。" />
+  </ApiSchemaSection>
+</ApiReference>
 
-<CallOut type="info" >
-关于 RWKV Runner 状态码：
-- 0 是模型离线
-- 2 是模型正在载入
-- 3 是模型正常工作中
+<ApiReference
+  method="GET"
+  path="/status"
+  title="读取 Runner 状态"
+  description="用于监控模型加载状态和后端进程。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl http://127.0.0.1:8000/status`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `{
+  "status": 3,
+  "pid": 34776,
+  "device_name": "NVIDIA GeForce RTX 5090"
+}`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="status" type="integer" required description="0：离线，2：加载中，3：正常工作。" />
+    <ApiField name="pid" type="integer" required description="后端进程 ID。" />
+    <ApiField name="device_name" type="string" required description="第一张 GPU 的名称；未检测到 GPU 时为 CPU。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+## 管理与配置
+
+<ApiReference
+  method="POST"
+  path="/switch-model"
+  title="加载或切换模型"
+  description="加载由 RWKV Pip 或 Albatross 运行的 .pth 模型，或加载由 llama.cpp 运行的 .gguf 模型。部署模式下不可调用。"
+  examples={[
+    {
+      label: 'RWKV Pip · cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/switch-model \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "model": "models/rwkv7-g1-2.9b.pth",
+  "strategy": "cuda fp16",
+  "tokenizer": "",
+  "customCuda": true,
+  "deploy": false
+}'`,
+    },
+    {
+      label: 'GGUF · cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/switch-model \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "model": "models/rwkv7-g1-2.9b-Q5_K_M.gguf",
+  "strategy": "cuda 8192",
+  "tokenizer": null,
+  "customCuda": false,
+  "deploy": false
+}'`,
+    },
+    {
+      label: 'Albatross · cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/switch-model \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "model": "models/rwkv7-g1-2.9b.pth",
+  "strategy": "albatross workers=1 batch=32",
+  "tokenizer": null,
+  "customCuda": false,
+  "deploy": false
+}'`,
+    },
+    {
+      label: '响应',
+      language: 'json',
+      code: `"success"`,
+    },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="model" type="string" required description="模型文件路径；空字符串表示卸载。`.gguf` 自动走 llama.cpp。" />
+    <ApiField name="strategy" type="string" required description="RWKV Pip 使用设备/精度语法；Albatross 使用 albatross workers=N batch=N；GGUF 使用 cpu|cuda 上下文长度。" />
+    <ApiField name="tokenizer" type="string | null" description="自定义 tokenizer 路径。" />
+    <ApiField name="customCuda" type="boolean" defaultValue="false" description="是否启用 RWKV 自定义 CUDA 算子。" />
+    <ApiField name="deploy" type="boolean" defaultValue="false" description="成功加载后永久开启当前进程的部署模式。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="后端选择规则" kind="other" defaultOpen={false}>
+    <ApiField name="*.gguf" type="llama.cpp" description="文件扩展名优先，自动进入 llama.cpp；Strategy 第二项为上下文长度，默认 8192。" />
+    <ApiField name="albatross" type="RWKV-7 batch backend" description="Strategy 以 albatross 开头时，同一份 .pth 模型改由 Albatross 加载；workers 默认 1，batch 默认 32。" />
+    <ApiField name="其他 Strategy" type="configured RWKV backend" description="进入服务启动时选定的 RWKV Pip、rwkv.cpp 或 WebGPU 后端。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="响应" kind="response" statusCode="200 / 400 / 403 / 500">
+    <ApiField name="success" type="string" description="成功返回 JSON 字符串 success。" />
+    <ApiField name="403" type="error" description="当前进程已处于部署模式。" />
+    <ApiField name="500" type="error" description="模型加载失败。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+`/switch-model` 会等模型加载完成后再返回结果。首次加载较大的模型、编译自定义算子或只使用 CPU 时，耗时可能超过普通 HTTP 客户端的默认超时。客户端超时不等于服务端已经停止加载：先查看 Runner 日志，并通过 `/status` 确认状态；`status` 仍为 `2` 时不要重复提交加载请求。
+
+<ApiReference
+  method="POST"
+  path="/update-config"
+  title="更新默认生成配置"
+  description="字段均可选；新值会在下一次生成时应用。State 路径会立即尝试加载。"
+  examples={[
+    {
+      label: 'cURL',
+      language: 'bash',
+      code: `curl -X POST http://127.0.0.1:8000/update-config \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+  "max_tokens": 1000,
+  "temperature": 1,
+  "top_p": 0.3,
+  "top_k": 0,
+  "presence_penalty": 0,
+  "frequency_penalty": 1,
+  "penalty_decay": 0.996,
+  "global_penalty": false,
+  "state": ""
+}'`,
+    },
+    { label: '响应', language: 'json', code: `"success"` },
+  ]}
+>
+  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
+    <ApiField name="max_tokens" type="integer" description="1..102400。" />
+    <ApiField name="temperature" type="number" description="0..3。" />
+    <ApiField name="top_p" type="number" description="0..1。" />
+    <ApiField name="top_k" type="integer" description="0..100。" />
+    <ApiField name="presence_penalty" type="number" description="-2..2。" />
+    <ApiField name="frequency_penalty" type="number" description="-2..2。" />
+    <ApiField name="penalty_decay" type="number" description="0.99..0.999。" />
+    <ApiField name="global_penalty" type="boolean" description="是否把输入计入惩罚。" />
+    <ApiField name="state" type="string" description="State-tuned 文件路径；空字符串表示不挂载。" />
+  </ApiSchemaSection>
+  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
+    <ApiField name="result" type="string" required description="JSON 字符串 success。" />
+  </ApiSchemaSection>
+</ApiReference>
+
+## 文件、MIDI 与 State Cache
+
+以下是 Runner 当前提供的文件、MIDI 与 State Cache 接口。面向公网部署时建议在网关中直接禁用管理和服务器文件路径接口。
+
+| 路径 | 请求 | 响应与限制 |
+| --- | --- | --- |
+| `POST /file-to-text` | 查询参数 `file_name`、`file_encoding`，multipart 字段 `file_data` | `{ pages: Document[] }`；仅 `.txt`、`.pdf` |
+| `POST /text-to-midi` | `{ text }` | `audio/midi` 二进制 |
+| `POST /midi-to-text` | multipart 字段 `file_data` | `{ text }` |
+| `POST /txt-to-midi` | `{ txt_path, midi_path }` | `"success"`；输出必须在 `midi/` 下；部署模式禁用 |
+| `POST /midi-to-wav` | `{ midi_path, wav_path, sound_font_path? }` | `"success"`；需安装 FluidSynth；部署模式禁用 |
+| `POST /text-to-wav` | `{ text, wav_name, sound_font_path? }` | `"success"`；部署模式禁用 |
+| `POST /enable-state-cache` | 无 | `"success"`；缺少 `cyac` 时返回 400 |
+| `POST /disable-state-cache` | 无 | `"success"` |
+| `POST /reset-state` | 无 | `"success"`；缓存未启用时返回 400 |
+
+## 错误处理与并发
+
+- 模型未加载：生成和 Embeddings 返回 `400 model not loaded`。
+- 空 `messages` 或空 Embeddings `input`：返回 `400`。
+- 非 RWKV 后端调用 Embeddings：返回 `400 model not support embedding`。
+- 当前路由会让 RWKV Pip、rwkv.cpp 和 WebGPU 的生成请求经过同一把生成锁；Albatross 请求不经过这把锁，而是交给自己的异步队列，调度器可将同时处理的请求组成批次。
+- 流式调用应持续读取 SSE，直到收到 `[DONE]`，并在客户端断开时及时取消请求。
+- 对外服务必须在反向代理处限制请求体、并发数、超时和 `max_tokens`。
+
+## 历史与兼容接口
+
+<CallOut type="warning">
+以下路径仅用于维护已有客户端，已从主接口说明中移出。新接入应使用右侧的当前规范路径；兼容路径可能在后续版本中删除。
 </CallOut>
 
-
-## MIDI 相关 API 
-
-RWKV Runner 的 MIDI API 用于处理 midi 乐谱文件（`.mid`），比如文本转 MIDI 、MIDI 转 WAV 音频文件等。
-
-### /text-to-midi
-
-这个 API 用于将 MIDI 格式的文本（text）转换为 MIDI 乐谱文件(`.mid`)。
-
-<CallOut type="warning" >
-注意：此 API 与启动的 RWKV 模型无关。
-</CallOut> 
-
-**API 地址**：（post）`http://127.0.0.1:8000/text-to-midi`
-
-**必需字段**
-
-- "text": 提供给模型的 MIDI 乐谱文本，即 MIDI 乐谱内容。
-
-参考的请求主体：
-
-```json copy
-{
-  "text": "p:24:a p:2a:a p:31:a p:39:a p:3b:a p:45:a b:26:a g:3e:a g:3e:a g:42:a g:42:a g:45:a g:45:a pi:3e:a pi:42:a pi:45:a t14 p:24:0 p:2a:0 p:31:0 p:39:0 p:3b:0 p:45:0 t2 p:2a:a p:3b:a p:45:a t14 p:2a:0 p:3b:0 p:45:0 b:26:0 g:3e:0"
-}
-```
-
-### /midi-to-text
-
-这个 API 用于将 MIDI 乐谱文件(`.mid`) 转换为 MIDI 格式的文本（text）。
-
-<CallOut type="warning" >
-注意：此 API 与启动的 RWKV 模型无关。
-</CallOut> 
-
-**API 地址**：（post）`http://127.0.0.1:8000/midi-to-text`
-
-**必需字段**
-
-- file_data：提供给模型的 MIDI 乐谱文件，也可以是 string($binary) - 字符串格式的二进制数据。
-
-参考的响应结构：
-```json copy
-{
-"text": "<start> p:24:a p:2a:a <end>"
-}
-```
-
-### /txt-to-midi
-
-这个 API 用于将 MIDI 内容的文本文件（`.txt`）转换为 MIDI 乐谱文件(`.mid`)。
-
-**API 地址**：（post）`http://127.0.0.1:8000/txt-to-midi`
-
-**必需字段**
-
-- "midi/sample.mid": 转化完毕的 MIDI 文件保存路径
-- "midi/sample.txt"：需要转化的 TXT 文件路径
-
-**参考的请求主体**
-
-```json copy
-{
-  "midi_path": "midi/sample.mid",
-  "txt_path": "midi/sample.txt"
-}
-```
-### /midi-to-wav
-
-这个 API 用于将 MIDI 乐谱文件(`.mid`) 转换为 WAV 音频文件(`.wav`)。
-
-<CallOut type="warning" >
-这个 API 与 RWKV 模型无关，需要先安装 [fluidsynth](https://github.com/FluidSynth/fluidsynth/wiki/Download#distributions) 。
-</CallOut>
-
-**API 地址**：（post）`http://127.0.0.1:8000/midi-to-wav`
-
-**必需字段**
-
-- "midi_path": 需要转换的 MIDI 文件路径
-- "wav_path":  WAV 文件保存路径
-
-**可选字段**
-
-- "sound_font_path"：影响 MIDI 音色和合成参数的 SoundFont 文件路径
-
-**参考的请求主体**
-```json copy
-{
-  "midi_path": "midi/sample.mid",
-  "sound_font_path": "assets/default_sound_font.sf2",
-  "wav_path": "midi/sample.wav"
-}
-```
-
-### /text-to-wav
-
-这个 API 用于将 MIDI 乐谱文本（text）转换为 WAV 音频文件(`.wav`)。
-
-**API 地址**：（post）`http://127.0.0.1:8000/text-to-wav`
-
-**必需字段**
-
-- "text": 提供给模型的 MIDI 乐谱文本，即 MIDI 乐谱内容。
-- "wav_name":  转化后返回的 WAV 文件名称
-
-**可选字段**
-
-- "sound_font_path"：影响 MIDI 音色和合成参数的 SoundFont 文件路径
-
-**参考的请求主体**
-
-```json copy
-{
-    "sound_font_path":"assets/default_sound_font.sf2",
-    "text":"p:24:a p:2a:a p:31:a",
-    "wav_name":"sample"
-}
-```
-
-## 文件处理 API
-
-文件处理 API 目前只有 `/file-to-text`，用于解析上传的 PDF/txt 文件。
-
-**API 地址**：（post）`http://127.0.0.1:8000/file-to-text?file_name=233.PDF&file_encoding=utf-8`
-
-**API 查询参数**
-
-- file_name（必需参数）：指定需要解析的文件名称，如 `?file_name=233.PDF` 。这里必须正确填写**你上传的文件类型**后缀（`.txt` 或者 `.pdf`），因为 PDF 文件需要特殊处理。
-- file_encoding：指定需要解析的文件编码，如 &file_encoding=utf-8
-
-**必需字段**
-
-- file_data：类型 *string($binary)，即上传一个 txt / PDF 文件或二进制数据
-
-![RWKV-Runner-文件处理-API](./imgs/RWKV-Runner-API-Usage-File-Process-API.png)
-
-## MISC API 
-
-这部分 API 主要用于兼容 OpenAI API ，以便开发者能将 RWKV 模型用在 ChatGPT 客户端中。
-
-## State Cache 相关 API 
-
-<CallOut type="warning" >
-State 缓存相关 API 没有请求主体。
-
-此外，如果你打开了部署模式，或在运行模型时勾选了“启用WebUI”，State 缓存相关 API 将不可用。
-</CallOut>
-
-开启 state cache 后，当前运行的 RWKV 模型的 state 会被缓存到内存中，在接受近似的 prompt 时无需重新 prefill。
-
-### /disable-state-cache
-
-这个 API 用于禁用 state 缓存
-
-**API 地址**：（post）`http://127.0.0.1:8000/disable-state-cache`
-
-### /enable-state-cache
-
-这个 API 用于启用 state 缓存
-
-**API 地址**：（post）`http://127.0.0.1:8000/enable-state-cache`
-
-### /reset-state-cache
-
-这个 API 用于重置 state 缓存设置
-
-**API 地址**：（post）`http://127.0.0.1:8000/reset-state-cache`
-
-## Root API
-
-### /exit
-
-这个 API 用于退出 RWKV Runner 的后端进程。
-
-<CallOut type="warning" >
-如果你打开了部署模式，或在运行模型时勾选了“启用WebUI”，`/exit` API 将不可用。
-</CallOut>
-
-**API 地址**：（post）`http://127.0.0.1:8000/exit`
-
-此 API 及后续 API 请求通常无法获得任何响应，因为进程已被关闭。
-
-### /
-
-此 API 用于检查 RWKV Runner 服务是否在工作状态。
-
-**API 地址**：（get）`http://127.0.0.1:8000/`
-
-如果你已经打开了 WebUI，会得到以下返回：
-
-```json
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>RWKV-Runner</title>
-    <link href="/assets/logo.png" rel="icon" type="image/x-icon">
-    <script type="module" crossorigin src="/assets/index.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor.js">
-    <link rel="modulepreload" crossorigin href="/assets/pdfjs-dist.js">
-    <link rel="modulepreload" crossorigin href="/assets/uuid.js">
-    <link rel="stylesheet" href="/assets/index.css">
-</head>
-<body>
-    <div id="root"></div>
-</body>
-</html>
-```
-在浏览器中访问 http://127.0.0.1:8000/ ，可以访问 WebUI 。
-
-如果你得到以下返回，意味着服务正在运行，但未打开 WebUI：
-``` json
-{
-    "Hello": "World!"
-}
-```
-
-## API 并发压力测试
-   
-``` bash copy
-ab -p body.json -T application/json -c 20 -n 100 -l http://127.0.0.1:8000/chat/completions
-```
-
-请求主体：
-
-``` json copy
-{"messages": [{"role": "user","content": "Hello"}]}
-```
-
-## API 常见问题
-
-**问题1：我要去哪里查看 RWKV Runner 的 API 文档？**
-
-本地启动 RWKV Runner 并启动一个模型，你将可以在 http://localhost:8000/docs 中查看 RWKV Runner 的 API 文档。
-
-**问题2： deploy 模式下，哪些 API 会因“危险权限”而被屏蔽？** 
-
-在部署模式下，一切会影响服务器系统和硬件的 API 都会被屏蔽掉，这是为了安全起见。
-
-比如：`/switch-model` 、 `/exit` 以及 State Cache 相关的 API 都会被屏蔽。
-
-**问题3：为什么我本地部署 RWKV Runner 就默认开启了 deploy 模式？**
-
-在 RWKV Runner 中，如果你勾选了 “启用 WebUI“ ，那么默认开启了 deploy 模式。
-
-你可以通过关闭此选项，来解除部署模式，进而使用一些危险权限的 API 。
-
-![RWKV-Runner-WebUI](./imgs/RWKV-Runner-API-Usage-WebUI.png)
-
-**问题4 ：为什么 RWKV Runner 的 embaddings API 用不了？**
-
-截至目前（2023-07-05，RWKV Runner V 1.8.4） 不建议使用 RWKV Runner 文档中提供的 embaddings API 。
-
-文档中的 embaddings API 目前停留在 RWKV-4，未针对 RWKV5/6 架构进行重构，因此会报错。
+| 历史或兼容路径 | 已确认版本状态 | 当前接口 |
+| --- | --- | --- |
+| `POST /chat/completions` | v1.9.12 仍兼容 | `POST /v1/chat/completions` |
+| `POST /completions` | v1.9.12 仍兼容 | `POST /v1/completions` |
+| `POST /embeddings` | v1.9.12 仍兼容 | `POST /v1/embeddings` |
+| `POST /v1/engines/text-embedding-ada-002/embeddings` | v1.9.12 仍兼容 | `POST /v1/embeddings` |
+| `POST /engines/text-embedding-ada-002/embeddings` | v1.9.12 仍兼容 | `POST /v1/embeddings` |
+| `GET /models` | v1.9.12 仍兼容 | `GET /v1/models` |
+| `GET /models/{model_id}` | v1.9.12 仍兼容 | `GET /v1/models/{model_id}` |
+| `GET /dashboard/billing/credit_grants` | v1.9.12 仍保留，仅用于历史客户端 | 无对应业务接口 |
