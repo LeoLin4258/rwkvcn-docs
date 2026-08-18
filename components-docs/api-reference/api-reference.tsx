@@ -21,6 +21,7 @@ interface ApiReferenceProps extends React.HTMLAttributes<HTMLElement> {
   method: HttpMethod
   path: string
   title: string
+  showTitle?: boolean
   description?: React.ReactNode
   examples: ApiExample[]
   exampleTitle?: string
@@ -99,6 +100,7 @@ export function ApiReference({
   method,
   path,
   title,
+  showTitle = false,
   description,
   examples,
   exampleTitle = "示例",
@@ -107,15 +109,16 @@ export function ApiReference({
   ...props
 }: ApiReferenceProps) {
   return (
-    <article
+    <section
+      aria-label={title}
       className={cn(
-        "my-8 overflow-hidden rounded-xl border border-border bg-card shadow-sm",
+        "not-prose @container/api my-6 min-w-0",
         className,
       )}
       {...props}
     >
-      <header className="border-b border-border px-5 py-5 sm:px-6">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
+      <header className="border-b border-border pb-4">
+        <div className="flex flex-wrap items-center gap-2">
           <span
             className={cn(
               "rounded-md border px-2 py-1 font-mono text-[11px] font-bold tracking-wide",
@@ -128,19 +131,21 @@ export function ApiReference({
             {path}
           </code>
         </div>
-        <h2 className="m-0 text-2xl font-semibold tracking-tight">{title}</h2>
+        {showTitle ? (
+          <h3 className="mt-3 text-lg font-semibold tracking-tight text-foreground">{title}</h3>
+        ) : null}
         {description ? (
-          <div className="mt-2 max-w-3xl text-[15px] leading-7 text-muted-foreground [&_p]:m-0">
+          <div className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground [&_p]:m-0">
             {description}
           </div>
         ) : null}
       </header>
 
-      <div className="grid items-start lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]">
-        <div className="min-w-0 px-5 py-2 sm:px-6">{children}</div>
+      <div className="grid items-start @min-[44rem]/api:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="min-w-0 py-2 @min-[44rem]/api:pr-5">{children}</div>
         <ApiExamples examples={examples} title={exampleTitle} />
       </div>
-    </article>
+    </section>
   )
 }
 
@@ -162,7 +167,7 @@ export function ApiSchemaSection({
   return (
     <details
       open={defaultOpen}
-      className={cn("group border-b border-border py-1 last:border-b-0", className)}
+      className={cn("group border-b border-border py-1 text-sm last:border-b-0", className)}
       {...props}
     >
       <summary className="flex cursor-pointer list-none items-start gap-3 py-4 marker:content-none [&::-webkit-details-marker]:hidden">
@@ -172,7 +177,7 @@ export function ApiSchemaSection({
         />
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-foreground">{title}</span>
+            <span className="text-sm font-semibold text-foreground">{title}</span>
             {normalizedStatusCode ? (
               <span
                 className={cn(
@@ -195,7 +200,7 @@ export function ApiSchemaSection({
             ) : null}
           </span>
           {description ? (
-            <span className="mt-1 block text-sm leading-6 text-muted-foreground">
+            <span className="mt-1 block text-[13px] leading-5 text-muted-foreground">
               {description}
             </span>
           ) : null}
@@ -244,7 +249,7 @@ export function ApiField({
     <div
       className={cn(
         "border-t border-border py-3 first:border-t-0",
-        "[&_p]:my-1 [&_p]:text-sm [&_p]:leading-6",
+        "[&_p]:my-1 [&_p]:text-[13px] [&_p]:leading-5",
         className,
       )}
       {...props}
@@ -289,7 +294,7 @@ export function ApiField({
         ) : null}
       </div>
       {description ? (
-        <div className="mt-1 text-sm leading-6 text-muted-foreground">{description}</div>
+        <div className="mt-1 text-[13px] leading-5 text-muted-foreground">{description}</div>
       ) : null}
       {defaultValue !== undefined ? (
         <div className="mt-1.5 text-xs text-muted-foreground">
@@ -352,7 +357,7 @@ function ApiExamples({ examples, title }: { examples: ApiExample[]; title: strin
   return (
     <aside
       aria-label={title}
-      className="min-w-0 border-t border-border bg-muted/20 lg:sticky lg:top-20 lg:border-t-0 lg:border-l"
+      className="min-w-0 border-t border-border bg-muted/15 @min-[44rem]/api:sticky @min-[44rem]/api:top-20 @min-[44rem]/api:border-t-0 @min-[44rem]/api:border-l"
     >
       <div className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4">
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
