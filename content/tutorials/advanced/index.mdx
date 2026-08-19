@@ -1,6 +1,6 @@
 ---
 title: RWKV 高级教程
-description: RWKV训练环境的配置、训练数据集的准备，以及各种具体的微调和训练方法，包括预训练、State Tuning、LoRA、PiSSA、MiSS等。
+description: RWKV训练环境的配置、训练数据集的准备，以及各种具体的微调和训练方法，包括预训练、State Tuning、LoRA、MiSS等。
 keywords: [RWKV高级教程, RWKV微调教程, RWKV训练教程, RWKV微调方法, RWKV训练方法]
 ---
 
@@ -27,7 +27,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 **预训练教程**基于 [RWKV-LM](https://github.com/BlinkDL/RWKV-LM) 仓库，训练流程和 RWKV 官方模型完全一致。
 
-推荐使用 RWKV 官方微调仓库 [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT)，RWKV-PEFT 包含常见的 `LoRA` 微调、`PiSSA` 微调方法，也有 RWKV 模型特有的 `State-Tuning` 和 RWKV 社区成员 [@JL-er](https://github.com/JL-er) 开发的 `MiSS` 等独特的微调方法。
+推荐使用 RWKV 官方微调仓库 [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT)，RWKV-PEFT 包含常见的 `LoRA` 微调方法，也有 RWKV 模型特有的 `State-Tuning` 和 RWKV 社区成员 [@JL-er](https://github.com/JL-er) 开发的 `MiSS` 等独特的微调方法。
 
 <CardContainer>
 <Card image="color-4.png" icon={Dumbbell}  iconColor='text-purple-500'  title="RWKV 预训练教程"           description="基于 RWKV-LM 的预训练方法，训练过程和 RWKV 官方模型完全一致" link="/tutorials/advanced/pretrain" />
