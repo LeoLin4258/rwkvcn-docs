@@ -8,25 +8,40 @@ import { RadarChartComponent } from 'components-docs/radar-charts'
 import { HeatMap } from 'components-docs/heat-map'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-RWKV 模型在 NVIDIA 硬件上的推理性能。
+RWKV 模型在 NVIDIA 硬件上的推理性能。TPS 只在模型、精度、推理后端、工作负载和测试环境一致时适合直接比较。
 
 <CallOut type="info">
 此页面的数据来自：[RWKV 推理性能测试指南](https://github.com/RWKV-Vibe/RWKV-Inference-Performance-Test)，数据均由社区成员测试并报告。欢迎大家参照仓库的指引进行测试，并提交 NVIDIA 硬件的性能数据。
 </CallOut>
 
-{/* ## NVIDIA RTX 5090
+## NVIDIA RTX 5090
+
+### Albatross：RWKV-7 G1f 7.2B
+
+以下结果来自 [Albatross `faster3a_2607`](https://github.com/BlinkDL/Albatross/tree/main/faster3a_2607)，测试使用 RWKV-7 G1f 7.2B、FP16 模型和单张 RTX 5090。表中的吞吐量为上游测试记录的 p50 结果。
+
+| 工作负载 | 批量大小（B） | 序列长度（T） | 吞吐量（p50） |
+| --- | ---: | ---: | ---: |
+| B1T1 | 1 | 1 | 145.80 token/s |
+| B256T1 | 256 | 1 | 13,134.48 token/s |
+| B16T16 | 16 | 16 | 17,343.98 token/s |
+
+B1T1 最接近单路逐 token 生成；B256T1 和 B16T16 测量的是不同批量与序列形状下的总吞吐量，不能与 B1T1 当作同一种工作负载直接比较。
+
+### 较早的 RWKV7-G1 2.9B 测试
+
+以下数据来自较早的官方测试记录，数值已经验证，但模型和推理后端与上方 Albatross 测试不同，仅作为历史性能参考。
 
 | 推理工具 | Model | 精度 | 每秒生成的 Token 数 | 显存用量 | 
 | :---: |:---:|:---:|:---:| :----------:|
 | [RWKV pip](https://pypi.org/project/rwkv/) | RWKV7-G1 2.9B | fp16 | 39.55 TPS | 5.52 GB |
-
-{/* | [llama.cpp](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 84 TPS | 5.52 GB |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp) | RWKV7-G1 2.9B | fp16 | 84 TPS | 5.52 GB |
 
 <CallOut type="info">
 测试环境：
 - CPU：AMD EPYC 7302
 - GPU：NVIDIA GeForce RTX 5090
-</CallOut> */}
+</CallOut>
 
 ## NVIDIA RTX 4090
 
