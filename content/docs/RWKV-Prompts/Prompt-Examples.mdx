@@ -1,0 +1,512 @@
+---
+title: RWKV 提示词示例
+description: RWKV 聊天模式和续写模式的 prompt 示例，包括代码分析、结构化提取、翻译和自然语言处理。
+keywords: [RWKV提示词,RWKV聊天prompt,RWKV续写prompt,RWKV提示词示例]
+---
+import { CallOut } from 'components-docs/call-out/call-out.tsx'
+
+本页按使用方式收录经过复测的 prompt 示例。示例面向 RWKV7-G1i 系列，并使用 7.2B 模型验证；使用其他模型规格或调整参数时，生成结果可能不同。
+
+| 模式 | 如何使用 |
+| --- | --- |
+| 聊天模式 | 在聊天界面中直接发送任务内容，由工具补全聊天模板。 |
+| 续写模式 | 将包含任务说明、输入内容和续写起点的完整 prompt 粘贴到续写界面。 |
+
+## 聊天模式
+
+聊天示例适合直接粘贴到 RWKV Runner、Ai00 等推理工具的聊天文本框中。
+
+### ⭐ 生成或修改代码
+
+<CallOut type="info">
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**分析并修改简单代码**
+
+**输入 prompts：**
+
+``` markdown
+请阅读以下 Python 代码，说明它的用途、三个变量的数值、总数的计算结果和程序会输出什么：
+
+ming_apples = 7
+leo_apples = 6
+blink_apples = 85
+
+total_apples = ming_apples + leo_apples + blink_apples
+
+print("Ming has", ming_apples, "apples.")
+print("Leo has", leo_apples, "apples.")
+print("Blink has", blink_apples, "apples.")
+print("Total apples for all: ", total_apples)
+```
+**参考输出：**
+```` markdown
+这段Python代码展示了三个人（Ming、Leo和Blink）拥有的苹果数量及其总和。具体来说：
+1. **定义变量**：
+   - `ming_apples = 7` 表示Ming拥有7个苹果。
+   - `leo_apples = 6` 表示Leo拥有6个苹果。
+   - `blink_apples = 85` 表示Blink拥有85个苹果。
+2. **计算总数**：
+   - `total_apples = ming_apples + leo_apples + blink_apples` 计算三人共同拥有的苹果总数：
+     \[
+     7 + 6 + 85 = 98
+     \]
+   - 结果存储在变量`total_apples`中。
+3. **打印信息**：
+   - 使用 `print` 的多个参数输出每个人的苹果数量：
+     ```python
+     print("Ming has", ming_apples, "apples.")
+     print("Leo has", leo_apples, "apples.")
+     print("Blink has", blink_apples, "apples.")
+     ```
+   - 打印总共拥有的苹果数：
+     ```python
+     print("Total apples for all: ", total_apples)
+     ```
+   - 运行后会输出：
+     ```text
+     Ming has 7 apples.
+     Leo has 6 apples.
+     Blink has 85 apples.
+     Total apples for all:  98
+     ```
+**总结**：代码展示了三人各自拥有的苹果数量及其总和，便于直观理解每个人持有多少苹果。
+````
+
+**继续输入 prompts：**
+
+``` markdown
+请将程序中Ming的苹果数改为80，并提供修改后的代码。
+```
+
+**参考输出：**
+
+```` markdown
+```python
+ming_apples = 80  # 将Ming拥有的苹果数从7改为80
+leo_apples = 6    # Leo拥有6个苹果不变
+blink_apples = 85 # Blink拥有85个苹果不变
+total_apples = ming_apples + leo_apples + blink_apples  # 计算总共拥有的苹果数
+print("Ming has", ming_apples, "apples.")  # Ming拥有80个苹果
+print("Leo has", leo_apples, "apples.")    # Leo拥有6个苹果不变
+print("Blink has", blink_apples, "apples.") # Blink拥有85个苹果不变
+print("Total apples for all: ", total_apples) # 总共拥有171个苹果（80+6+85）
+```
+````
+
+### ⭐ 撰写线上技术分享会策划案
+
+<CallOut type="info">
+建议的参数：Temperature = 1.2、Top_P = 0.5、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts:**
+``` markdown
+策划一个面向前端开发者的线上技术分享会，主题为“现代前端框架的新趋势”，方案需包括活动目标、议程安排、嘉宾邀请、宣传渠道和预期效果。活动必须完全在线举行。议程固定为：开场 5 分钟、趋势分享 25 分钟、技术演示 20 分钟、实战分享 20 分钟、问答 15 分钟、总结 5 分钟，总计 90 分钟，不要增删环节或改动时长。嘉宾邀请只写所需岗位和能力，不添加姓名、组织、账号或虚构履历数据。
+```
+**参考输出：**
+``` markdown
+### 活动目标
+1. 帮助前端开发者了解现代前端框架的演进方向。
+2. 通过演示和项目经验说明框架选型与落地方法。
+3. 集中回答参与者在升级、性能和工程化方面的问题。
+
+### 议程安排
+
+| 时间 | 环节 | 内容 |
+| --- | --- | --- |
+| 00:00–00:05 | 开场 | 介绍主题、线上参与方式和议程 |
+| 00:05–00:30 | 趋势分享 | 梳理框架设计、工具链和生态变化 |
+| 00:30–00:50 | 技术演示 | 展示一项新特性及其使用边界 |
+| 00:50–01:10 | 实战分享 | 讲解项目选型、迁移或性能优化经验 |
+| 01:10–01:25 | 问答 | 回答参与者提交的问题 |
+| 01:25–01:30 | 总结 | 回顾重点并提供后续资料 |
+
+### 嘉宾邀请
+
+- **前端架构师**：能解释框架选型、架构取舍和迁移风险。
+- **项目实践工程师**：能演示真实开发流程，并总结常见问题。
+- **技术主持人**：能控制线上节奏、整理问题并引导讨论。
+
+### 宣传渠道
+
+- 活动报名页和主办方网站
+- 开发者社区、技术社群和邮件列表
+- 活动开始前的提醒邮件与线上直播预告
+
+### 预期效果
+
+- 参与者能够区分趋势、适用场景和主要取舍。
+- 问答环节收集可继续整理的实际问题。
+- 活动后可发布回放、示例代码和资料索引。
+```
+
+### ⭐ 生活贴士-除去冰箱异味
+
+<CallOut type="info">
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts**
+
+``` markdown
+请给出一份不超过 300 个中文字符、适合普通家庭执行的冰箱除味指南。未提供具体型号说明书，因此只建议断电、移出食物、丢弃变质食物，并用软布和说明书允许的温水或中性清洁剂清洁后擦干。不要推荐小苏打、白醋、柠檬、活性炭、香料或其他自制除味剂，也不要建议混用清洁剂或自行拆卸内部部件。
+```
+
+**参考输出**
+``` markdown
+1. 将仍可食用的食物转移到另一台冰箱或保冷箱，然后拔掉冰箱电源。
+2. 检查并丢弃已经过期或变质的食物，清除可见的残渣。
+3. 用软布蘸取说明书允许的温水或中性清洁剂，擦拭冰箱内壁和可见区域，然后彻底擦干。
+4. 如果清洁后仍有异味，联系售后检查。不要混用清洁剂、使用自制除味剂或自行拆卸内部部件。
+```
+
+### ⭐ 厨房帮手-麻婆豆腐的做法
+
+<CallOut type="info">
+建议的参数：Temperature = 1、Top_P = 0.3、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts**
+
+``` markdown
+请给出麻婆豆腐的材料、步骤和安全注意事项。肉末需要充分加热；需要加水或高汤时，应先转小火并沿锅边缓慢加入，不要把水直接倒入大量热油；剩菜应及时冷藏并彻底再热。不要只用肉末是否变色判断熟度。
+```
+
+**参考输出**
+``` markdown
+材料：
+- 嫩豆腐 300 克、牛肉末或猪肉末 100 克
+- 豆瓣酱、豆豉、姜末、蒜末、花椒粉适量
+- 食用油、水或高汤、水淀粉适量
+
+步骤：
+1. 豆腐切块，姜、蒜和豆豉切碎备用。
+2. 锅中放少量油，炒香姜蒜、豆瓣酱和豆豉。
+3. 加入肉末并充分加热；不要只凭颜色判断是否熟透，有条件时按当地食品安全建议使用食物温度计确认。
+4. 先转小火，确认锅内没有大量热油，再沿锅边缓慢加入水或高汤。
+5. 放入豆腐，小火煮至入味，最后用水淀粉勾芡并撒上花椒粉。
+
+注意事项：
+1. 不要把水直接倒入大量热油，以免飞溅烫伤。
+2. 肉末必须充分加热，不能只用是否变色判断熟度。
+3. 吃不完的麻婆豆腐应及时分装冷藏，再次食用前彻底加热。
+```
+
+## 续写模式
+
+续写示例需要保留代码块中的完整结构，包括末尾的 `Response:`、`English:` 等续写起点。
+
+**结构化任务**
+
+在执行材料提取、总结等任务时，可以保持 Temperature = 1，并将 Top_P 调低到 0.1，减少输出的随机性。
+
+### ⭐ 提取对话信息并输出 JSON
+
+<CallOut type="info">
+信息提取是纯机械任务，建议的参数：Temperature 设为 1 ，Top_P、Presence Penalty、Frequency Penalty 都设为 0
+</CallOut>
+
+**输入 prompts:**
+````bash
+Instruction: You are an expert assistant for summarizing and extracting insights from sales call transcripts.
+Generate a valid JSON in the following format:
+{
+    "summary": "Summary of the call transcript. ",
+    "products": ["product 1", "product 2"],
+    "rep_name": "Name of the sales rep",
+    "prospect_name": "Name of the prospect",
+    "action_items": ["Owner: action item 1", "Owner: action item 2"]
+}
+The action_items array must include every explicitly agreed next step and name the responsible person. Do not claim that a meeting has already been scheduled when the transcript only says it will be arranged. Output JSON only, without a Markdown code fence or explanation.
+
+Input: [Phone rings]
+Peter: Hello, this is Peter.
+Sarah: Hi Peter, this is Sarah from XYZ Company. I'm calling to discuss our new product, the XYZ Widget, and see if it might be a good fit for your business.
+Peter: Hi Sarah, thanks for reaching out. I'm definitely interested in learning more about the XYZ Widget. Can you give me a quick overview of what it does?
+Sarah: Of course! The XYZ Widget is a cutting-edge tool that helps businesses streamline their workflow and improve productivity.
+Peter: That sounds really interesting. I can see how that could benefit our team. Do you have any case studies or success stories from other companies who have used the XYZ Widget?
+Sarah: Absolutely, we have several case studies that I can share with you. I'll send those over along with some additional information about the product. No demo has been scheduled yet.
+Peter: That would be great. I'll review the case studies after you send them.
+Sarah: Our next steps are: I will send the case studies and additional information, you will review them, and then I will follow up to arrange a demo. In the meantime, feel free to reach out if you have any questions.
+Peter: Sounds good, I appreciate your help Sarah. I'm looking forward to learning more about the XYZ Widget and seeing how it can benefit our business.
+Sarah: Thank you, Peter.
+Peter: You too, bye.
+
+Response:
+````
+**参考输出：**
+````bash
+{
+    "summary": "Peter is interested in the XYZ Widget. Sarah will send case studies and additional information, Peter will review them, and Sarah will then follow up to arrange a demo. No demo has been scheduled yet.",
+    "products": ["XYZ Widget"],
+    "rep_name": "Sarah",
+    "prospect_name": "Peter",
+    "action_items": [
+        "Sarah will send case studies and additional information.",
+        "Peter will review the materials.",
+        "Sarah will follow up to arrange a demo after Peter reviews them."
+    ]
+}
+````
+---
+
+### ⭐ 总结新闻关键词并输出 JSON
+
+<CallOut type="info">
+材料总结是结构化任务，建议的参数：Temperature = 1、Top_P = 0.1、Presence Penalty = 0、Frequency Penalty = 0
+</CallOut>
+
+<CallOut type="tips">
+此 prompt 使用了 [few-shot 技巧](./Prompt-Format#Few-Shot)，为模型提供示范。
+</CallOut>
+
+**输入 prompt:**
+
+```` bash
+Instruction: 仅依据给定材料提取关键词，不补充或核验材料中的新闻事实。每次只输出合法 JSON，且只能包含 `keywords` 一个字段。`keywords` 必须是 4 个互不重复的字符串，并依次覆盖“需求方、服务提供方、核心技术、主要供应问题”，不要使用“经济”“市场”“科技”等过宽的词。
+
+User: 公安部今年以来在全国各地共收缴枪支4万支，全国持枪、爆炸犯罪案件同比下降1%。
+
+Assistant: {"keywords": ["公安部", "枪支收缴", "持枪犯罪", "爆炸犯罪"]}
+
+User: 板块方面，春节即将来临，文旅板块再度涌现潜伏盘，丽江股份、九华旅游双双封板，三特索道、峨眉山A涨超5%。因高股息开始受关注的公路股继续悄悄发育，山西路桥涨停，山东高速涨超4%创历史新高，宁沪高速、粤高速A双双新高。
+
+Assistant: {"keywords": ["春节文旅", "丽江股份", "公路股", "高股息"]}
+
+User: 据UDN报道，由于先进封装产能长期短缺，导致英伟达AI芯片供应紧张，之前已经寻求其他途径试图增加先进封装产能，现在已经将目光投向英特尔，作为其高级封装服务的提供商，以减缓紧张的供应形势。除了在美国，英特尔在马来西亚槟城也有封装设施，而且制定了一个开放的模式，允许客户单独利用其封装解决方案。预计英特尔最早会在今年第二季度开始向英伟达提供先进封装，月产能为5000片晶圆。台积电依然会是英伟达主要的封装合作伙伴，占据着最多的份额，不过随着英特尔的加入，使得英伟达所需要的封装总产能大幅度提升了近10%。台积电也没有减慢封装产能的扩张步伐，今年第一季度大概能增至月产能接近5万片晶圆，比去年12月增长25%。AI芯片供应短缺主要源自先进封装产能不足，另外HBM3供应紧张也是原因之一，另外部分云端服务商过度下单也增加了供应链的压力。当然，一些服务器供应商则从这些订单中受惠，并加速扩大产能，以便云端服务商能快速部署设备。
+
+Assistant:
+````
+**参考输出：**
+
+```` json
+{
+"keywords": ["英伟达", "英特尔", "先进封装", "HBM3"]
+}
+````
+
+**日常问答**
+
+### ⭐ 多语言互相翻译
+
+<CallOut type="info">
+在执行翻译任务时，可以通过降低 Top_P 减少输出差异。建议的参数：Temperature = 1、Top_P = 0.1、Presence Penalty = 0、Frequency Penalty = 1
+</CallOut>
+
+**输入 prompts:**
+``` bash
+Japanese: 春の初め、桜の花が満開になる頃、小さな町の片隅にある古びた神社の境内は、特別な雰囲気に包まれていた。
+
+English:
+```
+**参考输出：**
+```bash
+At the beginning of spring, when the cherry blossoms were in full bloom, the grounds of an old shrine tucked away in a corner of a small town were enveloped in a special atmosphere.
+```
+可以将“Japanese” 和 “English” 修改成其他语言，实现国际语言的翻译，例如：
+
+**输入 prompts:**
+``` bash
+Instruction: Translate the English sentence into natural Spanish. Translate "cherry blossoms" as "flores de cerezo", not the fruit. Preserve every detail and output only the continuation of the Spanish sentence.
+
+English: In the early spring, when the cherry blossoms were in full bloom, a small shrine in a remote corner of a town was enveloped in an atmosphere of special charm.
+
+Spanish: A principios
+```
+**拼接后的完整结果：**
+```bash
+A principios de la primavera, cuando las flores de cerezo estaban en plena floración, un pequeño santuario en un rincón remoto de un pueblo estaba envuelto en un ambiente de encanto especial.
+```
+
+### ⭐ 根据标题撰写视频文案
+
+<CallOut type="info">
+在执行创造类型任务时，可以通过适当增大 Temperature 和 Top_P 两项参数，提高回答的创意。比如 : Temperature = 1 ，Top_P = 0.3
+</CallOut>
+
+**输入 prompts:**
+
+``` bash
+Instruction: 根据标题写一段面向首次使用者的中文视频口播稿，长度为 220 至 350 个中文字符。按“注册后核对账号信息—根据后台实际可见项配置基础功能—发布一条测试内容并预览—查看反馈数据”的顺序展开。不同账号可用的菜单、自动回复等能力可能不同，因此不要编造具体后台路径，也不要承诺所有账号具有相同功能。不要承诺涨粉或商业收益，只输出完整口播稿。
+
+Input: 新手必须知道的微信公众号基础功能搭建方法
+
+Response:
+```
+**参考输出：**
+
+```bash
+大家好，今天用四步完成微信公众号的基础检查。第一步，注册后登录后台，核对账号名称、头像、简介和主体信息，发现不一致先确认可修改范围。第二步，只根据后台当前实际可见的设置配置基础功能；菜单、自动回复等能力会随账号类型不同，以自己的页面为准。第三步，发布一条简短测试内容并先发送预览，检查标题、封面、正文排版和链接在手机上的显示，确认无误后再正式发布。第四步，回到后台查看实际提供的阅读、互动等反馈数据，记录内容表现和用户反馈，再据此调整下一次发布。先走通这套最小流程，再逐步增加功能，排查问题会更容易。
+```
+**自然语言处理**
+
+<CallOut type="info">
+在执行自然语言处理任务时，可以保持 Temperature = 1，并将 Top_P 调低到 0.1，使标签和结构化输出更稳定。
+</CallOut>
+
+### ⭐ 自然语言处理（情感分类）
+
+#### 1. 用户评论情感分析
+
+**输入 prompts:**
+``` bash
+Instruction: 请判断下面句子的情感倾向，情感类型包括: 负向、正向。
+请直接输出类型名称，不要额外输出多余内容。
+
+Input: 服务和环境都不错……
+
+Response:
+```
+**参考输出：**
+```
+正向
+```
+---
+#### 2. 外卖评论情感分析
+
+**输入 prompts:**
+``` bash
+Instruction: 对中文外卖应用客户评价进行情感分类，0 为消极，1 为积极。只输出 0 或 1，不要输出解释。
+
+Input: 粉送來的時候已經「斷」完了，跟米飯一樣，唉，有些失望?
+
+Response:
+```
+**参考输出：**
+```
+0
+```
+---
+
+#### 3. 电商产品评论情感分析
+
+**输入 prompts:**
+
+``` bash
+Instruction: 请分析给定评论属于正面评论还是负面评论。
+
+Input: 物流很快，早上下单，下午就到了。包装也很高档。就是耳机音质很差，煲了一百多小时，音质和同事的一百多元的耳机差不多，1580元买这耳机亏大了。
+
+Response:
+```
+**参考输出：**
+```
+负面评论
+```
+### ⭐ 自然语言处理（相似度分类）
+
+**输入 prompts:**
+``` bash
+Instruction: 请判断下面两句话在语义上是否相似。
+请直接输出“是”或“否”，不要额外输出多余内容。
+
+Input: 句子1：剧烈运动后咯血,是怎么了?
+句子2：剧烈运动后为什么会咯血？
+
+Response:
+```
+**参考输出：**
+```
+是
+```
+
+### ⭐ 根据餐饮评价进行打分
+
+**输入 prompts:**
+``` bash
+Instruction: 根据餐厅评价给出 1 至 5 星评分，只输出一个整数。1 星表示强烈负面，2 星表示负面为主但有少量优点，3 星表示褒贬大致相当，4 星表示整体正面但存在较明显的问题，5 星表示整体高度正面且只有轻微不便。
+
+Input: 状元楼饭店第一次去，因为地理位置优越，装修中式，菜是地道的宁波菜，口味纯正，醉泥螺特别棒，吃到了小时候的味道。因为去晚了，在大堂等了一会儿，期间有茶水喝，服务员还会聊天。就餐时生意很好，服务员一直忙碌，但服务态度绝对不打折，样样服务到位，点酒水时还耐心解释。整体体验值得夸赞。
+
+Response:
+```
+**参考输出：**
+```
+5
+```
+
+### ⭐ 自然语言处理（情感倾向分类）
+
+**输入 prompts:**
+``` bash
+Instruction: 请判断给定中文文本的情感倾向是积极、消极还是中性。只输出类别名称，不要解释。
+
+Input: 这次退款拖了两个月，客服始终没有解决问题，我对此非常失望。
+
+Response:
+```
+**参考输出：**
+```
+消极
+```
+### ⭐ 自然语言处理（机器阅读理解）
+
+**输入 prompts:**
+``` bash
+Instruction: 请首先阅读以下文本信息，然后回答问题。问题的答案应该在文本中能找到，是一句话的形式。
+
+Input: 文本：
+材料列出的《战国无双3》开发名称是光荣和 ω-Force。本作属于《战国无双》系列，并包含多个故事和战场。
+问题：
+文中列出了哪两个开发名称？
+
+Response:
+```
+**参考输出：**
+```
+文中列出的开发名称是光荣和 ω-Force。
+```
+### ⭐ 自然语言处理（触发词识别）
+
+**输入 prompts:**
+``` bash
+Instruction: 请从下面的文本中识别“解除质押”事件的触发词，只输出合法 JSON，格式为 {"TRIGGERS": ["触发词"]}。
+
+Input: text:<万讯自控发布公告称，股东傅宇晨已解除部分股份质押。>
+
+Response:
+```
+**参考输出：**
+```
+{"TRIGGERS": ["解除"]}
+```
+
+### ⭐ 自然语言处理（理解对话问答）
+
+**输入 prompts:**
+``` bash
+Instruction: 根据男和女的对话，以及问题，从选项中选出答案。只输出合法 JSON，格式为 {"答案": "选项"}，不要解释。
+
+Input: {
+  "对话": [
+    "男：你今天晚上有时间吗？我们一起去看电影吧？",
+    "女：你喜欢恐怖片和爱情片，但是我喜欢喜剧片，科幻片一般。"
+  ],
+  "问题": "女的最喜欢哪种电影？",
+  "选项": ["恐怖片", "爱情片", "喜剧片", "科幻片"]
+}
+
+Response:
+```
+**参考输出：**
+```
+{"答案": "喜剧片"}
+```
+
+### ⭐ 自然语言处理（文本主题分类）
+
+**输入 prompts:**
+``` bash
+Instruction: 请判断下面的句子属于哪个类别，类别包括文化、娱乐、体育、财经、房产、汽车、教育、科技、军事、旅游、国际、证券、农业、电竞、民生。
+请直接输出类别，不要额外输出多余内容。
+
+Input: 国家统计局公布居民消费价格指数和社会消费品零售总额的最新变化。
+
+Response:
+```
+**参考输出：**
+```
+财经
+```

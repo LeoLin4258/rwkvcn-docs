@@ -31,7 +31,7 @@ Ai00 Server 仓库地址：<https://github.com/Ai00-X/ai00_server>
 
 ![continuation_en](./imgs/continuation_en.gif)
 
-也可以使用特定格式的 prompt ,让模型遵循某种指令执行任务。具体的 prompt 实现请参阅：[续写模式的提示词示例](../../../docs/RWKV-Prompts/Completion-Prompts)
+也可以使用特定格式的 prompt ,让模型遵循某种指令执行任务。具体的 prompt 实现请参阅：[RWKV 提示词示例（续写模式）](../../../docs/RWKV-Prompts/Prompt-Examples#续写模式)
 
 **写论文**
 
