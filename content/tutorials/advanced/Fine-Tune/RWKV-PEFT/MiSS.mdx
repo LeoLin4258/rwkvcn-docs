@@ -1,6 +1,6 @@
 ---
 title: MiSS 微调教程
-description: MiSS微调是一种新颖的参数高效微调方法，可进一步降低训练参数同时加速收敛，MiSS在评估指标、计算效率和资源使用方面均优于LoRA及其变体。
+description: MiSS 微调是一种参数高效微调方法，通过分片共享结构减少可训练参数，并在模型效果与资源使用之间提供另一种取舍。
 keywords: [RWKV MiSS 微调, MiSS 微调教程, MiSS 微调方法, MiSS 微调框架, MiSS 微调效果]
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
@@ -13,14 +13,14 @@ import { Step, Steps } from 'fumadocs-ui/components/steps'
 
 [MiSS 微调](https://arxiv.org/abs/2409.15371)（Matrix Shard Sharing）是一种新颖的参数高效微调方法（PEFT，Parameter-Efficient Fine-Tuning），该方法使用一个初始值为零的共享可训练矩阵 $D$  来更新原始权重矩阵的各个分片。
 
-MiSS 微调方法在不影响性能的前提下降低了复杂度，在性能、内存和效率之间实现了更优的平衡。
+MiSS 通过让权重分片共享一个可训练矩阵来减少可训练参数；实际效果和资源占用仍取决于模型、数据集与训练配置。
 
 ![different-between-lora-MiSS.jpg](../imgs/different-between-lora-miss.png)
 
 </CallOut>
 ---
 
-本文的 MiSS 微调方法来自 RWKV 社区微调项目 [RWKV-PEFT ](https://github.com/JL-er/RWKV-PEFT)。
+本文的 MiSS 微调方法来自 RWKV 社区微调项目 [RWKV-PEFT](https://github.com/Joluck/RWKV-PEFT)。
 
 在开始 MiSS 微调之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
@@ -78,7 +78,7 @@ RWKV MiSS 微调的显存（GPU VRAM）需求可参考下表：
 
 ## 收集训练数据
 
-你需要使用收集更适合训练 RWKV 的 binidx 数据，具体方法可参考[准备微调数据集](../FT-Dataset)。
+MiSS 支持直接读取 JSONL 数据，也可以使用转换后的 binidx 数据，具体格式和准备方法可参考[准备微调数据集](../FT-Dataset)。
 
 ## 配置训练环境
 
@@ -89,7 +89,7 @@ RWKV MiSS 微调的显存（GPU VRAM）需求可参考下表：
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
 
 ```  bash copy
-git clone https://github.com/JL-er/RWKV-PEFT.git
+git clone https://github.com/Joluck/RWKV-PEFT.git
 # 如果 GitHub 无法链接，请使用以下国内仓库：
 git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 ```
@@ -97,7 +97,7 @@ git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。并运行以下命令，安装项目所需依赖：
 
 ```  bash copy
-pip install -r requirements.txt 
+pip install .
 ```
 
 ## 修改训练参数[#modify-training-parameters]
@@ -116,7 +116,7 @@ pip install -r requirements.txt
  
 - load_model： 基底 RWKV 模型的路径
 - proj_dir：训练日志和训练得到的 MiSS 文件输出路径
-- data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
+- data_file：训练数据集的路径。使用 `jsonl` 时需要填写包含 `.jsonl` 后缀的文件路径；使用 `binidx` 时填写数据文件前缀，不带 `.bin` 和 `.idx` 后缀。
 </Step>
 <Step>
 
@@ -147,7 +147,7 @@ pip install -r requirements.txt
 | `epoch_save=5` | 每隔多少个训练轮次保存一次 MiSS 文件，注意存储空间是否充足 |
 | `epoch_steps=1200` | 每个训练轮次的步数，增加会延长单个 epoch 的训练时间 |
 | `ctx_len=512` | 微调模型的上下文长度，建议根据语料长度修改 |
-| `peft_config='{"r":64}'` | MiSS 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
+| `peft_config='{"r":8}'` | MiSS 微调的 rank 参数；上游 `miss.sh` 当前使用 `r=8`，增大 rank 通常会增加可训练参数和显存占用，实际取值需要结合任务测试 |
 </Step>
 <Step>
 
@@ -157,30 +157,21 @@ pip install -r requirements.txt
 
 | 参数 | 描述 |
 | --- | --- |
-| `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
-| `--data_type binidx` | 训练语料的文件格式，支持：`utf-8`, `utf-16le`, `numpy`, `binidx`, `dummy`, `uint16`, `sft`, `jsonl`，建议使用 `jsonl` 或 `binidx` 格式 |
+| `--vocab_size 65536` | 模型词表大小，必须与基底模型一致；RWKV World 模型使用 `65536` |
+| `--data_type binidx` | 训练语料的文件格式。本教程使用 `jsonl` 或 `binidx` 格式 |
 | `--epoch_count 5` | 总训练轮次 |
-| `--lr_init 2e-5` | 初始学习率，MiSS 建议 `2e-5` ，最大不超过 `1e-4` |
-| `--lr_final 2e-5` | 最终学习率，建议和初始学习率保持一致 |
+| `--lr_init 1e-5` | 初始学习率，当前 `miss.sh` 使用 `1e-5` |
+| `--lr_final 1e-5` | 最终学习率，当前 `miss.sh` 使用 `1e-5` |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`，`cpu` 基本不支持训练 |
 | `--devices 1` | 显卡数量，单显卡填 `1`，多卡按实际数量填写 |
-| `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
-| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
-| `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
+| `--precision bf16` | 训练精度；上游 `miss.sh` 使用 `bf16`，程序支持 `fp32`、`tf32`、`fp16` 和 `bf16` |
+| `--strategy deepspeed_stage_1` | Lightning 训练策略；上游 `miss.sh` 使用 `deepspeed_stage_1`。Stage 2/3 适用于更大的模型或全量微调，不是单纯的低显存开关 |
+| `--grad_cp 1` | 是否启用梯度检查点；设为 `1` 可减少激活值占用的显存，但会增加重新计算开销，`0` 表示关闭 |
 | `--my_testing "x070"` | 训练的 RWKV 模型版本，v7 选 `x070`，v6 选 `x060` ，v5 选 `x052`（已淘汰，不推荐）|
 | `--peft miss` | 微调训练类型，MiSS 微调填 `miss` 即可 |
-| `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
+| `--op` | 选择 WKV 算子，支持 `cuda` 和 `fla`，默认使用 `cuda`；`fla` 使用基于 Triton 的 RWKV-FLA 算子 |
 | `--wandb RWKV-PEFT-MiSS` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
-| `--lr_schedule wsd` | **可选**，学习率调度方法，默认使用 `cos_decay`，支持：`cos_decay`, `wsd` |
-{/* 2025年11月更新后移除了部分训练参数，不支持量化训练 
-| `--warmup_steps 0` | 预热步骤数，默认 `0`，加载模型微调时可尝试改成 `50` |
-| `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
-| `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
-| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
-| `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
-| `--quant int8/nf4` | **可选**，RWKV 默认使用 `bf16` 训练精度，但也支持 `int8` 和 `nf4` 两种量化训练，推荐使用精度损失较小的 `int8` | 
-| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
-| `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |*/}
+| `--lr_schedule wsd` | **可选**，学习率调度方法，支持 `cos` 和 `wsd`，默认使用 `cos` |
 </Step>
 </Steps>
 
@@ -198,7 +189,7 @@ micro_bsz=4
 epoch_save=1
 epoch_steps=1000
 ctx_len=4096
-peft_config='{"r":64}'
+peft_config='{"r":8}'
 
 python train.py --load_model $load_model \
 --proj_dir $proj_dir --data_file $data_file \
@@ -213,9 +204,9 @@ python train.py --load_model $load_model \
 --my_testing "x070" \
 --peft miss --peft_config $peft_config
 # 以下是可选项
-# --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
+# --op cuda/fla （选择不同的算子，不加此参数则默认使用 cuda）
 #  --wandb RWKV-PEFT-MiSS （是否使用 wandb 监控训练过程）
-# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay  
+# --lr_schedule wsd （使用 WSD 学习率调度，不加此参数则默认使用 cos）
 ```
 
 <CallOut type="warning">

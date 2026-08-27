@@ -10,6 +10,7 @@
 | --- | --- | --- | --- |
 | `content/tutorials/advanced/Fine-Tune/Full-ft-Simple.mdx` | 2026-08-18 | 教程以 RWKV-5/6、旧训练目录和旧依赖为主，无法代表当前 RWKV-7 训练流程 | [`content/tutorials/advanced/pretrain.mdx`](../tutorials/advanced/pretrain.mdx)；上游 [`RWKV-v7/train_temp`](https://github.com/BlinkDL/RWKV-LM/tree/main/RWKV-v7/train_temp) |
 | `content/tutorials/advanced/Fine-Tune/RWKV-PEFT/PiSSA.mdx` | 2026-08-18 | RWKV-PEFT 主分支仍保留 PiSSA 相关配置，但缺少旧教程依赖的训练与合并脚本，无法按当前主分支完整复现 | [`LoRA`](../tutorials/advanced/Fine-Tune/RWKV-PEFT/LoRA.mdx)、[`MiSS`](../tutorials/advanced/Fine-Tune/RWKV-PEFT/MiSS.mdx)、[`State Tuning`](../tutorials/advanced/Fine-Tune/RWKV-PEFT/State-Tuning.mdx) |
+| `content/tutorials/advanced/Fine-Tune/FAQ.md` | 2026-08-27 | 页面未接入当前导航，且排错内容依赖旧 RWKV-LM、旧合并脚本和不安全的笼统处理方式，无法代表当前 RWKV-PEFT 流程 | [`配置训练环境`](../tutorials/advanced/Fine-Tune/FT-Environment.mdx)、[`准备训练数据`](../tutorials/advanced/Fine-Tune/FT-Dataset.mdx)及对应微调方法页面 |
 
 ## 使用与恢复规则
 
