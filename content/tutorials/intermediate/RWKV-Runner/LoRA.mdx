@@ -6,13 +6,19 @@ keywords: [RWKV Runner LoRA微调, RWKV Runner LoRA微调教程, RWKV Runner LoR
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
+<CallOut type="warning">
+若要微调当前 RWKV 模型，请使用 [RWKV-PEFT 的 MiSS 教程](../../advanced/Fine-Tune/RWKV-PEFT/MiSS)。
+
+RWKV Runner 内置的 LoRA 训练功能已经过时，Runner 作者也已明确短期内不会接入 PEFT。本页仅供仍在维护旧版 Runner 训练流程的用户参考。
+</CallOut>
+
 <CallOut type="info">
 LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术。它不改变原始模型大部分参数，而是仅通过引入两个低秩矩阵来调整模型的部分权重，以此实现对特定任务的有效优化。这种方法能够在保持模型原有泛化能力的同时，减少微调所需资源，并提高特定任务的性能。
 </CallOut>
 
 RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目前仅支持在 Windows 系统中使用 WSL 训练。
 
-在开始训练之前，请确保你的 Windows 设备上已安装最新版的 WSL2（Windows Subsystem for Linux）。 
+下文会引导你启用 WSL2（Windows Subsystem for Linux）并安装 Ubuntu。如果已经配置完成，可以跳过对应步骤。
 
 ## LoRA 训练环境配置
 
@@ -42,26 +48,29 @@ RWKV Runner 的“训练”版块支持一键 LoRA 微调 RWKV 模型，但目�
 </CallOut>
 </Step>
 <Step>
-### 为 WSL 安装 Ubuntu 
+### 更新 WSL 版本
 
-接着，RWKV Runner 会自动查询 Windows 是否安装了 Ubuntu 系统。如果没有找到， Runner 将会提示你进行安装。
+打开 PowerShell，依次运行：
 
-对于一般使用 Windows 家庭版或专业版的用户，点击弹框的安装按钮后，Microsoft Store 将会自动打开并跳转至 Ubuntu 的安装界面。
+```powershell
+wsl --update
+wsl --set-default-version 2
+```
 
-![alt text](./imgs/runner-lora-install-ubuntu.png)
+第二条命令会将新安装的 Linux 发行版默认设为 WSL2。
 </Step>
 <Step>
-### 更新 WSL 版本
-   
-使用商店安装前，建议你先在命令行执行一次 `wsl --update` 进行 WSL 更新，并执行 `wsl --set-default-version 2` 将 WSL 的默认版本设为 2。
+### 安装并初始化 Ubuntu
 
-然后点击微软商店的 Ubuntu 安装按钮。
+再次点击训练。RWKV Runner 会检查 Windows 是否已经安装 Ubuntu。如果没有找到，Runner 会提示你进行安装。
 
-成功安装 ubuntu 后，点击打开按钮，让 Ubuntu 执行初始化配置。
+Windows 家庭版或专业版用户点击弹窗中的安装按钮后，Microsoft Store 会打开 Ubuntu 的安装页面。点击安装，完成后再点击打开，让 Ubuntu 执行初始化配置。
+
+![alt text](./imgs/runner-lora-install-ubuntu.png)
 
 ![runner-lora-install-ubuntu2](./imgs/runner-lora-install-ubuntu2.jpg)
 
-如果你使用的是服务器版 Windows 系统，通常该系统没有微软商店组件，请使用命令行自行安装 Ubuntu 系统。
+服务器版 Windows 通常没有 Microsoft Store，请按照 [Microsoft 的 WSL 手动安装说明](https://learn.microsoft.com/windows/wsl/install-manual) 安装 Ubuntu，然后返回 Runner。
 </Step>
 <Step>
 ### 为 Ubuntu 配置训练环境
@@ -102,10 +111,13 @@ Ubuntu 训练环境只需要配置一次。
 
 **数据处理调整**
 
-- 数据路径：这里的数据指的用于 LoRA 微调的数据集，这些数据集用于训练 RWKV 模型理解和学习特定任务，例如情感分析、文本分类、问答系统等。数据路径必须是一个**文件夹**或者具体的 **jsonl 格式文件** (jsonl 数据集的格式可参考：[RWKV 微调数据集](../../advanced/Fine-Tune/FT-Dataset)，未来会支持更多格式)。当你填写的路径是一个文件夹时，该文件夹内的所有 txt 文件会被自动转换为训练数据，通常用于大批量训练写作，代码生成或知识库。
+- 数据路径：可以填写一个 JSONL 文件，也可以填写一个包含 TXT 文件的文件夹。
+    - **JSONL 文件：**数据格式请参考 [RWKV 微调数据集](../../advanced/Fine-Tune/FT-Dataset)
+    - **文件夹：**Runner 会将文件夹中的 TXT 文件转换为训练数据，适合批量导入写作、代码或知识库文本
 
 - 词表路径： 默认情况下不需要修改。词表路径指向一个包含模型可识别的所有单词或标记（tokens）的列表的文件。在自然语言处理（NLP）中，词表（或词汇表）是模型用来理解输入文本的基础。每个单词或标记都会被映射到一个唯一的数字ID，模型使用这些ID来处理和生成文本。
-训练参数调整
+
+**训练参数调整**
 
 以下是 LoRA **训练参数**的作用和推荐设置：
 
@@ -123,7 +135,7 @@ Ubuntu 训练环境只需要配置一次。
 
 - 每轮训练步数、训练轮次、起始轮次、保存间隔轮次等参数控制着整体训练流程。一般情况下保持默认，可根据数据集的大小适当增大训练步数和训练轮次。
 
-- 初始学习率、最终学习率、Adam Epsilon、Beta 1、Beta 2 等参数则影响着优化器（如 Adam）如何更新权重，一般情况下保持默认即可。如需修改学习率，请不要大于 le-4 。
+- 初始学习率和最终学习率控制学习率变化。Adam Epsilon、Beta 1、Beta 2 影响优化器更新权重的方式。一般情况下保持默认即可。如需修改学习率，请不要大于 `1e-4`。
 
 还有一些特定于 LoRA 的超参：
 
