@@ -16,7 +16,7 @@ RWKV runner 可提供基于 RWKV 模型的聊天、写作、作曲三项基础�
 
 如果你不知道如何提示 RWKV 模型，才能让它更好地完成某项任务。可以从以下途径获得 RWKV-Prompts（提示词）参考：
 
-1. 参考我们整理的 [RWKV-Prompts（提示词）示例](../../../docs/RWKV-Prompts/Chat-Prompts)
+1. 参考我们整理的 [RWKV-Prompts（提示词）示例](../../../docs/RWKV-Prompts/Prompt-Examples#聊天模式)
 
 2. 加入 RWKV QQ 群：224287095 ，在群里提问（请附上任务文本）
 

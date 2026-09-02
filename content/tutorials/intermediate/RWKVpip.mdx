@@ -5,7 +5,13 @@ keywords: [RWKV pip使用指南, RWKV pip开发应用, RWKV pip API_DEMO_CHAT.py
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-以下内容将通过两份**推理示例代码**，指引你**使用 [RWKV pip 库](https://pypi.org/project/rwkv/)**。RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/ChatRWKV)** 仓库中找到。
+本文首先介绍面向 RWKV-7 G1 权重的 CUDA Graph 推理，再通过 `API_DEMO_CHAT.py` 解释有状态聊天循环。安装示例使用 `rwkv==0.8.32`：
+
+```bash
+pip install "rwkv==0.8.32"
+```
+
+RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/ChatRWKV)** 仓库中找到。
 
 ## 带 CUDA Graph 的加速推理代码
 
@@ -19,18 +25,18 @@ import numpy as np
 import torch
 
 # 环境变量设置：必须在导入 rwkv 库之前设置
-os.environ["RWKV_V7_ON"] = '1'       # 显式开启 RWKV-v7 模型支持（如果你用的是 v6 模型，请注释掉或设为 0）
+os.environ["RWKV_V7_ON"] = '1'       # 开启 RWKV-7 模型支持
 os.environ['RWKV_JIT_ON'] = '1'      # 开启 JIT (Just-In-Time) 编译，加速算子加载
-os.environ["RWKV_CUDA_ON"] = '1'     # 开启 CUDA 自定义算子（需系统安装了 CUDA 编译器，速度显著提升）
+os.environ["RWKV_CUDA_ON"] = '1'     # 开启 CUDA 自定义算子（需要 CUDA 编译器）
 
 from rwkv.model import RWKV
 from rwkv.utils import PIPELINE
 ```
 
 <CallOut type="warning">
-**注意：** `RWKV_V7_ON` 仅适用于 RWKV-v7 架构的模型。如果加载的是 v6 或 v5 模型，请务必将其关闭或删除。
+**模型版本：**`RWKV_V7_ON` 仅适用于 RWKV-7 模型。加载 RWKV-6 或 RWKV-5 模型时，请将其设为 `0` 或删除这一行。
 
-此外，`RWKV_CUDA_ON='1'` 需要你的环境中配置好了 `nvcc` 编译器（通常包含在 CUDA Toolkit 中），否则会回退到较慢的 PyTorch 原生实现或报错。
+**CUDA 自定义算子：**`RWKV_CUDA_ON='1'` 需要系统能够使用 `nvcc`。如果编译失败，请将它设为 `0`，改用 PyTorch 实现。
 </CallOut>
 
 这里设置了运行 RWKV 所需的核心环境变量，并导入了必要的库。
@@ -51,7 +57,7 @@ pipeline = PIPELINE(model, "rwkv_vocab_v20230424")
 # 生成参数设置
 LENGTH_PER_TRIAL = 256  # 每次生成的 token 长度
 TEMPERATURE = 1.0       # 温度：越高越随机，越低越确定
-TOP_P = 0.0             # Nucleus 采样：0.0 通常意味着贪婪采样（或由库的具体实现决定，RWKV中 0 通常指argmax）
+TOP_P = 0.0             # Top-p 采样：0.0 只保留概率最高的 token
 
 # 提示词 (Prompt)
 prompt = "User: simulate SpaceX mars landing using python\n\nAssistant: <think"
@@ -59,7 +65,7 @@ prompt = "User: simulate SpaceX mars landing using python\n\nAssistant: <think"
 
 这一部分加载了具体的模型权重文件，并设定了生成任务的“超参数”。
 
-`strategy='cuda fp16'` 是最推荐的配置，如果你显存不足，可以尝试 `cuda fp16i8`（Int8 量化）。更多配置选项请参考 [RWKV pip 库的推理精度与显存需求](#RWKV-pip-strategy-and-vram-requirements)。
+RWKV-7 当前仅支持 `cuda` 或 `cpu` 搭配 `fp16`、`fp32`、`bf16`。本例使用 `strategy='cuda fp16'`。如果显存不足，请先换用更小的模型。
 
 ### 3. 常规推理 (Slow Inference)
 
@@ -230,12 +236,12 @@ print(f'\n\nToken/s = {round(1/times,2)} (forward), {round(1/all_times,2)} (full
 
 这种方法使小参数量模型（如 0.1B, 0.4B, 1.5B）获得 **2 到 5 倍**推理速度提升，对于大模型的提升幅度会减小，因为大模型的主要瓶颈在于计算而非调度。
 
-## API_DEMO_CHAT.py 详解
+## 历史示例：API_DEMO_CHAT.py
 
 <CallOut type="info">
 **[API_DEMO_CHAT](https://github.com/BlinkDL/ChatRWKV/blob/main/API_DEMO_CHAT.py)** 是一个基于 RWKV pip 库的开发 Demo，用于**实现基于命令行的聊天机器人**。
 
-下文将以详细的注释，分段介绍这个聊天机器人 DEMO 的代码设计。
+本节保留旧版示例中的 RWKV-6 文件名和 prompt，用于说明 RWKV 的有状态聊天循环。新项目请从本页前半部分的 RWKV-7 示例开始。
 </CallOut>
 
 ### 1. 环境设置与依赖导入
@@ -264,10 +270,12 @@ torch.backends.cuda.matmul.allow_tf32 = True
 
 # os.environ["RWKV_V7_ON"] = '1' # 启用 RWKV-7 模型
 os.environ["RWKV_JIT_ON"] = "1" # 启用 JIT 编译
-os.environ["RWKV_CUDA_ON"] = "0"  # 禁用原生 CUDA 算子，改成 '1' 表示启用 CUDA 算子（速度更快，但需要 c++ 编译器和 CUDA 库）
+os.environ["RWKV_CUDA_ON"] = "0"  # 禁用 CUDA 自定义算子
 ```
 <CallOut type="warning">
 在推理 RWKV-7 模型时，请务必将 `os.environ["RWKV_V7_ON"]` 设置为 `1` 。
+
+如果将 `RWKV_CUDA_ON` 设为 `1`，需要安装 C++ 编译器和 CUDA Toolkit。编译失败时，请改回 `0`。
 </CallOut>
 这里是一些加快推理速度的 torch 设置和操作环境的优化项。
 
@@ -295,7 +303,7 @@ args.MODEL_NAME = "E://RWKV-Runner//models//rwkv-final-v6-2.1-1b6"  # 指定 RWK
 # 指定要加载的 State 文件路径。
 STATE_NAME = "E://RWKV-Runner//models//rwkv-x060-eng_single_round_qa-1B6-20240516-ctx2048"  # 指定要加载的自定义 State 文件路径。
 ```
-这一段决定是否要加载一个 State 文件，`"None"` 表示不加载自定义 State ，如需加载请填写 State 文件的绝对路径。
+这一段决定是否要加载一个 State 文件，`None` 表示不加载自定义 State，如需加载请填写 State 文件的绝对路径。
 
 <CallOut type="info">
 State 是 RWKV 这类 RNN 模型特有的状态。通过搭载自定义的 State 文件，可以强化 RWKV 模型在不同任务上的表现。（类似于增强插件）
@@ -465,23 +473,25 @@ while True:
 
 从推理过程可以看出，模型在每个时间步都更新隐藏状态（State），并利用当前的隐藏状态来生成下一个时间步的输出。这符合 RNN 的核心特性： **模型的每次输出依赖于前一步的生成结果**。
 
-## RWKV pip 库的推理精度与显存需求[#RWKV-pip-strategy-and-vram-requirements]
+## RWKV-4/5/6 的推理精度与显存需求[#RWKV-pip-strategy-and-vram-requirements]
 
 <CallOut type="info">
+下表适用于 RWKV-4/5/6，不适用于 RWKV-7。
+
 下表中 ，`fp16i8` 指在 fp16 精度基础上进行 int8 量化。
 
 量化可以减少 VRAM 需求，但在精度上略逊于 fp16。因此只要 VRAM 够用，尽量使用 fp16 层。
 </CallOut>
 
 
-| 策略                                | VRAM & RAM                        | 速度                                                                                                                                                                                                                                                                                                                       |
+| 策略                                | VRAM & RAM                        | 说明                                                                                                                                                                                                                                                                                                                       |
 | -- | -- | -- |
 | **cpu fp32**                        |  7B 模型需要 32GB 内存             | 使用 CPU fp32 精度加载模型，适合 Intel。对 AMD 非常慢，因为 pytorch 的 cpu gemv 在 AMD 上有问题，并且只会运行在一个单核上。                                                                                                                                                                                                                         |
 | **cpu bf16**                        | 7B 模型需要 16GB 内存             | 使用 CPU bf16 精度加载模型。在支持 bfloat16 的新 Intel CPU（如 Xeon Platinum）上速度较快。                                                                                                                                                                                                                                                                   |
 | **cpu fp32i8**                      | 7B 模型需要 12GB 内存             | 使用 CPU int8 量化精度加载模型。速度较慢（比 cpu fp32 更慢）。                                                                                                                                                                                                                                                                                                   |
 | **cuda fp16**                       | 7B 模型需要 15GB VRAM             | 使用 fp16 精度加载模型所有层，速度最快，但对显存（VRAM）的需求也最高。                                                                                                                                                                                                                                       |
 | **cuda fp16i8**                     | 7B 模型需要 9GB VRAM              | 使用 int8 量化模型所有层，速度较快。如果设置 `os.environ["RWKV_CUDA_ON"] = '1'` 来编译 CUDA 内核，可减少 1~2GB VRAM 使用。                                                                                                                                                                                                                     |
-| **cuda fp16i8 \*20 -> cuda fp16**   | VRAM 占用介于 fp16 和 fp16i8 之间 | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8，其余层使用 fp16 加载。  如果量化后还有较多 VRAM ，则酌情减少 fp16i8 层数（减少 20）。  如果 VRAM 不足则继续增加 fp16i8 量化层数  |
-| **cuda fp16i8 \*20+**               | 比 fp16i8 使用更少 VRAM           | 将模型的前 20 层（`*20` 指层数）量化为 fp16i8 并固定在 GPU 上，其他层按需动态加载（未固定的层加载速度会慢 3 倍，但节省 VRAM）。  如果 VRAM 不足，减少固定层数（`*20`）。  如果 VRAM 充足，增加固定层数。                                                                                                                                           |
-| **cuda fp16i8 \*20 -> cpu fp32**    | 比 fp16i8 使用更少 VRAM，但消耗更多内存          | 将模型的前 20 层（`*20`）量化为 fp16i8 并固定在 GPU 上，其他层使用 CPU fp32 加载。当 CPU 性能比较强时，此策略比上一个策略（只在 GPU 上固定 20 层）更快。  如果加载 20 层还有剩余 VRAM ，则继续增加 GPU 层数。  如果没有足够 VRAM，减少 GPU 层数。                                                                                                                           |
-| **cuda:0 fp16 \*20 -> cuda:1 fp16** | 使用双卡驱动模型                  | 使用 cuda:0（卡1） fp16 加载模型的前 20 层，然后使用 cuda:1（卡2） fp16 加载剩余的层（自动计算剩余层数）。  建议在最快的 GPU 上运行更多层。  如果某张卡的 VRAM 不够，可以将 fp16 换成 fp16i8 （int8 量化）。                                                                                                                            |
+| **cuda fp16i8 \*20 -> cuda fp16**   | VRAM 占用介于 fp16 和 fp16i8 之间 | 前 20 层使用 fp16i8，其余层使用 fp16。<br />VRAM 不足时增加 fp16i8 层数；VRAM 有余时减少 fp16i8 层数。 |
+| **cuda fp16i8 \*20+**               | 比 fp16i8 使用更少 VRAM           | 前 20 层使用 fp16i8 并固定在 GPU，其他层按需加载。未固定层的加载速度约慢 3 倍，但可以节省 VRAM。<br />VRAM 不足时减少固定层数；VRAM 有余时增加固定层数。 |
+| **cuda fp16i8 \*20 -> cpu fp32**    | 比 fp16i8 使用更少 VRAM，但消耗更多内存 | 前 20 层使用 fp16i8 并固定在 GPU，其他层使用 CPU fp32。CPU 性能较强时，这种方式可能比仅在 GPU 固定部分层更快。<br />VRAM 不足时减少 GPU 层数；VRAM 有余时增加 GPU 层数。 |
+| **cuda:0 fp16 \*20 -> cuda:1 fp16** | 使用双卡驱动模型                  | GPU 0 加载前 20 层，GPU 1 加载其余层。<br />优先让速度更快的 GPU 运行更多层；单卡显存不足时可将 fp16 改为 fp16i8。 |

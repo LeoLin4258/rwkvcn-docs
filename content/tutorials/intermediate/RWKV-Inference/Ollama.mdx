@@ -6,26 +6,19 @@ recommendedLinks:
   - title: pth 模型转 gguf 格式
     link: /tutorials/intermediate/llamacpp#get-gguf-models
   - title: 下载 RWKV gguf 模型
-    link: https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a
+    link: https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf
   - title: llama.cpp 推理教程
     link: /tutorials/intermediate/llamacpp
 ---
 
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import { Step, Steps } from 'fumadocs-ui/components/steps'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 <CallOut type="info">
-[Ollama](https://github.com/ollama) 是一个简单易用的开源本地大语言模型运行框架，支持在个人电脑上一键部署和运行各类开源模型，具有配置简单、资源占用低等特点。
+[Ollama](https://github.com/ollama) 是一个本地模型运行工具，可以通过命令行或桌面程序下载、管理和运行模型。
 </CallOut>
 
-随着 RWKV 社区成员 [@MollySophia](https://ollama.com/mollysama) 的工作，Ollama 现已适配 RWKV 模型。
-
-本章节介绍如何在 Ollama 中使用 RWKV 模型进行推理。
-
-<CallOut type="info">
-现在 Ollama 已经适配 RWKV-7 了！欢迎大家使用！
-</CallOut>
+本章节介绍如何在 Ollama 中运行 RWKV-7 模型：你可以直接运行 Ollama 模型，也可以导入本地 GGUF 文件。
 
 ## 视频教程[#video-tutorial]
 
@@ -45,9 +38,9 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ## Ollama 下载与安装[#ollama-download-and-install]
 
-可从 [Ollama 官网](https://ollama.com/) 下载 Ollama 的安装程序。
+可从 [Ollama 官网](https://ollama.com/) 下载 Ollama 的安装程序。以下安装步骤以 Windows 为例。
 
-下载完成后，双击 exe 文件进行安装。安装完成后 `Ollama` 会自动启动，启动后可在系统任务栏看到 `Ollama` 图标。
+下载完成后，双击 exe 文件进行安装。Ollama 会在安装后自动启动，系统任务栏出现 `Ollama` 图标即表示安装完成。
 
 ![ollama-icon](./imgs/ollama-icon.png)
 
@@ -55,63 +48,39 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 | 方法 | 描述 | 优点 | 缺点 |
 |------|------|------|------|
-| **[运行 Ollama 提供的 RWKV 仓库](#run-ollama-provided-rwkv-model)** | 从 Ollama 提供的 RWKV 仓库中下载并运行模型 | 操作简单 | Ollama 提供的 RWKV 模型**只有 `Q8_0` 和 `Q6_K` 等量化版本** |
-| **[运行自定义 RWKV 模型](#run-custom-rwkv-model)** | 需要手动下载 `gguf` 格式的 RWKV 模型并创建 `Modelfile` 配置文件 | 可以**运行任意量化**的 RWKV 模型，包括**微调的 RWKV 模型** | 需要手动配置 |
+| **[直接运行 Ollama 模型](#run-ollama-provided-rwkv-model)** | 根据模型名称自动下载并运行 | 操作简单，不需要手写 Modelfile | 可选的量化精度由模型发布者决定 |
+| **[运行自定义 RWKV 模型](#run-custom-rwkv-model)** | 导入本地 GGUF 并创建 `Modelfile` | 可以选择自己的 GGUF 文件和量化版本 | 需要手动创建 `Modelfile`，且并非所有 GGUF 都兼容 |
 
-## 运行 Ollama 提供的 RWKV 模型[#run-ollama-provided-rwkv-model]
+## 直接运行 Ollama 模型[#run-ollama-provided-rwkv-model]
 
-<CallOut type="info">
-Ollama 的 RWKV 仓库提供了 [RWKV7-G1b](https://ollama.com/mollysama/rwkv-7-g1b) | [RWKV-G0b](https://ollama.com/mollysama/rwkv-7-g0b)（推荐使用） 和 [RWKV7-World](https://ollama.com/mollysama/rwkv-7-world) 模型。
-</CallOut>
-<CallOut type="error">
-RWKV-6 World 模型已过时，不再推荐使用。
-</CallOut>
-<Tabs items={['RWKV7-G1 模型(推荐)', 'RWKV-7-World 模型']}>
-<Tab>
+下面以 G1i 1.5B 模型为例。
 
-在终端中运行 `ollama run mollysama/rwkv-7-g1b:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-G1b 2.9B 模型。您可以在终端中与 RWKV 模型进行对话。
+在终端中执行：
+
+```bash
+ollama run shoumenchougou/rwkv-7-g1i:1.5b
+```
+
+首次运行时，Ollama 会自动下载模型。看到 `>>>` 输入提示符后，即可直接发送问题。
+
+需要选择其他参数规模时，请先在 [Ollama 的 RWKV 搜索结果](https://ollama.com/search?q=rwkv) 中确认可用的模型名称，再替换命令中的模型参数。
 
 <CallOut type="tips">
-RWKV7-G1 系列模型默认开启思考模式，可以通过 `/set nothink` 和 `/set think` 命令灵活地开关思考模式。
+在 Ollama 对话界面中，输入 `/set think` 可启用思考模式，输入 `/set nothink` 可切换到快速回答。
 </CallOut>
-
-![ollama-run-rwkv-7-g1-2.9b](./imgs/ollama-run-rwkv-7-g1-2.9b.png)
-
-</Tab>
-<Tab>
-<CallOut type="warning">
-RWKV7-G1 模型是 RWKV-7-World 模型的全面升级，推荐使用 RWKV7-G1 模型。
-</CallOut>
-
-在终端中运行 `ollama run mollysama/rwkv-7-world:2.9b` 命令，Ollama 将**自动下载并运行** RWKV7-World 2.9B 模型。您可以在终端中与 RWKV 模型进行对话，如下图所示：
-
-![ollama-run-rwkv-7-world-2.9b](./imgs/ollama-run-rwkv-7-world-2.9b.png)
-
-所有可选的 Ollama/RWKV-7 World 模型：
-
-- `mollysama/rwkv-7-world:1.5b`：量化精度为 `Q4_K_M`
-- `mollysama/rwkv-7-world:2.9b`：量化精度为 `Q4_K_M`
-
-<CallOut type="info">
-若您曾经下载过 `mollysama/rwkv-7-world:2.9b` 模型，请运行 `ollama pull mollysama/rwkv-7-world:2.9b` 命令，拉取最新的变更。
-</CallOut>
-</Tab>
-</Tabs>
 
 ## 运行自定义 RWKV 模型[#run-custom-rwkv-model]
 
-要运行一个自定义的 RWKV 模型，你需要一个 `.gguf` 格式的模型文件，和一个用于配置**聊天模板和解码参数**的 `Modelfile` 文件。然后使用 `ollama create` 命令创建一个自定义 Ollama 模型。
-
-创建完毕后，即可使用 `ollama run` 命令运行自定义模型。
+要运行自定义 RWKV 模型，需要准备一个 `.gguf` 模型文件和一个 `Modelfile` 配置文件。准备完成后，依次使用 `ollama create` 和 `ollama run` 创建并运行模型。
 
 <Steps>
 <Step>
 **下载 RWKV gguf 模型**
 
-可以从 [ModelScope - RWKV GGUF 合集](https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a) 下载 `gguf` 格式的 RWKV 模型。
+可以从 [RWKV7-Gxx-GGUF 合集](https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf) 下载 `gguf` 格式的 RWKV 模型。
 
 <CallOut type="warning">
-RWKV gguf 模型有各种量化版本，建议使用 `FP16`、 `Q8_0` 两种量化精度，更低的量化精度（如 `Q5_K_M`、`Q4_K_M` 等）可能会使模型的回答变差。
+量化精度越低，模型文件通常越小，但回答质量也可能下降。对于 0.1B、0.4B 等小模型，优先选择 `FP16` 或 `Q8_0`。其他参数规模可根据可用内存选择量化版本。
 </CallOut>
 <CallOut type="tips">
 自己微调了一个 RWKV-7 模型，想从 pth 格式转 gguf？查看 [从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
@@ -120,23 +89,20 @@ RWKV gguf 模型有各种量化版本，建议使用 `FP16`、 `Q8_0` 两种量�
 <Step>
 **创建模型的 Modelfile 文件**
 
-在存放 RWKV gguf 模型文件的文件夹下创建名为 `Modelfile` 的文本文件，不需要后缀名。
+在存放 RWKV GGUF 模型的文件夹中创建一个名为 `Modelfile` 的文本文件，不需要添加后缀名。
+
+在 Windows 中，请确认文件没有被保存成 `Modelfile.txt`。
 
 ![Modelfile](./imgs/ollama-Modelfile.png)
 
-使用“记事本”等文本编辑工具打开 `Modelfile`，然后根据**模型是否支持思考模式**创建不同的 Modelfile 文件。
+使用“记事本”等文本编辑工具打开 `Modelfile`，写入以下模板和参数。
 
 <CallOut type="tips">
-RWKV G0/G1 系列推理模型**同时支持“思考”和“不思考”两种模式**，因此下列两种 Modelfile 都可用，根据您对推理功能的需求选择其中一种即可。
+以下模板支持 `/set think` 和 `/set nothink`。
 </CallOut>
 
-<Tabs items={['思考模式', '不思考模式']}>
-<Tab>
-
-对于 RWKV G0/G1 系列**支持思考功能**的 RWKV 模型，请在 `Modelfile` 中写入以下内容：
-
-```bash
-`FROM rwkv7-g1b-2.9b-20251205-ctx8192-FP16.gguf
+```text
+FROM ./rwkv7-g1i-1.5b-Q6_K.gguf
 
 TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
 {{- range $i, $_ := .Messages }}
@@ -157,51 +123,16 @@ Assistant:{{- if $.IsThinkSet }} <{{- if not $.Think }}think>
 PARAMETER stop """
 
 """
-PARAMETER stop """
-User"""
-
-PARAMETER stop "User"
-PARAMETER stop "Assistant"
-
+PARAMETER frequency_penalty 0.5
+PARAMETER presence_penalty 0.5
+PARAMETER repeat_penalty 1
 PARAMETER temperature 1
+PARAMETER top_k 128
 PARAMETER top_p 0.5
-PARAMETER repeat_penalty 1.2`
 ```
-</Tab>
-<Tab>
-如果**不需要思考模式**（RWKV-World 系列模型**不支持思考功能**，因此只能使用此模板），请在 `Modelfile` 中写入以下内容：
+请先将第一行 `FROM` 之后的文件名改成你下载的 RWKV GGUF 文件名。
 
-```bash
-`FROM rwkv7-g1b-2.9b-20251205-ctx8192-FP16.gguf
-
-TEMPLATE """{{- if .System }}System: {{ .System }}{{ end }}
-{{- range $i, $_ := .Messages }}
-{{- $last := eq (len (slice $.Messages $i)) 1}}
-{{- if eq .Role "user" }}
-{{- if eq $i 0}}User: {{ .Content }}{{- else }}
-
-User: {{ .Content }}{{- end }}
-{{- else if eq .Role "assistant" }}
-
-Assistant:{{ .Content }}{{- end }}
-{{- if and $last (ne .Role "assistant") }}
-
-Assistant:{{- end -}}{{- end }}"""
-
-PARAMETER stop """
-
-"""
-PARAMETER stop """
-User"""
-
-PARAMETER temperature 1
-PARAMETER top_p 0.5
-PARAMETER repeat_penalty 1.2`
-```
-
-</Tab>
-</Tabs>
-请将第一行 `FROM` 之后的 `rwkv-xxx.gguf` 修改为你本地的 RWKV 模型文件名称。`PARAMETER temperature 1`、`PARAMETER top_p 0.5` 等解码参数可以根据需要进行调整。
+`PARAMETER temperature 1`、`PARAMETER top_p 0.5` 等解码参数可以根据需要调整。
 
 </Step>
 <Step>
@@ -209,37 +140,42 @@ PARAMETER repeat_penalty 1.2`
 
 在存放 RWKV gguf 模型和 `Modelfile` 文件的目录下打开终端，并执行 `ollama create` 命令：
 
-``` bash
-ollama create rwkv7-g1b-2.9b-20251205-ctx8192-FP16 -f Modelfile
+```bash
+ollama create rwkv7-g1i-1.5b -f Modelfile
 ```
 <CallOut type="info">
-将 `ollama create` 后面的模型名称改成你本地的 RWKV 模型（与 `Modelfile` 中的模型名称保持一致），但**无需 `.gguf` 后缀名**。
+`ollama create` 后面填写的是模型在 Ollama 中的本地名称，不是 GGUF 文件名，因此不需要添加 `.gguf` 后缀名。
 </CallOut>
 
 创建完毕后，使用 `ollama run` 命令直接运行模型：
 
-``` bash
-ollama run rwkv7-g1b-2.9b-20251205-ctx8192-FP16
+```bash
+ollama run rwkv7-g1i-1.5b
 ```
 
 成功运行后，即可与模型进行聊天对话。
 </Step>
 </Steps>
 
-## 关闭 Ollama[#close-ollama]
+## 清除对话或释放模型[#close-ollama]
 
-请使用 `ollama stop rwkv-model-name` 命令停止当前模型实例，从而**重置对话上下文**。
+在 Ollama 对话界面中输入 `/clear`，可以清除当前对话的历史消息并开始新对话。已经设置的 system prompt 会保留。
 
-如果你不需要停止当前模型，而是想要开始一轮全新的对话，则可以使用 `/clear` 命令**清除当前模型的上下文（历史消息）**。
+需要退出对话界面时输入 `/bye`。退出后如需立即将模型从内存中卸载，再执行：
 
-## Ollama GUI 和桌面程序[#ollama-gui-and-desktop-program]
+```bash
+ollama stop rwkv7-g1i-1.5b
+```
 
-Ollama 本身并没有提供 GUI 或 WebUI 服务，但其社区提供了第三方 GUI 和桌面程序。
+## 使用 Ollama 桌面程序[#ollama-gui-and-desktop-program]
 
-可以在 [Ollama 的 GitHub 文档](https://github.com/ollama/ollama?tab=readme-ov-file#web--desktop) 中查看所有第三方 Ollama 工具。
+Windows 和 macOS 的 Ollama 安装包已经包含桌面聊天界面，可以直接在应用中下载模型并开始对话。
+
+本教程先使用命令行，是为了让你明确看到模型的下载和加载结果。确认模型可以正常运行后，再根据个人习惯选择命令行或桌面界面。
 
 ## 参考资料
 
 - [Ollama 官网](https://ollama.com/)
-- [RWKV gguf 模型仓库](https://modelscope.cn/organization/RWKV?tab=collection)
-- [Ollama 的 GitHub 文档](https://github.com/ollama/ollama?tab=readme-ov-file#web--desktop)
+- [Ollama G1i 模型仓库](https://ollama.com/shoumenchougou/rwkv-7-g1i)
+- [RWKV7-Gxx-GGUF 合集](https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf)
+- [Ollama 导入 GGUF 文档](https://docs.ollama.com/import)

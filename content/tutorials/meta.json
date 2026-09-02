@@ -13,7 +13,6 @@
       "basic/State",
       "---RWKV 中级教程（推理/本地部署）---",
       "intermediate/rwkv_lightning",
-      "intermediate/Novel-Roleplay",
       "intermediate/RWKV-FLA",
       "intermediate/RWKVpip",
       "intermediate/llamacpp",

@@ -164,9 +164,9 @@ graph TD;
 
 ### 复制并随机排序数据
 
-在训练数据不充足的情况下，复制训练数据有助于增强模型对特定知识的理解和记忆，打乱数据排序则是为了降低过拟合的风险。
+复制训练数据不会增加数据多样性，只会提高这些样本在训练中的出现频率。只有在确实需要提高某类样本权重时，才建议复制；随机排序只会改变样本顺序，不能替代补充高质量、多样化的数据。
 
-在 Linux 或 Mac 系统上，使用以下命令对数据文件进行重复和打乱：
+在 GNU/Linux 或 WSL 环境中，使用以下命令对数据文件进行重复和打乱：
 
 ``` bash copy
 # 将 data.jsonl 文件重复三次，并将所有行输出到 repeated-data.jsonl 文件中
@@ -179,7 +179,7 @@ sort -R repeated-data.jsonl | head -c -1 > shuffled-data.jsonl
 `data.jsonl` 需要改成你准备好的 jsonl 数据文件名称。
 </CallOut>
 <CallOut type="info">
-Windows 系统可以通过 [WSL](https://docs.microsoft.com/zh-cn/windows/wsl/install) (Windows Subsystem for Linux) 或安装 [Cygwin](https://www.cygwin.com/) 工具，以使用 `awk` 和 `shuf` 命令。
+Windows 系统可以通过 [WSL](https://docs.microsoft.com/zh-cn/windows/wsl/install) (Windows Subsystem for Linux) 或安装 [Cygwin](https://www.cygwin.com/) 工具，以使用 `awk` 和 `sort` 命令。
 </CallOut>
 
 ### 添加常规数据
@@ -206,7 +206,7 @@ Windows 系统可以通过 [WSL](https://docs.microsoft.com/zh-cn/windows/wsl/in
 
 ## 将 jsonl 文件转化为 binidx 文件
 
-得到 `jsonl` 格式的训练数据后，我们需要使用 [json2binidx](https://github.com/Abel2076/json2binidx_tool) 工具，将 `jsonl` 文件转成更适合 RWKV 训练的 `binidx` 文件。
+RWKV-PEFT 可以直接读取 `jsonl` 数据，也支持 `binidx`。如果训练脚本设置为 `--data_type binidx`，需要使用 [json2binidx](https://github.com/Abel2076/json2binidx_tool) 工具，将 `jsonl` 文件转换成 `binidx` 文件。
 
 <Steps>
 <Step>
@@ -228,12 +228,12 @@ git clone https://gitee.com/rwkv-vibe/json2binidx_tool.git
 </CallOut>
 
 
-得到 `json2binidx` 文件夹后，使用 `cd json2binidx_tool` 命令进入 `json2binidx_tool` 目录。
+得到 `json2binidx_tool` 文件夹后，使用 `cd json2binidx_tool` 命令进入 `json2binidx_tool` 目录。
 </Step>
 <Step>
 ### jsonl 文件转 binidx 文件
 
-将准备好的 `jsonl` 数据集文件放在 `json2binidx/data` 文件夹中。
+将准备好的 `jsonl` 数据集文件放在 `json2binidx_tool/data` 文件夹中。
 
 在 `json2binidx_tool` 目录下运行以下命令，可以将 `data` 文件夹中的 `jsonl` 文件转成 `binidx` 文件 ：
 
@@ -247,6 +247,8 @@ python3 tools/preprocess_data.py --input ./data/sample.jsonl --output-prefix ./d
 --input ./data/sample.jsonl # 输入 jsonl 文件的路径，需要改成你准备好的 jsonl 文件名
 --output-prefix ./data/sample # 输出的 bin / idx 文件路径，需要改成你想要的文件名
 ```
+
+以上述参数为例，工具会生成 `./data/sample_text_document.bin` 和 `./data/sample_text_document.idx`。在训练配置中，`data_file` 应填写 `./data/sample_text_document`，不需要添加扩展名。
 </Step>
 </Steps>
 

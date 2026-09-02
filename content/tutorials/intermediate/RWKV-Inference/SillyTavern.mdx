@@ -10,10 +10,10 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 <CallOut type="info">
 [SillyTavern](https://github.com/SillyTavern/SillyTavern) 是一个 AI 聊天或角色扮演的工具，你可以与自己创建的角色卡或社区提供的角色卡进行角色扮演。
 
-SillyTavern 不具备模型推理功能，它需要与 LLM 推理服务器（例如 [llama.cpp](https://github.com/ggerganov/llama.cpp)、text-generation-webui 等）配合使用。
+SillyTavern 不具备模型推理功能，它需要与 LLM 推理服务器（例如 [llama.cpp](https://github.com/ggml-org/llama.cpp)、text-generation-webui 等）配合使用。
 </CallOut>
 
-本文将介绍如何在 SillyTavern 中使用 RWKV 模型进行角色扮演任务。
+本文将介绍如何在 SillyTavern 中使用 RWKV 模型进行角色扮演任务。SillyTavern 负责管理会话和角色卡，并将它们整理成聊天消息。llama.cpp 则负责加载 GGUF 模型，并使用模型中的聊天模板处理这些消息。
 
 ## 视频教程[#video-tutorial]
 
@@ -37,38 +37,63 @@ SillyTavern 不具备模型推理功能，它需要与 LLM 推理服务器（例
 该教程以 Windows 系统为例，macOS 与 Linux 的安装方法请参考 SillyTavern 的[安装指导文档](https://docs.sillytavern.app/installation/linuxmacos/)。
 </CallOut>
 
-首先，我们需要下载并安装 SillyTavern。安装步骤如下:
+首先，我们需要下载并安装 SillyTavern。安装步骤如下：
 
-1. 安装 [NodeJS](https://nodejs.org/)（建议使用最新的 LTS 版本）
-2. 从 SillyTavern Github 仓库的 [Releases](https://github.com/SillyTavern/SillyTavern/releases) 界面下载压缩包
-3. 压缩包解压后，双击运行 `Start.bat`，此脚本会自动安装 SillyTavern 所需的依赖项
-4. 安装完毕后，SillyTavern 会在你的浏览器中打开一个新标签页
+1. 安装 [NodeJS](https://nodejs.org/)（建议使用最新的 LTS 版本）和 [Git for Windows](https://gitforwindows.org/)
+2. 在普通用户目录中新建一个文件夹，在文件夹地址栏输入 `powershell` 并按下回车
+3. 运行以下命令，克隆 SillyTavern 的稳定版分支：
+
+```powershell
+git clone https://github.com/SillyTavern/SillyTavern -b release
+```
+
+4. 克隆完成后，进入 `SillyTavern` 文件夹，双击运行 `Start.bat`。第一次运行时，脚本会自动安装所需依赖
+
+安装完成后，浏览器会自动打开 SillyTavern。
+
+不要将 SillyTavern 安装到 `Program Files`、`System32` 等受 Windows 管理的目录中。请以普通用户身份运行 `Start.bat`，不要选择“以管理员身份运行”。
 
 ![SillyTavern-start](./imgs/SillyTavern-start.jpg)
 
 ## 连接本地 LLM 服务器[#connect-local-llm-server]
 
-SillyTavern 不具备模型推理功能，这里我们使用 [llama.cpp](https://github.com/ggerganov/llama.cpp) 作为 RWKV 模型的推理服务器，并使用 SillyTavern 进行聊天。
+SillyTavern 不具备模型推理功能，这里我们使用 [llama.cpp](https://github.com/ggml-org/llama.cpp) 作为 RWKV 模型的推理服务器，并使用 SillyTavern 进行聊天。
 
 <CallOut type="info">
-请阅读 [llama.cpp 推理方法](../../intermediate/llamacpp)，在本地安装并启动 llama.cpp 应用。
+请先按照 [llama.cpp 推理方法](../../intermediate/llamacpp) 下载并安装 llama.cpp。安装完成后返回本页，继续启动服务。
 </CallOut>
 
 llama.cpp 安装完毕后，使用以下命令本地搭建一个 llama.cpp 服务：
 
-```bash copy
-./llama-server -m models/rwkv-6-world-1.6b-Q8_0.gguf --port 8080 -ngl 99
+```powershell
+.\llama-server.exe -hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M --host 127.0.0.1 --port 8080 -ngl 99 --alias rwkv7-g1i
 ```
+
+当终端显示模型已加载并开始监听 `127.0.0.1:8080` 时，说明服务已经启动成功。请保持这个终端窗口运行。
+
+如果加载模型时提示显存不足，先降低命令中的 `-ngl` 数值。仍然无法加载时，再改用体积更小的 GGUF 量化文件。
 
 llama.cpp 服务器启动后，在 SillyTavern 中执行以下步骤，连接到本地搭建的 llama.cpp 服务：
 
-1. 点击 API Connections
-2. 将 API 设置为文本补全
-3. API Type 设置为 llama.cpp
-4. 将服务器 URL 设置为 http://127.0.0.1:8080 
-5. 点击 Connect，即可连接到本地搭建的 llama.cpp 服务
+1. 点击 `API Connections`
+2. 将 `API` 设置为 `Chat Completion`
+3. 将 `Chat Completion Source` 设置为 `Custom (OpenAI-compatible)`
+4. 在 `Custom Endpoint (Base URL)` 中填写 `http://127.0.0.1:8080/v1`。不要在末尾添加 `/chat/completions`，SillyTavern 会自动补全接口路径
+5. `Custom API Key` 默认留空。只有在启动 llama.cpp 时配置了 API Key，才需要填写相同的值
+6. `Prompt Post-Processing` 保持默认的 `None`
+7. 点击 `Connect`
+8. 连接成功后，从 `Available Models` 中选择 `rwkv7-g1i`
+9. 点击 `Test Message`，确认 SillyTavern 能够收到模型回复
 
-![SillyTavern-llamacpp](./imgs/SillyTavern-llamacpp.gif)
+使用聊天补全模式时，不需要再配置文本补全页面中的 Instruct Mode。
+
+<CallOut type="info">
+**模型列表中没有 `rwkv7-g1i`：**在 `Enter a Model ID` 中手动输入 `rwkv7-g1i`。
+
+**服务端提示消息角色格式错误：**将 `Prompt Post-Processing` 改为 `Semi-strict (alternating roles; no tools)` 后重试。
+
+**模型回复出现角色混淆：**先确认 GGUF 文件包含正确的聊天模板。如果模板缺失，可以在 llama.cpp 启动命令末尾添加 `--chat-template rwkv-world`，重启服务后再测试。
+</CallOut>
 
 成功连接到本地的 llama.cpp 服务后，就可以与 AI 进行聊天了。
 
@@ -89,7 +114,7 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 可以从 [Ai Character Cards](https://aicharactercards.com/) 下载现成的角色卡文件。
 
 <CallOut type="info">
-下载好的角色卡文件为 png 格式。
+从该网站下载的角色卡通常是 PNG 文件。SillyTavern 也支持导入 JSON、YAML、CHARX 和 BYAF 格式的角色卡。
 </CallOut>
 
 然后在 SillyTavern 中，点击 `角色管理` 按钮，点击 `从文件导入角色`，选择下载好的角色卡文件导入即可。
@@ -115,7 +140,7 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 在这里我们输入**角色的名称和描述**，以及每次聊天时角色发送的**第一句话**，之后点击"创建角色"。
 
 <CallOut type="info">
-角色的描述是最重要的设置，它会在聊天的过程中持续影响角色。
+角色描述会随每次生成请求一同发送，适合填写角色的外观、性格、背景和世界观等长期有效的信息。
 </CallOut>
 
 创建角色描述的示例：
@@ -136,4 +161,4 @@ SillyTavern 的最大特色是角色扮演，你可以创建一个角色并与�
 
 - [SillyTavern 官网](https://sillytavern.app/)
 - [SillyTavern 的 GitHub 仓库](https://github.com/SillyTavern/SillyTavern)
-- [llama.cpp 项目仓库](https://github.com/ggerganov/llama.cpp)
+- [llama.cpp 项目仓库](https://github.com/ggml-org/llama.cpp)

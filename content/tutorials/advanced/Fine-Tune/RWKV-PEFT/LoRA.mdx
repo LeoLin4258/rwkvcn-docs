@@ -16,7 +16,7 @@ LORA（Low-Rank Adaptation）是一种针对大型预训练模型的微调技术
 </CallOut>
 ---
 
-本文的 LoRA 微调方法来自 RWKV 社区微调项目 [RWKV-PEFT ](https://github.com/JL-er/RWKV-PEFT)。
+本文的 LoRA 微调方法来自 RWKV 社区微调项目 [RWKV-PEFT](https://github.com/Joluck/RWKV-PEFT)。
 
 在开始 LoRA 微调之前，请确保你拥有一个 Linux 工作区，以及支持 CUDA 的 NVIDIA 显卡。
 
@@ -69,7 +69,7 @@ RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 
 ## 收集训练数据
 
-你需要使用收集更适合训练 RWKV 的 binidx 数据，具体方法可参考[准备微调数据集](../FT-Dataset)。
+你需要准备 JSONL 或 binidx 格式的训练数据，具体方法可参考[准备微调数据集](../FT-Dataset)。
 
 ## 配置训练环境
 
@@ -80,7 +80,7 @@ RWKV LoRA 微调的显存（GPU VRAM）需求可参考下表：
 在 Linux 或 WSL 中，使用 git 命令克隆 RWKV-PEFT 仓库​：
 
 ```  bash copy
-git clone https://github.com/JL-er/RWKV-PEFT.git
+git clone https://github.com/Joluck/RWKV-PEFT.git
 # 如果 GitHub 无法链接，请使用以下国内仓库：
 git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 ```
@@ -88,12 +88,12 @@ git clone https://gitee.com/rwkv-vibe/RWKV-PEFT.git
 克隆完成后，使用 `cd RWKV-PEFT` 命令进入 RWKV-PEFT 目录。并运行以下命令，安装项目所需依赖：
 
 ```  bash copy
-pip install -r requirements.txt
+pip install .
 ```
 
 ## 修改训练参数 
 
-使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录下的 `run_lora.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
+使用任意文本编辑器（如 vscode）打开 `RWKV-PEFT/scripts` 目录下的 `lora.sh` 文件，可以修改训练参数，进而控制微调的训练过程和训练效果：
 
 ![lora-sh-config](../imgs/lora-sh-configs.png)
 
@@ -103,11 +103,11 @@ pip install -r requirements.txt
 <Step>
 ### 调整路径参数
 
-`run_lora.sh` 文件前三行是文件路径参数：
+`lora.sh` 文件前三行是文件路径参数：
  
 - load_model： 基底 RWKV 模型的路径
 - proj_dir：训练日志和训练得到的 LoRA 文件输出路径
-- data_file：训练数据集的路径，注意路径中不需要带 bin 和 idx 后缀，仅需文件名称。
+- data_file：训练数据集的路径。使用 binidx 时填写 `.bin` 和 `.idx` 文件的共同前缀，不带文件后缀；使用 JSONL 时填写包含 `.jsonl` 后缀的完整文件路径。
 </Step>
 <Step>
 ### 调整 n_layer 和 n_embd 参数
@@ -147,9 +147,9 @@ pip install -r requirements.txt
 
 | 参数 | 描述 |
 | --- | --- |
-| "r":32 | LoRA 微调的 rank 参数，值越大效果越好，但训练速度越慢/显存需求越高，一般训练使用 32 或者 64 即可 |
-| "lora_alpha":32 | LoRA 微调的 alpha 参数（缩放因子），建议保持 lora_r 的两倍 |
-| "lora_dropout":0.01 | LoRA 微调的丢弃率，建议使用 0.01 |
+| "r":8 | LoRA 微调的 rank 参数；增大该值会增加可训练参数量和显存占用 |
+| "lora_alpha":32 | LoRA 微调的 alpha 参数（缩放因子） |
+| "lora_dropout":0.05 | LoRA 微调的丢弃率 |
 </Step>
 <Step>
 
@@ -159,42 +159,33 @@ pip install -r requirements.txt
 
 | 参数 | 描述 |
 | --- | --- |
-| `--vocab_size 65536` | 词表大小，默认为 65536，设置为 0 表示模型自动确定词汇表大小 |
-| `--data_type binidx` | 训练语料的文件格式，支持：`utf-8`, `utf-16le`, `numpy`, `binidx`, `dummy`, `uint16`, `sft`, `jsonl`，建议使用 `jsonl` 或 `binidx` 格式 |
+| `--vocab_size 65536` | 模型的词表大小，必须与基底模型一致；官方 RWKV World 模型使用 `65536` |
+| `--data_type binidx` | 训练语料的文件格式。本教程使用 `jsonl` 或 `binidx` 格式 |
 | `--epoch_count 5` | 总训练轮次 |
-| `--lr_init 2e-5` | 初始学习率，DiSHA 建议 `2e-5` ，最大不超过 `1e-4` |
-| `--lr_final 2e-5` | 最终学习率，建议和初始学习率保持一致 |
+| `--lr_init 1e-5` | 初始学习率，当前 `lora.sh` 使用 `1e-5` |
+| `--lr_final 1e-5` | 最终学习率，当前 `lora.sh` 使用 `1e-5` |
 | `--accelerator gpu` | 使用的加速器类型，目前主要支持 `gpu`，`cpu` 基本不支持训练 |
 | `--devices 1` | 显卡数量，单显卡填 `1`，多卡按实际数量填写 |
-| `--precision bf16` | 训练精度，建议保持默认值 `bf16`，支持：`fp32`、`tf32`、`fp16`、`bf16` |
-| `--strategy deepspeed_stage_1` | lightning 训练策略参数，微调推荐使用 `deepspeed_stage_1`，设备显存太小可将 `1` 改成 `2` |
-| `--grad_cp 1` | 梯度累积步数，`0` 训练更快但需更多显存，`1` 训练较慢但节省显存 |
+| `--precision bf16` | 训练数值精度，当前 `lora.sh` 使用 `bf16`；`train.py` 接受 `fp32`、`tf32`、`fp16` 和 `bf16` |
+| `--strategy deepspeed_stage_1` | Lightning 训练策略；上游优先使用 `deepspeed_stage_1`，较大模型或全量微调可考虑 stage 2/3 及 offload 策略 |
+| `--grad_cp 1` | 梯度检查点开关；`1` 会用额外计算时间换取较低显存占用，`0` 表示关闭 |
 | `--peft lora` | 微调训练类型，LoRA 微调填 `lora` 即可 |
-| `--op` | 选择算子，支持 `cuda`、`fla`、`triton`，默认设置为 `cuda` |
-| `--wandb RWKV-PEFT-DiSHA` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
-| `--lr_schedule wsd` | **可选**，学习率调度方法，默认使用 `cos_decay`，支持：`cos_decay`, `wsd` |
-{/* 2025年11月更新后移除了部分训练参数，不支持量化训练 
-| `--warmup_steps 0` | 预热步骤数，默认 `0`，加载模型微调时可尝试改成 `50` |
-| `--beta1 0.9` | Adam 优化器的 beta1 参数，保持默认值 |
-| `--beta2 0.99` | Adam 优化器的 beta2 参数，保持默认值 |
-| `--adam_eps 1e-8` | Adam 优化器的 epsilon 参数，保持默认值 |
-| `--epoch_begin 0` | 初始训练轮次，即从第 N 个训练轮次开始加载 |
-| `--quant int8/nf4` | **可选**，RWKV 默认使用 `bf16` 训练精度，但也支持 `int8` 和 `nf4` 两种量化训练，推荐使用精度损失较小的 `int8` | 
-| `--dataload pad` | 数据加载选项，`pad` 支持 `bsz>1`，`only` 则限制 `bsz=1` |
-| `--loss_mask pad` | 在数据末尾进行 padding，可改成 `qa` 以对 QA 任务中的问题部分进行屏蔽，防止模型根据问题来记忆答案，从而增强模型的泛化能力。 |*/}
+| `--op` | 选择 WKV 算子，支持 `cuda` 和 `fla`，默认使用 `cuda`；`fla` 使用基于 Triton 的 RWKV-FLA 算子 |
+| `--wandb RWKV-PEFT-LoRA` | **可选**，是否使用 wandb 可视化记录训练日志，需提前配置 [wandb](https://wandb.ai/) 账号 |
+| `--lr_schedule wsd` | **可选**，设为 `wsd` 时使用 WSD 学习率调度；不设置时默认使用 `cos` |
 
 <CallOut type="warning">
-参数调整完成后，请记得保存 `run_lora.sh` 文件。
+参数调整完成后，请记得保存 `lora.sh` 文件。
 </CallOut>
 </Step>
 </Steps>
 
-### 附录：run_lora.sh 配置参考
+### 附录：lora.sh 配置参考
 
-``` bash copy filename="run_lora.sh"
+``` bash copy filename="lora.sh"
 load_model="/home/rwkv/model/rwkv7-g1-1.5b-20250429-ctx4096.pth"
 proj_dir='/home/rwkv/JL/out_model/test'
-data_file=/home/rwkv/JL/data/roleplay
+data_file=/home/rwkv/JL/data/roleplay.jsonl
 
 n_layer=24
 n_embd=2048
@@ -218,9 +209,9 @@ python train.py --load_model $load_model \
 --my_testing "x070" \
 --peft lora --peft_config $peft_config
 # 以下是可选项
-# --op cuda/fla/triton （选择不同的算子，不加此参数则默认使用 cuda）
-#  --wandb RWKV-PEFT-DiSHA （是否使用 wandb 监控训练过程）
-# --lr_schedule wsd 是否启用余弦退火优化学习率，默认的 lr_schedule = cos_decay  
+# --op cuda/fla （选择不同的算子，不加此参数则默认使用 cuda）
+# --wandb RWKV-PEFT-LoRA （是否使用 wandb 监控训练过程）
+# --lr_schedule wsd （使用 WSD 学习率调度；不设置时默认使用 cos）
 
 ```
 
@@ -246,8 +237,4 @@ python train.py --load_model $load_model \
 ![lora-model-usage-of-runner](../imgs/lora-model-usage-of-runner.png)
 
 ![lora-model-usage](../imgs/lora-model-usage.png)
-
-详细用法请参考 [RWKV Runner 教程](../../../intermediate/RWKV-Runner/Introduction) 和 [Ai00 教程](../../../intermediate/ai00/Introduction)。
-
-
 

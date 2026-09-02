@@ -3,61 +3,52 @@ title: 常见问题
 description: 解答RWKV Runner的常见问题。
 keywords: [RWKV Runner常见问题, RWKV Runner问题解答, RWKV Runner问题排查, RWKV Runner问题解决, RWKV Runner问题指南]
 ---
-import { CallOut } from 'components-docs/call-out/call-out.tsx'
-import { Step, Steps } from 'fumadocs-ui/components/steps'
-
 ## 配置和运行问题
 
 ### 我的 Nvidia 显卡可以正常使用，但是开启自定义 CUDA 算子加速会报错
 
-检查 `py310\\Lib\\site-packages` 目录下，是否有 `torch-1.13.1+cu117.dist-info` 这个文件夹。
+先打开 Runner 的“设置”页，查看“Pytorch 版本”和驱动 CUDA 版本。Windows 版 Runner 会根据驱动选择受支持的 PyTorch/CUDA 组合。不要通过查找某个固定版本的文件夹来判断环境是否正常。
 
-如果没有，往往可能是装了 `torch-2.0.x` ，请删除现有的 torch 目录，并删除 RWKV Runner.exe 所在目录的 `cache.json` 文件。然后运行 RWKV Runner，让它自己重新安装依赖。
+- **使用 Runner 自带环境：**如果版本为空、显示 CPU 版，或安装过程曾经中断，请在“设置”页重新选择 PyTorch 版本，等待 Runner 完成安装。
+- **使用自定义 Python：**请在该环境中安装 CUDA 版 PyTorch 和 `ninja`。
+- **暂时不使用自定义算子：**在“配置”页关闭“使用自定义 CUDA 算子加速”。
 
 ---
 ### Torch not compiled with CUDA enabled
 
-解决方法和上面一样。
+这表示当前 Python 环境加载的是 CPU 版 PyTorch，或 Runner 使用了错误的 Python 路径。
+
+- **使用 Runner 自带环境：**在“设置”页重新选择 PyTorch 版本并完成安装。
+- **使用自定义 Python：**确认“自定义 Python 路径”正确，并在该环境中安装 CUDA 版 PyTorch。不再使用该环境时，可以清空这个设置。
 
 ---
 ### 我使用 7B 或更大参数的 RWKV 模型，运行不成功或速度太慢。
 
-如果选择 CUDA - fp16 加载方式， 7B 模型需要 15G 显存，14B 需要 30G 显存。
+模型能否运行取决于模型规模、精度、后端、上下文长度和可用内存，不能只用一组固定显存数字判断。请先尝试 1.5B 或 3B 模型。
 
-如果你的设备性能不佳（如内存 16 GB 或显存 8G 或者更低），在体验 7B 或更大规模的模型时，请尝试将模型参数的 Strategy 选项改为 WebGPU (Python)，精度改为 nf4 。
+如果仍需降低占用，可以选择以下方式：
 
-更换 Strategy 选项后需要点击 `转换模型`，选择转换后的 .st 格式模型，保存配置并重新运行。详情可参考 [自定义模型配置](./Advanced-Usage#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B)
+- 使用 WebGPU (Python) 的 NF4/INT8 `.st` 模型
+- 使用 llama.cpp 的量化 GGUF 模型
+
+不同格式需要选择对应的 Strategy，具体操作见[自定义模型配置](./Advanced-Usage#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B%E9%85%8D%E7%BD%AE%E7%A4%BA%E4%BE%8B)。
 
 ---
 
-### 启动提示: 切换模型失败 - 自定义CUDA算子开启失败XXXX
+### 启动提示：切换模型失败 - 自定义 CUDA 算子开启失败 XXXX
 
-这个问题大概率是因为 RWKV Runner 的 python 依赖项出现错误，有几种方法可以帮助你解决这个问题: 
+这个问题通常由 Python 依赖没有安装完整、安装了 CPU 版 PyTorch，或自定义 Python 环境缺少编译工具引起。建议按以下顺序排查：
 
-**方法1**
-
-双击 RWKV Runner 文件夹的的 `install-py-dep.bat` 脚本，让它重新下载 python 依赖项, 先前下载时可能由于网络问题意外中断了。
+1. 在“设置”页重新选择 PyTorch 版本，等待安装窗口执行完成。
+2. 如果其他 Python 依赖也不完整，双击 Runner 目录中的 `install-py-dep.bat` 重新安装，并确认过程中没有下载错误。
+3. 使用自定义 Python 时安装 CUDA 版 PyTorch 和 `ninja`，或者返回“配置”页关闭“使用自定义 CUDA 算子加速”。
 
 ![install-py-dep](./imgs/install-py-dep.jpg)
-
-**方法2**
-
-下载[百度网盘的懒人包](https://pan.baidu.com/s/1zdzZ_a0uM3gDqi6pXIZVAA?pwd=1111)， 懒人包有完整的 Python 依赖。 
-
-<CallOut type="warning" >
-注意：网盘的 `RWKV` 文件夹内有一个名字里写了"懒人包"的 zip 压缩文件, 只需要下载并解压这个文件即可。
-</CallOut>
-
-![](./imgs/download-lazy.gif)
-
-**方法3**
-
-如果你的显卡较旧, 那么请在"配置"页面, 关闭"使用自定义CUDA算子加速"
 
 ---
 ### 模型输出的内容乱码
 
-请更新显卡驱动,。如果无法解决问题请打开 Runner 配置页，关闭配置页`自定义 CUDA 算子加速`。
+请先更新显卡驱动。如果无法解决问题，请打开 Runner 配置页，关闭“自定义 CUDA 算子加速”后重试。
 
 ---
 ### 为什么使用 webgpu 模式的配置页没有 state 选项？
@@ -72,43 +63,29 @@ RWKV Runner 只有 Cuda 模式（NVIDIA 显卡）支持挂载 state。
 
 ###  RWKV Runner 是否可以作为其他 LLM API 的前端使用？
 
-可以，兼容 OpenAI API 格式即可。
+可以。在“设置”页填写目标服务的 `API URL` 和 `API Key`。目标服务需要兼容 OpenAI API 格式。
 
 ---
 
 ### 三方应用 API 接口调用报错
 
-同样删除 cache.json，重启拉取最新 API 程序，检查下载列表，等待完成。
+先确认 Runner 已加载模型并启动 API 服务，再按照 [API 调用文档](./API-Usage) 中的完整 cURL 示例测试本机接口。若本机调用正常、第三方应用仍然报错，再核对第三方应用填写的端口、接口路径和请求格式。
 
-一个典型的调用 API 的示例是打开浏览器控制台，粘贴执行以下代码，应该能看到输出回答：
-``` js copy
-fetch("http://127.0.0.1:8000/chat/completions", {
-
-  method: "POST",
-
-  headers: { "Content-Type": "application/json" },
-
-  body: JSON.stringify({ messages: [{ role: "user", content: "你好" }] }),
-
-})
-
-  .then((r) => r.json())
-
-  .then(console.log);
-```
 ---
 
 ### 软件自动更新下载不动，想要手动下载覆盖，正确操作姿势
 
-如果你希望同时拉取最新相关依赖，请删除 cache.json，然后启动新版本的 exe 文件。
+- **手动更新 Runner：**从 [RWKV Runner Releases](https://github.com/josStorer/RWKV-Runner/releases) 下载适合当前系统的版本，关闭正在运行的 Runner，再将新版本解压到单独目录。先保留旧目录，确认模型和配置迁移完成后再清理。
+- **重新检查程序文件和依赖：**关闭 Runner，删除可自动生成的 `cache.json`，然后重新启动 Runner。
+- **部署到离线环境：**不要删除 `cache.json`。请先在同系统、同架构的联网电脑上完成依赖安装，再将整个 Runner 目录复制到离线电脑，并测试模型加载是否正常。
 
-如果你在离线环境部署，请保留 cache.json，或至少自己新建一个空的 cache.json文件，避免拉取最新依赖。
+空的 `cache.json` 不代表依赖已经安装完成，不能用来跳过离线部署准备。
 
 ---
 
 ### 内网离线环境更新 python API
 
-与上述问题一样，参考该 Issue ：[https://github.com/josStorer/RWKV-Runner/issues/18](https://github.com/josStorer/RWKV-Runner/issues/18)，手动下载并放置到目录中。
+当前版本的 Runner 会准备 `backend-python`，不需要逐个下载其中的 Python 文件。请在同系统、同架构的联网电脑上启动同一版本的 Runner，等待程序文件和 Python 依赖安装完成，再将整个 Runner 目录复制到内网电脑，并测试模型加载和 API 服务是否正常。
 
 ---
 
@@ -119,32 +96,14 @@ fetch("http://127.0.0.1:8000/chat/completions", {
 - 如果下载列表有未完成的下载任务，请手动点一下继续。
 - 如果下载列表是空的，说明本地文件都正常，可以安装依赖。
 
-如果始终下载不动，可以自己前往 github 手动下载，参考这个链接：https://github.com/josStorer/RWKV-Runner/issues/18
+如果安装停在 Python 软件包下载阶段，可以在“设置”页切换“使用阿里云Pip镜像源”后重试。离线部署请按照上一节准备完整目录。
 
 ---
 
-### python 依赖无法下载，可不可以手动下载
+### Python 依赖无法下载，可不可以手动下载
 
-下载 github 仓库的 `/backend-python` 目录：
-``` bash copy
-https://github.com/josStorer/RWKV-Runner/tree/master/backend-python
-```
-下载完成放进 RWKV Runner 所在的文件夹。
+不建议只下载 `backend-python` 或 `get-pip.py`。Runner 仍需根据 `backend-python/requirements.txt` 安装 Python 软件包，这两个文件本身不能组成完整环境。
 
-然后下一个 `get-pip.py`  ：
-``` bash copy
-https://cdn.jsdelivr.net/gh/pypa/get-pip/public/get-pip.py
-```
-
-将其放进 backend-python 目录。
-
----
-
-### Microsoft Store 下载软件超时
-
-将 DNS 服务器手动设置为 4.2.2.2 和 4.2.2.1，确定后重试。
-
-**⚠️ 注意**，下载完成后，请务必将 DNS 服务器改回之前的设置，否则可能影响网络连接。
-
----
+- **电脑可以联网：**在“设置”页切换“使用阿里云Pip镜像源”，再重新安装依赖。
+- **电脑无法联网：**在同系统、同架构的联网电脑上完成同版本 Runner 的依赖安装，再复制整个 Runner 目录，并测试模型加载是否正常。
 
