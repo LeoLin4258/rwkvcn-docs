@@ -5,15 +5,13 @@ keywords: [RWKV数据集, RWKV训练数据, RWKV数据集组成, RWKV数据集�
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-RWKV 使用 **World 系列训练数据集**，包含全球一百多种语言。我们正在持续迭代 World 系列训练数据集，不断地提升数据集的规模和质量，使 RWKV 模型拥有强劲的多语言能力。
-
-此章节简要介绍 RWKV World 系列数据集的数据组成、数据来源、数据量等信息。
+RWKV 使用 **World 系列训练数据集**，覆盖一百多种语言。本页整理论文和模型发布页已经公开的数据组成、来源与规模；未公开的训练配比不会根据模型名称猜测。
 
 ## RWKV 数据集概况
 
 目前 World 数据集共有以下版本：
 
-| 版本号 | 总数据量 | 对应的 RWKV 基底模型|
+| 版本号 | 已公开的总数据量 | 已公开的对应模型 |
 |-------|-----------------|------------------|
 | World v1 | 约 0.59T tokens                     |   RWKV-4 系列（已淘汰）|
 | World v2         | 约 1.1T tokens                      |   RWKV-5 系列（已淘汰）|
@@ -22,12 +20,16 @@ RWKV 使用 **World 系列训练数据集**，包含全球一百多种语言。�
 | World v2.9       | 从 World v3 中随机采样约 2T tokens                        | RWKV-7-World 0.4B |
 | World v3         | 约 3.1T tokens                        |  RWKV-6-World 7B v3，RWKV-7-World 1.5B/2.9B   |
 | World v3.5       | 约 5.16T tokens                     |  RWKV7-G1 1.5B/2.9B |
-| World v3.7       | 收集整理中                    |  RWKV7-G1 7B/14B 和更大参数模型 |
+| World v3.7       | 尚无公开、可复现的总 token 统计 | 暂不建立模型对应关系 |
 
 <CallOut  type="info">
 RWKV7-G1 0.1B 从 World v3.5 数据集中随机采样 1T tokens 训练
 
 RWKV7-G1 0.4B 从 World v3.5 数据集中随机采样 2T tokens 训练
+</CallOut>
+
+<CallOut type="tips">
+查找某个检查点的训练信息时，请优先打开它的模型卡并核对完整文件名。当前模型名中的 G1x 是 Data Version（数据版本）标识，并不等同于 World 数据集版本；文件名也不会列出具体数据组成，不能根据字母后缀或参数量反推训练数据。
 </CallOut>
 
 ## 各版本数据集的细节

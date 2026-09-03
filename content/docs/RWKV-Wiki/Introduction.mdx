@@ -106,19 +106,18 @@ RWKV 模型通常有两种命名规则，一种是 World 模型，另一种是�
   <Tab>
 
 G1 模型的命名格式：
-- rwkv7a-g1b-0.1b-20250819-ctx4096.pth
-- rwkv7-g0a2-7.2b-20251005-ctx4096.pth
-- rwkv7-g1a3-1.5b-20251015-ctx8192.pth
+- rwkv7-g1j-2.9b-20260831-ctx16384.pth
 
 G1 模型名称中每个字段的含义：
 
 | 字段 | 含义 |
 | --- | --- |
-| **rwkv7a / rwkv7** | 模型架构版本，[rwkv7](https://rwkv.cn/news/read?id=20250320) 是最新的 RWKV 基础架构，rwkv7a 是在 rwkv7 的基础上加了 [DE](https://rwkv.cn/news/read?id=20250527) 机制，rwkv7b 在 rwkv7 的基础上加了 [DE](https://rwkv.cn/news/read?id=20250527) 和 [DEA](https://rwkv.cn/news/read?id=20250630) |
-| **0.1b / 7.2b** | 模型的参数规模，"B"代表"Billions"（十亿） |
-| **g1b / g0a2 / g1a3** | **训练数据的版本**，数据质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 。RWKV7-G1a 模型是在 RWKV7-G1 模型的基础上继续训练优质数据，RWKV7-G1a2 则是在 RWKV7-G1a 模型的基础上继续添加数据训练，以此类推 |
-| **20250819 / 20251005** | 模型的发布日期 |
-| **ctx4096/ctx8192** | 预训练的上下文长度 |  
+| **rwkv7** | RWKV-7 架构 |
+| **g1j** | G1 系列的 Data Version（数据版本）标识。G1x 表示训练超过 1 个 epoch，后缀表示继续加入更多、更新且质量更高的数据 |
+| **2.9b** | 模型的参数规模，"B"代表"Billions"（十亿） |
+| **20260831** | checkpoint 日期（通常按 `YYYYMMDD` 记录） |
+| **ctx16384** | 预训练的上下文长度 |
+| **.pth** | PyTorch 权重文件 |
 </Tab>
   <Tab>
 
