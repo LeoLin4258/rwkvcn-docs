@@ -24,9 +24,16 @@ import { LinkCard, LinkCardContainer } from 'components-docs/link-card/link-card
 
 ## 如何选择最好的模型？
 
-- 1️⃣ 选择**最新的架构**，例如 RWKV7 > RWKV6 
-- 2️⃣ 选择**数据集更好**的模型，数据集质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 
-- 3️⃣ **看模型名称中的日期**，相同的参数，模型越新越好！比如同样是 1.5B 模型，发布于 `251005` 的 G1a2 版本必定优于 `250429` 的 G1 版本
+| 你准备做什么 | 模型与格式怎么选 |
+| --- | --- |
+| 第一次在本地聊天 | 选择当前模型卡推荐的 RWKV7-G1 权重，并从显存或内存能够容纳的参数量开始 |
+| 使用 RWKV pip 或 Albatross | 下载完整 `.pth` 权重 |
+| 使用 llama.cpp、KoboldCpp 或 Ollama | 下载与目标工具兼容的 GGUF 文件 |
+| 在 RWKV Chat 或手机上运行 | 从移动端模型列表选择应用明确支持的格式与量化 |
+| 使用函数调用 | 选择 G1f 1.5B 或模型卡标明的更新兼容权重，并使用官方函数调用模板 |
+| 继续训练或微调 | 下载完整 `.pth` 权重，并记录完整文件名、模型结构和上下文长度 |
+
+在相同参数量中，优先选择模型卡仍在推荐、日期更晚的检查点。完整文件名比单个 `G1x` 后缀更重要：它同时记录架构变体、数据版本、参数量、日期和上下文长度。
 
 ## RWKV7-G1 推理模型[#rwkv7-g1]
 
@@ -34,20 +41,18 @@ import { LinkCard, LinkCardContainer } from 'components-docs/link-card/link-card
 RWKV7-G1 系列模型拥有杰出的推理能力，且原生支持世界 100+ 种语言和代码。即使是最小的 0.1B 也能回答开放性和创造性问题。
 
 <CallOut type="tips">
-**G0/G1/G1a2/G1b 是什么?**
+**模型名中的 G1x 是什么？**
 
-RWKV 模型名称中的 G0a/G1a/G1a2 等字段是**训练数据的版本**，数据质量排序：G1b > G1a3 > G1a2 > G1a > G1 > G0a2 > G0 。
+RWKV 模型名称中的 G1x 是 Data Version（数据版本）标识。字母后缀表示继续加入更多、更新且质量更高的数据；选择模型时，请同时核对模型卡、完整文件名、参数量和日期。
 
-RWKV7-G1 推理模型基于 World v3.5 数据集（包含更多小说、网页、数学、代码和 reasoning 数据，共 5.16T tokens）继续训练 RWKV-7 "Goose" World 系列模型。 
-
-RWKV7-G1a 模型是在 RWKV7-G1 模型的基础上继续训练了 1T 优质推理和指令数据，RWKV7-G1a2 则是在 RWKV7-G1a 模型的基础上继续添加数据训练，以此类推。
+G1f 及更新的 1.5B+ 模型还提供当前模型卡中的函数调用格式。需要工具调用时，请同时采用官方 Prompt 模板和 `temperature=0、top_p=0、penalty=0`。
 </CallOut>
 
 <LinkCardContainer>
   <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv7-g1/tree/main" />
     <LinkCard content="ModelScope 仓库" link="https://modelscope.cn/models/Blink_DL/rwkv7-g1/files" />
-      <LinkCard content="下载 GGUF 模型" link="https://modelscope.cn/collections/RWKV-7-G1-GGUF-a5174274c32f4a" />
-        <LinkCard content="下载 ST 格式模型" link="https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST" />
+      <LinkCard content="GGUF 模型集合" link="https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf" />
+        <LinkCard content="移动端模型" link="https://huggingface.co/HaloWang/rwkv-weights" />
 </LinkCardContainer>
 
 RWKV7-G1 的整体 prompt 格式与 RWKV-7 模型类似，但可选使用 `<think>` 标签开启 reasoning 功能：
@@ -79,7 +84,7 @@ RWKV-7-World 系列模型均为基底模型（base model ，又称预训练模�
 
 
 <LinkCardContainer>
-  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-7-world/tree/mai" />
+  <LinkCard content="Hugging Face 主站" link="https://huggingface.co/BlinkDL/rwkv-7-world/tree/main" />
     <LinkCard content="ModelScope 仓库" link="https://modelscope.cn/models/Blink_DL/rwkv-7-world/files" />
         <LinkCard content="ST 格式模型" link="https://modelscope.cn/models/shoumenchougou/RWKV-7-World-ST" />
 </LinkCardContainer>

@@ -19,6 +19,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 ## 官方 RWKV 链接
 
 - [RWKV-LM](https://github.com/BlinkDL/RWKV-LM)： RWKV 的官方代码仓库，提供了 RWKV v1 至 v7 各版本的架构代码，以及配套的大语言模型训练实现
+- [RWKV7-G1x-models](https://huggingface.co/BlinkDL/rwkv7-g1)：RWKV 官方 Hugging Face 仓库，提供 RWKV-7 G1 系列模型
+- [Albatross](https://github.com/BlinkDL/Albatross)：Albatross 推理服务端，支持 RWKV 模型 API 与多实例并发推理
 - [RWKV pip 包](https://pypi.org/project/rwkv/)：RWKV 的 pip 包，具体用法可以查看 [RWKV pip 使用指南](../../tutorials/intermediate/RWKVpip)
 - [RWKV-CUDA](https://github.com/BlinkDL/RWKV-CUDA)：RWKV 的官方 CUDA 算子
 - [Hugging face 文档](https://huggingface.co/docs/transformers/model_doc/rwkv)：Hugging Face 关于 RWKV 的介绍
@@ -31,9 +33,9 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 微调项目
 
-- **(推荐)** [RWKV-PEFT](https://github.com/JL-er/RWKV-PEFT) ：RWKV 高效微调仓库，包含 LoRA、Pissa、Lisa、State 等多种微调方法
+- **(推荐)** [RWKV-PEFT](https://github.com/Joluck/RWKV-PEFT) ：RWKV 高效微调仓库，主打 LoRA、MiSS、State 等方法
 - [RWKV-PEFT-Simple](https://github.com/Seikaijyu/RWKV-PEFT-Simple)：RWKV-PEFT 的简化版本，提供便捷脚本和微调说明
-- **（开发中）**[RWKV-LM-RLHF](https://github.com/OpenMOSE/RWKV-LM-RLHF)：RWKV 强化学习（RLHF）工具包，含 SFT、对齐（DPO、ORPO）等
+- **（可能过时）**[RWKV-LM-RLHF](https://github.com/OpenMOSE/RWKV-LM-RLHF)：RWKV 强化学习（RLHF）工具包，含 SFT、对齐（DPO、ORPO）等
 
 ### 训练项目
 - [wind_rwkv](https://github.com/johanwind/wind_rwkv)：一个包含 RWKV 优化算子的存储库。目前专注于 RWKV-7
@@ -52,7 +54,8 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - [rwkv7.c](https://github.com/KevlarKanou/rwkv7.c)：RWKV-7 的 C 语言实现，支持 RWKV-7 模型的推理
 
 ### rwkv.cpp
-- [rwkv.cpp](https://github.com/RWKV/rwkv.cpp)：在 CPU 上推理 RWKV 模型，支持 FP16 、量化 INT4、INT5 和 INT8 推理
+
+- [rwkv.cpp](https://github.com/RWKV/rwkv.cpp)：在 CPU 与 GPU 上推理 RWKV 模型，支持 FP16、INT4、INT5 和 INT8 量化，且支持 cuBLAS 加速路径
 
 ### RWKVSharp
 
@@ -61,7 +64,6 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 ###  Pytorch 原生实现
 
 - [RWKV_Pytorch](https://github.com/yuunnn-w/RWKV_Pytorch)：用纯 Pytorch 原生实现的 RWKV 模型推理框架
-- [rwkv-kit](https://github.com/TorchRWKV/rwkv-kit)：RWKV 模型推理框架，支持批量推理、并行推理训练等各种功能
 
 ### WebGPU 实现
 
@@ -84,28 +86,31 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 移动端推理
 
-- **（开发中）**[rwkv-mobile](https://github.com/MollySophia/rwkv-mobile)：RWKV 移动端推理引擎
+- [rwkv-mobile](https://github.com/MollySophia/rwkv-mobile)：面向移动端的 RWKV 推理运行时，支持多端部署场景
 - [rwkv-qualcomm](https://github.com/MollySophia/rwkv-qualcomm)：使用 Qualcomm AI Engine Direct SDK 推理 RWKV 模型
 
 ### 其他支持 RWKV 的推理引擎
 - [rwkv-by-hand-excel](https://github.com/playaswd/rwkv-by-hand-excel)：使用 excel 实现 RWKV，帮助开发者探索 RWKV 原理
 - [RWKV-Infer](https://github.com/OpenMOSE/RWKV-Infer)：使用 FLA 进行 RWKV-V6/V7 推理，支持组合多个状态进行推理
 - [MLC LLM](https://github.com/mlc-ai/mlc-llm)：机器学习编译器和高性能部署引擎，支持 RWKV 模型
+- [llama.cpp](https://github.com/ggml-org/llama.cpp)：通用大模型推理框架，支持 RWKV 模型的加速部署与调用
 
 ## RAG （知识检索增强）系统
 
 - [RWKV-RAG](https://github.com/AIIRWKV/RWKV-RAG)：基于 RWKV 模型的一键 RAG 部署系统，可轻松搭建和管理本地知识库，同时提供了基于本地知识库的问答机器人和 RWKV 一键微调功能
 
 
-##  聊天机器人/推理 API 服务器 
+##  聊天机器人/推理 API 服务器
 
+- [rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)：基于 Albatross 的 RWKV 批量推理服务，支持 CUDA 与 ROCm，并提供 REST API
+- [RWKV APP](https://github.com/RWKV-APP/RWKV_APP)：面向桌面环境的 RWKV 工具集合，提供推理与交互示例
 - **（中文，推荐）**  [RWKV runner](https://github.com/josStorer/RWKV-Runner)：RWKV Runner 是 RWKV 模型的管理和启动工具，带用户友好的 GUI 界面，支持训练和推理
-- **（中文，推荐）** [AI00 RWKV server](https://github.com/cgisky1980/ai00_rwkv_server)：Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 模型**推理 API 服务器**
+- **（中文，推荐）** [AI00 RWKV server](https://github.com/Ai00-X/ai00_server)：Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 模型**推理 API 服务器**
 - **（中文）** [闻达 web UI](https://github.com/wenda-LLM/wenda)：针对特定环境进行内容生成的 LLM 调用平台，支持 RWKV 模型
 - **（中文）** [role play chatbot](https://github.com/shengxia/RWKV_Role_Playing)：基于 RWKV 的角色扮演 webui，使用 Gradio 制作
 - [Easy_RWKV_webui](https://github.com/No-22-Github/Easy_RWKV_webui)：基于 PyWebIO 的 RWKV 模型在线聊天室
 - [Mini Model Daemon](https://github.com/recursal/minmodmon)：基于 web-rwkv 推理后端的 RWKV 模型推理工具
-- [LocalAI](https://github.com/go-skynet/LocalAI)：开源 OpenAI 替代品，支持 RWKV 
+- [LocalAI](https://github.com/mudler/LocalAI)：开源 OpenAI 替代品，支持 RWKV
 - [GPT Academic](https://github.com/binary-husky/gpt_academic)：为 GPT/GLM 等 LLM 大语言模型提供实用化交互接口，支持 RWKV 
 - [LLMFarm](https://github.com/guinmoon/LLMFarm)：使用 GGML 库在 iOS 和 MacOS 上离线使用大型语言模型，支持 RWKV
 
@@ -172,4 +177,3 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 - [JSONL to binidx](https://github.com/Abel2076/json2binidx_tool)：这个工具用于将 `.jsonl` 文件转成适合 RWKV 训练的  `.bin /.idx` （binidx）数据
 - [AI Town - RWKV Proxy](https://github.com/recursal/ai-town-rwkv-proxy?tab=readme-ov-file)：通过 RWKV 在本地运营一个大型 AI 城镇！
 - [Bot-Ani-RWKV-twitter-bot-detection](https://github.com/Max-SF1/Bot-Ani-RWKV-twitter-bot-detection)：基于 RWKV 的推特水军机器人检测工具
-
