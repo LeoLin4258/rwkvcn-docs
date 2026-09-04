@@ -30,18 +30,18 @@ npm install
 npm run dev
 ```
 
-访问 [http://localhost:3001](http://localhost:3001) 查看文档效果。
+访问 [http://localhost:3000](http://localhost:3000) 查看文档效果。
 
 ## 📂 文档目录结构
 
 ```
 /content            - 所有文档内容
 ├── /docs           - 技术文档内容
-│   ├── _meta.json  - 文档导航配置
+│   ├── meta.json   - 文档导航配置
 │   └── ...         - 文档 MDX 文件
 │
 ├── /tutorials      - 学习教程内容
-    ├── _meta.json  - 教程导航配置
+    ├── meta.json   - 教程导航配置
     └── ...         - 教程MDX文件
 
 /components-docs    - 文档专用 UI 组件库
@@ -66,14 +66,8 @@ npm run dev
 title: 文档标题
 description: 文档描述
 icon: Album                    # 可选，侧边栏图标
-keywords: [关键词1, 关键词2]     # 可选，SEO关键词数组
-recommendedLinks:              # 可选，推荐阅读链接（显示在右侧边栏）
-  - title: 推荐阅读标题1
-    link: /docs/path/to/page1
-  - title: 推荐阅读标题2
-    link: /docs/path/to/page2
-  - title: 外部链接示例
-    link: https://example.com
+keywords: [关键词1, 关键词2]     # 可选，SEO 关键词数组
+full: true                     # 可选，是否使用全宽页面
 ---
 ```
 
@@ -82,30 +76,12 @@ recommendedLinks:              # 可选，推荐阅读链接（显示在右侧�
 - **title**（必需）：文档标题
 - **description**（可选）：文档描述，用于 SEO 和页面预览
 - **icon**（可选）：侧边栏显示的图标名称（使用 lucide-react 图标库）
-- **keywords**（可选）：关键词数组，用于 SEO
-- **recommendedLinks**（可选）：推荐阅读链接数组，显示在右侧边栏的"推荐阅读"区域
-  - **title**：链接显示的文字
-  - **link**：链接地址
-    - 内部链接：使用相对路径，如 `/docs/RWKV-Wiki/Introduction`
-    - 外部链接：使用完整 URL，如 `https://example.com`（会在新标签页打开）
-
-#### 推荐阅读链接示例
-
-```yaml
-recommendedLinks:
-  - title: RWKV 简介
-    link: /docs/RWKV-Wiki/Introduction
-  - title: RWKV 架构介绍
-    link: /docs/RWKV-Wiki/RWKV-Architecture
-  - title: RWKV 相关论文
-    link: https://www.rwkv.cn/eco/papers
-```
-
-**注意**：如果不配置 `recommendedLinks` 或数组为空，推荐阅读区域将不会显示。
+- **keywords**（可选）：用于 SEO 的关键词数组
+- **full**（可选）：是否使用全宽页面布局
 
 ### 文档组件用法
 
-在使用文档组件之前，你需要 `import {组件名称} from '@components-docs/组件名称'` 引入组件。例如
+使用需要手动引入的文档组件时，请从组件实际所在的路径导入。例如：
 
 ```mdx
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
@@ -142,9 +118,8 @@ $$
 
 ## 📋 注意事项
 
-- 添加新文档后需要重启开发服务器以应用更改
 - 对于复杂图表，推荐使用 Mermaid 语法或 ECharts 组件
-- 所有文档页面都继承自 `app/docs/layout.tsx` 中的布局设置
+- 技术文档使用 `app/docs/layout.tsx`，教程使用 `app/tutorials/layout.tsx`
 
 ## 🤝 贡献指南
 
