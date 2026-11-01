@@ -39,8 +39,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ### 训练项目
 - [wind_rwkv](https://github.com/johanwind/wind_rwkv)：一个包含 RWKV 优化算子的存储库。目前专注于 RWKV-7
-- [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7)：RWKV-LM-V7 是一个专注于易用性的 RWKV-7 多类模型训练项目，让开发者能够在15分钟内快速上手 RWKV-7 模型训练
-- [RWKV-LM-V7-AMD-ROCm](https://github.com/Alic-Li/RWKV-LM-V7-AMD-ROCm)：RWKV-LM-V7 的 AMD ROCm 版本，支持在 AMD GPU 上训练 RWKV-7 模型
+- [RWKV-LM-V7](https://github.com/RWKV-Vibe/RWKV-LM-V7)：RWKV-LM-V7 是一个专注于易用性的 RWKV-7 多类模型训练项目，让开发者能够在15分钟内快速上手 RWKV-7 模型训练, 也支持 AMD ROCm 环境下原生HIP算子训练
 - [RWKV-infctx-trainer](https://github.com/RWKV/RWKV-infctx-trainer/)：RWKV 无限上下文训练器，支持训练 10k 及以上长度的上下文
 - [RWKV-Ouroboros](https://github.com/neromous/RWKV-Ouroboros)：基于 API 的 rwkv-trainer 项目，支持交替运行训练和推理
 - [nanoRWKV](https://github.com/Hannibal046/nanoRWKV)：RWKV 模型的 nanoGPT 风格实现
@@ -102,7 +101,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 ##  聊天机器人/推理 API 服务器
 
-- [rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)：基于 Albatross 的 RWKV 批量推理服务，支持 CUDA 与 ROCm，并提供 REST API
+- [rwkv_lightning_cuda](https://github.com/Alic-Li/rwkv_lightning_cuda)：目前最强、最易用的 RWKV 高并发推理引擎，支持 CUDA / HIP、连续批处理、量化、OpenAI 风格 API 和 Web UI，并提供 [State Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/state_tuning/README.zh-CN.md)（训练初始 `time_state`）、[MiSS Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/miss/README.zh-CN.md)（训练 D 矩阵）、[NoRA Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/nora/README.md)（随机 NoRA-init，训练 A/B）。三种模式均支持常驻在线训练，配套客户端实现 [GRPO / Dr.GRPO](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl.zh-CN.md) 的批量采样、奖励计算、训练与策略发布，采用常驻 Server 保存模型/优化器、客户端逐 step 控制学习率和采样等参数的训练框架；三种监督微调均提供 [NCCL 多卡 DP](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/training/NCCL_DP.md)。使用方法见[本站推理与微调教程](/tutorials/intermediate/rwkv_lightning)。旧版 [rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning) 已归档
 - [RWKV APP](https://github.com/RWKV-APP/RWKV_APP)：面向桌面环境的 RWKV 工具集合，提供推理与交互示例
 - **（中文，推荐）**  [RWKV runner](https://github.com/josStorer/RWKV-Runner)：RWKV Runner 是 RWKV 模型的管理和启动工具，带用户友好的 GUI 界面，支持训练和推理
 - **（中文，推荐）** [AI00 RWKV server](https://github.com/Ai00-X/ai00_server)：Ai00 Server 是基于 web-rwkv 推理引擎的 RWKV 模型**推理 API 服务器**
