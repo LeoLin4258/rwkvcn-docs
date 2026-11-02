@@ -1,942 +1,775 @@
 ---
-title: rwkv_lightning 批量推理教程
-description: 基于 Albatross、PyTorch 和 FastAPI 的 RWKV 批量推理后端，支持原生批量推理、OpenAI 风格聊天、State Cache、FIM 与大批量推理 API。
-keywords: [RWKV, rwkv_lightning, 批量推理后端, Albatross, FastAPI]
+title: rwkv_lightning_cuda 高并发推理与后训练微调教程
+description: rwkv_lightning 已归档，推荐使用 rwkv_lightning_cuda。介绍 C++ GPU 高并发推理、State / MiSS / NoRA Tuning，以及 GRPO / Dr.GRPO 在线强化学习的部署与使用。
+keywords: [RWKV, rwkv_lightning_cuda, 高并发推理, State Tuning, MiSS Tuning, NoRA Tuning, GRPO, Dr.GRPO, CUDA, ROCm]
 ---
 
 import { Tab, Tabs } from 'fumadocs-ui/components/tabs'
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
-import { ApiReference, ApiSchemaSection, ApiField } from 'components-docs/api-reference/api-reference.tsx'
 
-rwkv_lightning 是基于 [Albatross](https://github.com/BlinkDL/Albatross)、PyTorch 和 FastAPI 的 RWKV 批量推理后端。它原生支持 NVIDIA CUDA 与 AMD ROCm，并提供批量补全、OpenAI 风格聊天、State Cache、FIM 等 HTTP API。
+`rwkv_lightning_cuda` 是面向 RWKV-7 的纯 C++ GPU 推理与训练框架，支持 NVIDIA CUDA，也支持在 ROCm 环境下使用 AMD GPU 运行。NVIDIA 用户可直接下载包含原生后端、桌面启动器、Web UI、词表及运行依赖的单个二进制整合包，**解压即用、一键启动**，无需配置 Python、PyTorch、Node.js 或 CUDA 开发环境；安装兼容的显卡驱动并准备模型文件后即可使用。项目可用于本地聊天、批量翻译、高并发 API 服务、State / MiSS / NoRA 微调及在线强化学习。AMD ROCm / HIP 后端需要自行编译，具体方法见下文。
 
-实测在单张 RTX 5090 上进行 960 路并发推理时，吞吐量可以达到 10000+ token/s。
+- **高并发推理**：默认启用连续批处理，将多个并发请求合并到 GPU 调度器，支持分块 prefill、逐 token decode 和 SSE 流式输出。
+- **模型与量化**：支持 `.pth` 模型及 W8A16 / W4A16 `.rwkvq` 量化模型，可按需加载和切换模型。
+- **状态复用**：支持显存、CPU RAM、SQLite 三级会话缓存，以及上传 `.pth` 初始 state。
+- **应用接入**：提供 OpenAI 风格聊天 API、原生批量 API、Web UI 和多后端负载均衡路由器。
+- **微调与适配器**：提供 [State Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/state_tuning/README.zh-CN.md)、[MiSS Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/miss/README.zh-CN.md) 和 [NoRA Tuning](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/nora/README.md)，支持导出状态和按请求动态绑定适配器。
+- **在线强化学习**：三种微调方式均有常驻在线训练服务，配套 Python 客户端支持 [GRPO / Dr.GRPO](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl.zh-CN.md) 的采样、奖励、训练和策略发布闭环。
 
-- 项目地址：[RWKV-Vibe/rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning)
-- 上游 API 文档：[rwkv_lightning_api_doc.md](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/rwkv_lightning_api_doc.md)
+项目地址：[Alic-Li/rwkv_lightning_cuda](https://github.com/Alic-Li/rwkv_lightning_cuda)。中文说明与功能更新见[上游 README](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/README_zh.md)。
 
-## 安装依赖[#install-dependencies]
+<CallOut type="warning">
+旧项目 [rwkv_lightning](https://github.com/RWKV-Vibe/rwkv_lightning) 已经归档。目前最强、最易用的 RWKV 高并发推理引擎是 [rwkv_lightning_cuda](https://github.com/Alic-Li/rwkv_lightning_cuda)，推荐新部署直接使用该项目。本教程已更新为新项目的部署与使用方法。
+</CallOut>
 
-先克隆仓库并进入项目目录，再按显卡平台安装 PyTorch 和服务依赖。
+## 安装与构建[#install-dependencies]
+
+### 推荐：下载最新 Release，一键运行
+
+**NVIDIA 用户优先下载[最新 Release](https://github.com/Alic-Li/rwkv_lightning_cuda/releases/latest) 的预编译二进制整合包，直接解压运行。** 根据 Windows / Linux 和驱动兼容的 CUDA 版本选择安装包，无需克隆仓库、编译源码或单独配置应用运行环境。包内已附带所需的运行库、词表、启动器与 Web UI，请完整解压并保留目录布局。
+
+Windows 用户在解压目录双击 `rwkv_launcher.exe`；Linux 用户在解压目录打开终端，执行 `./rwkv_launcher`。启动器默认打开浏览器，也可手动访问 `http://127.0.0.1:10721`。在 **Runtime** 页面选择自行准备的模型文件，词表使用包内附带文件，点击启动后即可进入 **Chat** 或 **并行翻译** 页面。量化和训练也有对应页面。
+
+**AMD ROCm 用户需要按下文自行编译 HIP 后端。** 项目支持在 ROCm 环境下使用 AMD GPU，但 ROCm 的完整运行依赖打包后体积过大，因此当前 Release 不提供包含全部 ROCm 依赖的 AMD 整合包。请先安装对应的 ROCm 开发环境，再构建服务端及所需组件。
+
+Launcher 与原生后端应放在同一运行目录；具体布局、源码构建和远程节点接入方式见[启动器说明](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/RWKV_Lightning_CUDA_Launcher/README.md)。
+
+### 从源码构建（ROCm 用户及开发者）
+
+需要 CMake 3.24 及以上版本、支持 C++20 的编译器，以及对应 GPU 工具链。CUDA 构建的 CI 覆盖 CUDA 12.9 / 13.2；AMD 后端使用 ROCm 7.2.5 和 HIP 开发库。
 
 ~~~bash
-git clone https://github.com/RWKV-Vibe/rwkv_lightning.git
-cd rwkv_lightning
+git clone https://github.com/Alic-Li/rwkv_lightning_cuda.git
+cd rwkv_lightning_cuda
 ~~~
 
-<Tabs items={["NVIDIA CUDA", "AMD ROCm"]}>
+#### Ubuntu 24.04 LTS：安装系统依赖
 
+先安装编译工具以及 Drogon 所需的开发库：
+
+~~~bash
+sudo apt update
+sudo apt install -y build-essential cmake git pkg-config \
+  libpq-dev libmariadb-dev libjsoncpp-dev uuid-dev zlib1g-dev \
+  libssl-dev libsqlite3-dev libbrotli-dev libhiredis-dev libyaml-cpp-dev
+~~~
+
+CUDA Toolkit 或 ROCm 开发环境需要另外安装；预编译包无需 CUDA 开发工具，但源码编译需要对应工具链。NVIDIA 用户如果要构建下文的 NCCL 多卡 DP，还需先按 [NVIDIA NCCL 安装说明](https://docs.nvidia.com/deeplearning/nccl/install-guide/index.html)配置软件源，选择与 CUDA 环境兼容的 NCCL 版本，再安装运行库与开发包：
+
+~~~bash
+sudo apt install -y libnccl2 libnccl-dev
+~~~
+
+NCCL 用于 CUDA 多卡 DP，AMD HIP 构建不需要安装这两个包。若提示找不到 NCCL 包，应先检查 NVIDIA 软件源是否已配置。
+
+#### 编译并安装 Drogon 1.9.14
+
+HTTP 推理服务与在线 RL Server 依赖 Drogon。下面直接从源码安装固定版本，不依赖发行版是否提供 `libdrogon-dev`。**以下命令均在 `rwkv_lightning_cuda` 仓库根目录执行**，Drogon 使用自己的源码和构建目录，不需要切换当前目录：
+
+~~~bash
+mkdir -p third_party
+git clone --branch v1.9.14 --recurse-submodules \
+  https://github.com/drogonframework/drogon.git \
+  third_party/drogon-1.9.14-git
+
+cmake -S third_party/drogon-1.9.14-git \
+  -B third_party/drogon-1.9.14-git/build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr/local
+cmake --build third_party/drogon-1.9.14-git/build -j
+sudo cmake --install third_party/drogon-1.9.14-git/build
+sudo ldconfig
+~~~
+
+`--recurse-submodules` 会一并获取 Drogon 的 Trantor 子模块。构建选项见 [Drogon 1.9.14 源码](https://github.com/drogonframework/drogon/blob/v1.9.14/CMakeLists.txt)。若手动使用 `mkdir build`、`cd build`，必须先进入 Drogon 源码目录，并在完成安装后回到 `rwkv_lightning_cuda` 仓库根目录。
+
+#### 编译 rwkv_lightning_cuda
+
+完成 Drogon 安装后，继续在 **`rwkv_lightning_cuda` 仓库根目录**执行下面与显卡平台对应的命令。这里的 `build` / `build-hip` 属于主项目，与 Drogon 的构建目录分开。若 CMake 未找到安装在 `/usr/local` 的 Drogon，可在配置命令中增加 `-DCMAKE_PREFIX_PATH=/usr/local`。缺少 Drogon 时，项目会跳过 HTTP 服务端目标，不能仅凭 `bundle_all` 构建完成判断服务端已生成。
+
+<Tabs items={["NVIDIA CUDA", "AMD ROCm / HIP"]}>
 <Tab>
+
 ~~~bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu132
-pip install fastapi pydantic ninja numpy
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CUDA_ARCHITECTURES="75;80;86;87;89;90;100;120"
+cmake --build build -j --config Release --target bundle_all
 ~~~
+
+可根据目标显卡缩小 `CMAKE_CUDA_ARCHITECTURES` 范围。运行包输出到 `build/bundle/`。
+
 </Tab>
-
 <Tab>
+
 ~~~bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/rocm7.2
-pip install fastapi pydantic ninja numpy
+cmake -S . -B build-hip \
+  -DRWKV_GPU_BACKEND=HIP \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build-hip -j --target bundle_all
 ~~~
+
+运行包输出到 `build-hip/bundle/`。AMD 环境配置与验证范围见 [HIP 后端说明](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/hip/README.zh-CN.md)。
+
 </Tab>
 </Tabs>
+
+Windows 的依赖安装、构建与 DLL 布局见 [Windows 构建运行指南](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/windows-build-run.zh-CN.md)。更多构建选项见[构建文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/build.zh-CN.md)。
 
 ## 启动服务[#usage]
 
-先选择与模型文件相匹配的推理引擎。普通 `.pth` 模型使用 FP16；GemLite 与 CUTLASS 需要先按上游仓库中的量化说明转换模型，二者的模型文件不能混用。
+以下命令从 CUDA 构建的仓库根目录执行；HIP 构建请将 `build` 替换为 `build-hip`。先准备 RWKV-7 模型文件，再启动服务：
 
-<Tabs items={["FP16", "GemLite", "CUTLASS W8A16"]}>
-
-<Tab>
 ~~~bash
-python app.py \
-  --model-path /path/to/model \
-  --inference-engine fp16 \
+./build/bundle/rwkv_lighting_cuda/rwkv_lighting_cuda \
+  --model-path /path/to/model.pth \
+  --vocab-path ./assets/rwkv_vocab_v20230424.txt \
+  --host 127.0.0.1 \
   --port 8000 \
-  --password rwkv7_7.2b
-~~~
-</Tab>
-
-<Tab>
-~~~bash
-python app.py \
-  --model-path /path/to/model-gemlite-int8 \
-  --inference-engine gemlite \
-  --port 8000 \
-  --password rwkv7_7.2b
-~~~
-</Tab>
-
-<Tab>
-~~~bash
-python app.py \
-  --model-path /path/to/model-w8a16 \
-  --inference-engine cutlass \
-  --port 8000 \
-  --password rwkv7_7.2b
-~~~
-</Tab>
-</Tabs>
-
-| 参数 | 是否必需 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `--model-path` | 是 | 无 | 模型路径，可以带或不带 `.pth` 后缀 |
-| `--inference-engine` / `--backend` | 否 | `fp16` | 可选 `fp16`、`gemlite` 或 `cutlass` |
-| `--port` | 否 | `8000` | HTTP 服务端口 |
-| `--password` | 否 | 不启用 | API 密码；省略后不校验密码 |
-
-服务固定监听 `0.0.0.0`。终端出现 Uvicorn 启动信息后，可以运行仓库自带的测试脚本：
-
-~~~bash
-bash ./test/test_curl.sh
+  --chunk-size 128 \
+  --decode-batch-size 64 \
+  --chunk-load \
+  --password your-password
 ~~~
 
-<CallOut type="warning">
-如果服务需要暴露到公网，请启用密码并在反向代理或防火墙中限制访问。`/v1/models` 与 `/translate/v1/batch-translate` 当前不校验服务密码，不能只依赖应用层鉴权保护这两个端点。
+<CallOut type="info">
+项目名为 `rwkv_lightning_cuda`，当前服务端可执行文件名为 `rwkv_lighting_cuda`，请按命令中的实际拼写运行。
 </CallOut>
+
+| 参数 | 默认值 | 说明 |
+| --- | --- | --- |
+| `--model-path` | 必填 | `.pth` 或 `.rwkvq` 模型文件；动态加载模式下为模型目录 |
+| `--vocab-path` | 必填 | tokenizer 词表文件路径 |
+| `--host` | `127.0.0.1` | HTTP 监听地址 |
+| `--port` | `8000` | HTTP 服务端口 |
+| `--chunk-size` | `128` | prompt prefill 的 token 分块大小 |
+| `--decode-batch-size` | `64` | 连续批处理的活动解码槽位上限，必须大于零 |
+| `--chunk-load` | 关闭 | 分块读取和上传权重，降低 `.pth` 模型加载时的主机内存压力 |
+| `--state-db-path` | `rwkv_sessions.db` | 会话状态数据库路径，默认位于当前工作目录 |
+| `--password` | 不启用鉴权 | 启用 Bearer token 或 JSON `password` 鉴权 |
+| `--enable-dynamic-loading` | 关闭 | 从模型目录按需加载模型 |
+
+检查服务状态和模型列表：
+
+~~~bash
+curl -sS http://127.0.0.1:8000/v1/server/status
+curl -sS http://127.0.0.1:8000/v1/models \
+  -H 'Authorization: Bearer your-password'
+~~~
+
+### 高并发与连续批处理
+
+服务默认将并发请求合并调度。`--decode-batch-size` 限制同时活动的解码行数，超出的行排队等待；已结束的行会释放槽位供后续请求使用。分块 prefill 与 decode 交错执行，长 prompt 可以分多轮预填充。
+
+可结合模型大小、显存和延迟要求调整解码槽位数。槽位数不等于显存硬上限，模型权重、等待请求的 state、适配器和 prefill workspace 也会占用显存。通过 `/v1/server/status` 可以查看排队和活动请求。
+
+性能数据、基准脚本与调度细节见[连续批处理说明](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/continuous-batching.zh-CN.md)。实际吞吐需要结合模型、量化格式、GPU、prompt 长度和并发数测量。
+
+### W8A16 / W4A16 量化
+
+使用项目自带的转换器，将 BF16 RWKV checkpoint 转成 `.rwkvq`：
+
+~~~bash
+# W8A16
+./build/bundle/rwkv_quantize/rwkv_quantize \
+  /path/to/model.pth /path/to/model.w8a16.rwkvq
+
+# W4A16，默认推荐 group size 128
+./build/bundle/rwkv_quantize/rwkv_quantize \
+  --format w4a16 --group-size 128 \
+  /path/to/model.pth /path/to/model.w4a16.rwkvq
+~~~
+
+启动时将 `--model-path` 改为生成的 `.rwkvq` 文件即可，后端会自动识别量化格式。量化工具的输入要求和格式说明见[量化文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/quant/README.zh-CN.md)。
+
+### 动态加载模型
+
+将启动命令中的 `--model-path` 改为包含 `.pth` / `.rwkvq` 的目录，并添加 `--enable-dynamic-loading`。查询 `/v1/models` 后，用去掉文件扩展名的模型 ID 显式加载：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/model/load \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{"model":"rwkv7-g1i-7.2b-20260805-ctx16384"}'
+~~~
+
+推理请求的 `model` 字段不会自动切换模型。切换操作会等待在途推理完成，再释放旧模型并加载新模型。动态模式提供的路由范围见[上游 API 参考](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/rwkv_lightning_api_doc.md#2-rwkv_lightning_cuda)，下文的会话缓存和翻译示例使用单模型模式。
 
 ## API 文档[#api-documents]
 
-默认地址为 `http://127.0.0.1:8000`。所有 POST 请求都需要发送 `Content-Type: application/json`。普通端点通过请求主体中的 `password` 鉴权；`/openai/v1/*` 还支持 `Authorization: Bearer <password>`。
+以下示例直接请求运行在 `http://127.0.0.1:8000` 的原生推理服务。JSON 请求需要 `Content-Type: application/json`；启用服务密码时，可以通过 `Authorization: Bearer your-password` 或 JSON 中的 `password` 鉴权。上传文件使用 multipart 表单，密码应放在 Bearer 请求头中。
+
+`/v1/server/status` 和 `/translate/v1/batch-translate` 当前不校验服务密码；需要远程部署时，应在反向代理或防火墙中限制这些路由的访问。
 
 ### 端点速览
 
-| 方法 | 路径 | 用途 | 流式响应 |
-| --- | --- | --- | --- |
-| `GET` | `/v1/models` | 查询当前加载的模型 | 否 |
-| `POST` | `/v1/chat/completions` | 原生多 prompt 批量补全 | 可选 |
-| `POST` | `/v2/chat/completions` | 使用 V2 采样器批量补全 | 可选 |
-| `POST` | `/translate/v1/batch-translate` | 批量翻译 | 否 |
-| `POST` | `/FIM/v1/batch-FIM` | FIM 批量补全 | 可选 |
-| `POST` | `/big_batch/completions` | 超大 batch 补全 | 始终流式 |
-| `POST` | `/state/chat/completions` | 单分支 State 会话补全 | 可选 |
-| `POST` | `/multi_state/chat/completions` | 可分叉的 State 会话补全 | 可选 |
-| `POST` | `/state/status` | 查询三级 State Cache | 否 |
-| `POST` | `/state/delete` | 删除 State Cache | 否 |
-| `GET` | `/openai/v1/models` | OpenAI 风格模型列表 | 否 |
-| `POST` | `/openai/v1/chat/completions` | OpenAI 风格单路聊天补全 | 可选 |
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| `GET` | `/v1/models` | 查询已加载和可加载模型 |
+| `POST` | `/v1/model/load` | 动态模式下显式加载或切换模型 |
+| `POST` | `/v1/chat/completions` | OpenAI 风格聊天，支持 SSE |
+| `POST` | `/v1/batch/completions` | 原生多 prompt 批量补全，支持 SSE |
+| `POST` | `/translate/v1/batch-translate` | 批量翻译 |
+| `POST` | `/v1/tokens/count` | 对文本或 chat messages 计算 token 数 |
+| `POST` | `/state/chat/completions` | 使用会话 state 续写，支持 SSE |
+| `POST` | `/state/status`、`/state/delete` | 查询或删除会话缓存 |
+| `POST` | `/v1/state/upload` | 上传 `.pth` 初始 state |
+| `GET` / `POST` | `/v1/state/list` | 列出已上传的初始 state |
+| `DELETE` / `POST` | `/v1/state/delete` | 删除已上传的初始 state |
+| `POST` / `GET` / `DELETE` | `/v1/adapters` | 注册、列出或删除适配器 |
+| `GET` | `/v1/server/status` | 查询服务、排队和活动请求状态 |
+| `POST` | `/v1/server/stop`、`/v1/server/pause`、`/v1/server/resume` | 停止、暂停或恢复生成 |
 
-### 原生生成参数
+### 聊天补全
 
-下表适用于原生补全、State、FIM 等端点；专用端点只会读取与自身有关的字段。
+`/v1/chat/completions` 接收 `messages`。兼容 OpenAI 的客户端应将 API base URL 设置为 `http://127.0.0.1:8000/v1`，API key 填写服务密码。
 
-| 字段 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `model` | string | `rwkv7` | 仅作为响应标签，不会切换已经加载的模型 |
-| `contents` | string[] | `[]` | prompt 数组 |
-| `max_tokens` | integer | `8192` | 每条结果最多生成的 token 数 |
-| `stop_tokens` | string[] | `["\nUser:"]` | 文本停止序列；不是整数 token ID |
-| `temperature` | number | `1.0` | 采样温度 |
-| `top_k` | integer | `50` | Top-K |
-| `top_p` | number | `0.6` | Top-P |
-| `alpha_presence` | number | `2.0` | Presence repetition penalty |
-| `alpha_frequency` | number | `0.2` | Frequency repetition penalty |
-| `alpha_decay` | number | `0.996` | 重复惩罚衰减 |
-| `stream` | boolean | `false` | 是否返回 SSE |
-| `chunk_size` | integer | `4` | 流式输出累计多少 token 后刷新一次 |
-| `password` | string \| null | `null` | 普通端点的 JSON 鉴权凭据 |
-
-### 查询模型
-
-<ApiReference
-  method="GET"
-  path="/v1/models"
-  title="查询当前模型"
-  description="返回当前已经加载的模型。此端点当前不校验密码。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl http://127.0.0.1:8000/v1/models`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "object": "list",
-  "data": [
-    {
-      "id": "rwkv7-g1-1.5b",
-      "object": "model",
-      "owned_by": "rwkv_lightning"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
-    <ApiField name="object" type="string" required description="固定为 list。" />
-    <ApiField name="data" type="array<Model>" required description="当前服务加载的模型列表。">
-      <ApiField name="id" type="string" required description="模型文件名。" />
-      <ApiField name="object" type="string" required description="固定为 model。" />
-      <ApiField name="owned_by" type="string" required description="固定为 rwkv_lightning。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
-
-### 原生 V1 批量补全
-
-<ApiReference
-  method="POST"
-  path="/v1/chat/completions"
-  title="创建 V1 批量补全"
-  description="输入 contents 数组并按位置返回多条结果。它不是 OpenAI messages 接口。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -N -X POST http://127.0.0.1:8000/v1/chat/completions \
+~~~bash
+curl -N -sS -X POST http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  --data '{
-    "contents": [
-      "English: Hello world!\\n\\nChinese:",
-      "English: Good morning\\n\\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": ["\\nUser:"],
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
-    "alpha_presence": 1.0,
-    "alpha_frequency": 0.1,
-    "alpha_decay": 0.99,
-    "chunk_size": 8,
-    "stream": true,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '非流式响应',
-      language: 'json',
-      code: `{
-  "id": "rwkv7-batch",
-  "object": "chat.completion",
-  "model": "rwkv7",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "你好，世界！"
-      },
-      "finish_reason": "stop"
-    }
-  ]
-}`,
-    },
-    {
-      label: 'SSE 响应',
-      language: 'text',
-      code: `data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"你好"}}]}
-
-data: [DONE]`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="contents" type="array<string>" required description="批量 prompt；每个元素对应一条 choice。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
-    <ApiField name="top_k" type="integer" defaultValue="50" description="Top-K。" />
-    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
-    <ApiField name="alpha_presence" type="number" defaultValue="2.0" description="Presence repetition penalty。" />
-    <ApiField name="alpha_frequency" type="number" defaultValue="0.2" description="Frequency repetition penalty。" />
-    <ApiField name="alpha_decay" type="number" defaultValue="0.996" description="重复惩罚衰减。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="为 true 时返回 SSE，并以 [DONE] 结束。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式结构；流式请求返回 SSE。">
-    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
-    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
-    <ApiField name="model" type="string" required description="请求中的模型标签。" />
-    <ApiField name="choices" type="array<Choice>" required description="按 contents 位置排列的生成结果。">
-      <ApiField name="index" type="integer" required description="对应 contents 中的下标。" />
-      <ApiField name="message" type="object" required description="助手消息。">
-        <ApiField name="role" type="string" required description="固定为 assistant。" />
-        <ApiField name="content" type="string" required description="生成文本。" />
-      </ApiField>
-      <ApiField name="finish_reason" type="string" required description="当前为 stop。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
-
-### 原生 V2 批量补全
-
-<ApiReference
-  method="POST"
-  path="/v2/chat/completions"
-  title="创建 V2 批量补全"
-  description="请求与响应结构和 V1 相同，但使用 V2 batch sampler，并采用不同的默认采样参数。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/v2/chat/completions \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "contents": ["User: 用一句话介绍 RWKV。\\n\\nAssistant:"],
-    "max_tokens": 256,
-    "stop_tokens": ["\\nUser:"],
-    "top_k": 500,
-    "top_p": 0.5,
-    "alpha_presence": 1.0,
-    "alpha_frequency": 0.1,
-    "alpha_decay": 0.99,
-    "stream": false,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "id": "rwkv7-batch-v2",
-  "object": "chat.completion",
-  "model": "rwkv7",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "RWKV 是一种兼具 RNN 推理效率与 Transformer 训练方式的语言模型。"
-      },
-      "finish_reason": "stop"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="contents" type="array<string>" required description="批量 prompt。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
-    <ApiField name="top_k" type="integer" defaultValue="500" description="V2 默认 Top-K。" />
-    <ApiField name="top_p" type="number" defaultValue="0.5" description="V2 默认 Top-P。" />
-    <ApiField name="alpha_presence" type="number" defaultValue="1.0" description="Presence repetition penalty。" />
-    <ApiField name="alpha_frequency" type="number" defaultValue="0.1" description="Frequency repetition penalty。" />
-    <ApiField name="alpha_decay" type="number" defaultValue="0.99" description="重复惩罚衰减。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="结构与 V1 相同，非流式 id 为 rwkv7-batch-v2。">
-    <ApiField name="id" type="string" required description="固定为 rwkv7-batch-v2。" />
-    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
-    <ApiField name="model" type="string" required description="请求中的模型标签。" />
-    <ApiField name="choices" type="array<Choice>" required description="生成结果；字段结构与 V1 相同。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-### 批量翻译
-
-<ApiReference
-  method="POST"
-  path="/translate/v1/batch-translate"
-  title="批量翻译文本"
-  description="兼容沉浸式翻译的自定义 API。此端点当前不校验服务密码。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/translate/v1/batch-translate \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "source_lang": "en",
-    "target_lang": "zh-CN",
-    "text_list": ["Hello world!", "Good morning"]
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "translations": [
-    {
-      "detected_source_lang": "en",
-      "text": "你好，世界！"
-    },
-    {
-      "detected_source_lang": "en",
-      "text": "早上好"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="source_lang" type="string" defaultValue="auto" description="源语言代码。auto 目前不会运行独立语言检测器。" />
-    <ApiField name="target_lang" type="string" required description="目标语言代码，例如 zh-CN 或 en。" />
-    <ApiField name="text_list" type="array<string>" required description="需要翻译的文本数组。" />
-    <ApiField name="placeholders" type="array<string> | null" defaultValue="null" description="Schema 接受此字段，但当前翻译路由尚未使用。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
-    <ApiField name="translations" type="array<Translation>" required description="与 text_list 按位置对应的翻译结果。">
-      <ApiField name="detected_source_lang" type="string" required description="报告的源语言；source_lang=auto 时当前固定为 en。" />
-      <ApiField name="text" type="string" required description="翻译后的文本。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
-
-### FIM 批量补全
-
-<ApiReference
-  method="POST"
-  path="/FIM/v1/batch-FIM"
-  title="创建 FIM 批量补全"
-  description="面向 RWKV-7 G1c 系列模型的 Fill-In-the-Middle 接口，按位置配对 prefix 与 suffix。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/FIM/v1/batch-FIM \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "prefix": [
-      "The rain had stopped, but the street still glistened"
-    ],
-    "suffix": [
-      "and then the door opened."
-    ],
-    "max_tokens": 1024,
-    "temperature": 0.8,
-    "top_k": 50,
-    "top_p": 0.6,
-    "stream": false,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "id": "rwkv7-batch",
-  "object": "FIM.completion",
-  "model": "rwkv7",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": " under the pale streetlights, "
-      },
-      "finish_reason": "stop"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="prefix" type="array<string>" required description="中间缺失内容之前的文本数组。" />
-    <ApiField name="suffix" type="array<string>" required description="中间缺失内容之后的文本数组；应与 prefix 等长。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
-    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
-    <ApiField name="top_k" type="integer" defaultValue="50" description="Top-K。" />
-    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
-    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="流式请求使用通用 batch SSE 格式。">
-    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
-    <ApiField name="object" type="string" required description="固定为 FIM.completion。" />
-    <ApiField name="model" type="string" required description="请求中的模型标签。" />
-    <ApiField name="choices" type="array<Choice>" required description="按 prefix 与 suffix 配对位置返回的补全文本。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-<CallOut type="info">
-`prefix` 与 `suffix` 当前通过 `zip` 配对，长度不一致时多出的元素会被忽略。FIM 路由固定使用空停止序列，因此请求中的 `stop_tokens` 不生效。
-</CallOut>
-
-### 超大 batch 补全
-
-<ApiReference
-  method="POST"
-  path="/big_batch/completions"
-  title="创建超大 batch 补全"
-  description="面向尽可能大的并行 batch，只使用 temperature 采样，并始终返回 SSE。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -N -X POST http://127.0.0.1:8000/big_batch/completions \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "contents": [
-      "English: Hello\\n\\nChinese:",
-      "English: Good morning\\n\\nChinese:"
-    ],
-    "max_tokens": 1024,
-    "stop_tokens": ["\\nUser:"],
-    "temperature": 1.0,
-    "chunk_size": 8,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: 'SSE 响应',
-      language: 'text',
-      code: `data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"你好"}}]}
-
-data: {"object":"chat.completion.chunk","choices":[{"index":1,"delta":{"content":"早上好"}}]}
-
-data: [DONE]`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="contents" type="array<string>" required description="批量 prompt。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="每条结果最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature" type="number" defaultValue="1.0" description="唯一生效的采样参数。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="text/event-stream" description="即使 stream=false，此端点也始终返回 SSE。">
-    <ApiField name="choices[].index" type="integer" required description="对应 contents 中的输入下标。" />
-    <ApiField name="choices[].delta.content" type="string" required description="该输入本次新增的文本。" />
-    <ApiField name="[DONE]" type="sentinel" required description="全部生成结束后的终止事件。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-### 单分支 State 会话
-
-<ApiReference
-  method="POST"
-  path="/state/chat/completions"
-  title="继续 State 会话"
-  description="为一个稳定的 session_id 保存并复用 RWKV State。每次请求只能包含一个 prompt。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -N -X POST http://127.0.0.1:8000/state/chat/completions \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "session_id": "session_one",
-    "contents": [
-      "User: 晚饭吃什么？请给三个简短建议。\\n\\nAssistant:"
-    ],
-    "max_tokens": 512,
-    "stop_tokens": ["\\nUser:"],
-    "stream": true,
-    "chunk_size": 8,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '非流式响应',
-      language: 'json',
-      code: `{
-  "id": "rwkv7-batch",
-  "object": "chat.completion",
-  "model": "rwkv7",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "可以考虑番茄炒蛋、鸡肉沙拉或一碗热汤面。"
-      },
-      "finish_reason": "stop"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="session_id" type="string" required description="稳定且唯一的会话标识；后续请求使用同一值继续会话。" />
-    <ApiField name="contents" type="array<string>" required description="必须且只能包含一个 prompt。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature / top_k / top_p" type="number" description="采样参数，默认值见上方公共参数表。" />
-    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式结构与 V1 相同；流式请求使用通用 batch SSE。">
-    <ApiField name="id" type="string" required description="固定为 rwkv7-batch。" />
-    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
-    <ApiField name="model" type="string" required description="请求中的模型标签。" />
-    <ApiField name="choices" type="array<Choice>" required description="当前会话的生成结果。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-<CallOut type="warning">
-不要并发写入同一个 `session_id`。首次请求会创建零 State，后续请求会读取并更新同一 State；复用已有 State 时，服务会在没有前导空行的 prompt 前自动补上两个换行。
-</CallOut>
-
-### 可分叉的 State 会话
-
-<ApiReference
-  method="POST"
-  path="/multi_state/chat/completions"
-  title="创建或继续对话分支"
-  description="在一个会话下保存多个可分叉的对话节点；每次成功生成都会返回新的 dialogue_idx。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/multi_state/chat/completions \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "session_id": "conversation-a",
-    "dialogue_idx": 0,
-    "contents": [
-      "User: 给我三个部署方案。\\n\\nAssistant:"
-    ],
-    "max_tokens": 512,
-    "stream": false,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "id": "rwkv7-multi-state",
-  "object": "chat.completion",
-  "model": "rwkv7",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "可以选择本机服务、局域网服务或反向代理后的公网服务。"
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "dialogue_idx": 1
-}`,
-    },
-    {
-      label: '流式元数据',
-      language: 'json',
-      code: `{
-  "object": "multi_state.dialogue_idx",
-  "session_id": "conversation-a:1",
-  "dialogue_idx": 1
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="session_id" type="string" required description="会话主标识。" />
-    <ApiField name="dialogue_idx" type="integer" required defaultValue="0" description="要继续的对话节点；根节点使用 0。" />
-    <ApiField name="contents" type="array<string>" required description="必须且只能包含一个 prompt。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="响应中的模型标签。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="8192" description="最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature / top_k / top_p" type="number" description="采样参数，默认值见上方公共参数表。" />
-    <ApiField name="alpha_presence / alpha_frequency / alpha_decay" type="number" description="重复惩罚参数，默认值见上方公共参数表。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 SSE。" />
-    <ApiField name="chunk_size" type="integer" defaultValue="4" description="流式输出的刷新粒度。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式响应直接返回新节点；流式响应会在 [DONE] 前发送新节点元数据。">
-    <ApiField name="id" type="string" required description="固定为 rwkv7-multi-state。" />
-    <ApiField name="object" type="string" required description="固定为 chat.completion。" />
-    <ApiField name="model" type="string" required description="请求中的模型标签。" />
-    <ApiField name="choices" type="array<Choice>" required description="生成结果。" />
-    <ApiField name="dialogue_idx" type="integer" required description="本次生成后创建的新节点编号。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-非零 `dialogue_idx` 必须已经存在，否则返回 `404`。若要从旧节点分叉，继续传入该旧节点的编号；服务会为新回复分配另一个编号，并将 State 保存为 `<session_id>:<new_dialogue_idx>`。
-
-### 查询 State Cache
-
-<ApiReference
-  method="POST"
-  path="/state/status"
-  title="查询 State Cache"
-  description="返回 VRAM、RAM 与 SQLite 三级缓存中的会话数量和明细。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/state/status \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "status": "success",
-  "total_sessions": 1,
-  "l1_cache_count": 1,
-  "l2_cache_count": 0,
-  "database_count": 0,
-  "sessions": [
-    {
-      "session_id": "session_one",
-      "cache_level": "L1 (VRAM)",
-      "last_updated": "In Memory",
-      "timestamp": 1787040000.0
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供；未启用密码时可发送空对象。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
-    <ApiField name="status" type="string" required description="成功时为 success。" />
-    <ApiField name="total_sessions" type="integer" required description="缓存中的会话总数。" />
-    <ApiField name="l1_cache_count" type="integer" required description="VRAM 中的会话数。" />
-    <ApiField name="l2_cache_count" type="integer" required description="RAM 中的会话数。" />
-    <ApiField name="database_count" type="integer" required description="SQLite 中的会话数。" />
-    <ApiField name="sessions" type="array<Session>" required description="会话缓存明细。">
-      <ApiField name="session_id" type="string" required description="会话或分支标识。" />
-      <ApiField name="cache_level" type="string" required description="L1 (VRAM)、L2 (RAM) 或 Database (Disk)。" />
-      <ApiField name="last_updated" type="string" required description="内存标识或数据库更新时间。" />
-      <ApiField name="timestamp" type="number" required description="Unix 时间戳。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
-
-### 删除 State Cache
-
-<ApiReference
-  method="POST"
-  path="/state/delete"
-  title="删除 State Cache"
-  description="删除指定会话；可同时删除该会话的全部分支。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -X POST http://127.0.0.1:8000/state/delete \
-  -H 'Content-Type: application/json' \
-  --data '{
-    "session_id": "conversation-a",
-    "delete_prefix": true,
-    "password": "rwkv7_7.2b"
-  }'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "status": "success",
-  "message": "Session conversation-a deleted successfully"
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json">
-    <ApiField name="session_id" type="string" required description="要删除的会话标识。" />
-    <ApiField name="delete_prefix" type="boolean" defaultValue="false" description="为 true 时同时删除所有 <session_id>:* 分支。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="服务启用密码后必须提供。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
-    <ApiField name="status" type="string" required description="成功时为 success。" />
-    <ApiField name="message" type="string" required description="删除结果说明。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="未找到" kind="response" statusCode="404" contentType="application/json" description="未找到精确会话且 delete_prefix=false 时返回。">
-    <ApiField name="status" type="string" required description="固定为 not_found。" />
-    <ApiField name="message" type="string" required description="未找到的会话说明。" />
-  </ApiSchemaSection>
-</ApiReference>
-
-### OpenAI 风格模型列表
-
-<ApiReference
-  method="GET"
-  path="/openai/v1/models"
-  title="查询 OpenAI 风格模型列表"
-  description="返回与 /v1/models 相同的核心列表结构，并在服务启用密码时执行 Bearer 鉴权。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl http://127.0.0.1:8000/openai/v1/models \
-  -H 'Authorization: Bearer rwkv7_7.2b'`,
-    },
-    {
-      label: '响应',
-      language: 'json',
-      code: `{
-  "object": "list",
-  "data": [
-    {
-      "id": "rwkv7-g1-1.5b",
-      "object": "model",
-      "owned_by": "rwkv_lightning"
-    }
-  ]
-}`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求头" kind="headers">
-    <ApiField name="Authorization" type="string" location="header" description="服务启用密码后填写 Bearer <password>。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json">
-    <ApiField name="object" type="string" required description="固定为 list。" />
-    <ApiField name="data" type="array<Model>" required description="当前服务加载的模型列表。">
-      <ApiField name="id" type="string" required description="模型文件名。" />
-      <ApiField name="object" type="string" required description="固定为 model。" />
-      <ApiField name="owned_by" type="string" required description="固定为 rwkv_lightning。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
-
-### OpenAI 风格聊天补全
-
-<ApiReference
-  method="POST"
-  path="/openai/v1/chat/completions"
-  title="创建 OpenAI 风格聊天补全"
-  description="面向 OpenAI 客户端的单 choice 文本聊天接口，支持普通响应与 SSE。"
-  examples={[
-    {
-      label: 'cURL',
-      language: 'bash',
-      code: `curl -N -X POST http://127.0.0.1:8000/openai/v1/chat/completions \
-  -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer rwkv7_7.2b' \
+  -H 'Authorization: Bearer your-password' \
   --data '{
     "model": "rwkv7",
     "messages": [
-      {
-        "role": "system",
-        "content": "You are a helpful assistant."
-      },
-      {
-        "role": "user",
-        "content": "请简单介绍 RWKV。"
-      }
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "请简单介绍 RWKV。"}
     ],
+    "think_type": "fast",
     "max_tokens": 512,
     "temperature": 1.0,
     "top_k": 20,
-    "top_p": 0.6,
-    "enable_think": false,
-    "stream": true
-  }'`,
-    },
-    {
-      label: '非流式响应',
-      language: 'json',
-      code: `{
-  "id": "chatcmpl-8a34f9d6",
-  "object": "chat.completion",
-  "created": 1787040000,
-  "model": "rwkv7-g1-1.5b",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "RWKV 是一种线性复杂度的语言模型架构。"
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 42,
-    "completion_tokens": 20,
-    "total_tokens": 62
-  }
-}`,
-    },
-    {
-      label: 'SSE 响应',
-      language: 'text',
-      code: `data: {"id":"chatcmpl-8a34f9d6","object":"chat.completion.chunk","created":1787040000,"model":"rwkv7-g1-1.5b","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+    "top_p": 0.3,
+    "stream": true,
+    "chunk_size": 1
+  }'
+~~~
 
-data: {"id":"chatcmpl-8a34f9d6","object":"chat.completion.chunk","created":1787040000,"model":"rwkv7-g1-1.5b","choices":[{"index":0,"delta":{"content":"RWKV"},"finish_reason":null}]}
+设置 `stream: false` 可获取单个 JSON 响应；流式响应通过 `choices[].delta.content` 增量返回文本，并以 `data: [DONE]` 结束。`finish_reason` 在命中停止条件时为 `stop`，达到长度上限时为 `length`。
 
-data: [DONE]`,
-    },
-  ]}
->
-  <ApiSchemaSection title="请求头" kind="headers">
-    <ApiField name="Authorization" type="string" location="header" description="服务启用密码后填写 Bearer <password>；也可以改用请求主体中的 password。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="请求主体" kind="request" contentType="application/json" description="messages、system 或 contents 至少需要提供一段有效文本。">
-    <ApiField name="messages" type="array<Message>" description="推荐使用的文本消息列表。">
-      <ApiField name="role" type="system | developer | user | assistant" required description="消息角色。" />
-      <ApiField name="content" type="string | array<TextPart>" required description="消息文本；数组中当前只读取 type=text 的部分。" />
-    </ApiField>
-    <ApiField name="system" type="string | null" defaultValue="null" description="额外系统提示；会与 system、developer 消息合并。" />
-    <ApiField name="contents" type="array<string>" defaultValue="[]" description="不使用 messages 时，可将第一项作为 user 文本。" />
-    <ApiField name="model" type="string" defaultValue="rwkv7" description="当前不会切换已经加载的模型。" />
-    <ApiField name="max_tokens" type="integer" defaultValue="4096" description="最多生成的 token 数。" />
-    <ApiField name="stop_tokens" type="array<string>" defaultValue='["\nUser:"]' description="文本停止序列。" />
-    <ApiField name="temperature" type="number" defaultValue="1.0" description="采样温度。" />
-    <ApiField name="top_k" type="integer" defaultValue="20" description="Top-K。" />
-    <ApiField name="top_p" type="number" defaultValue="0.6" description="Top-P。" />
-    <ApiField name="alpha_presence" type="number" defaultValue="1.0" description="Presence repetition penalty。" />
-    <ApiField name="alpha_frequency" type="number" defaultValue="0.1" description="Frequency repetition penalty。" />
-    <ApiField name="alpha_decay" type="number" defaultValue="0.996" description="重复惩罚衰减。" />
-    <ApiField name="enable_think" type="boolean" defaultValue="false" description="为 true 时让 prompt 以 Assistant: <think 结尾。" />
-    <ApiField name="use_prefix_cache" type="boolean" defaultValue="true" description="是否复用匹配的 prompt 前缀 State。" />
-    <ApiField name="stream" type="boolean" defaultValue="false" description="是否返回 OpenAI 风格 SSE。" />
-    <ApiField name="chunk_size" type="integer | null" defaultValue="null" description="默认流式为 1，非流式为 16。" />
-    <ApiField name="password" type="string | null" defaultValue="null" description="Bearer header 的替代鉴权方式。" />
-  </ApiSchemaSection>
-  <ApiSchemaSection title="成功响应" kind="response" statusCode="200" contentType="application/json" description="非流式响应；流式请求返回 chat.completion.chunk。">
-    <ApiField name="id" type="string" required description="随机生成的 chatcmpl-* 标识。" />
-    <ApiField name="object" type="string" required description="非流式为 chat.completion。" />
-    <ApiField name="created" type="integer" required description="Unix 时间戳。" />
-    <ApiField name="model" type="string" required description="当前加载的模型文件名。" />
-    <ApiField name="choices" type="array<Choice>" required description="当前只返回一个 choice。">
-      <ApiField name="index" type="integer" required description="固定为 0。" />
-      <ApiField name="message" type="object" required description="助手消息。">
-        <ApiField name="role" type="string" required description="固定为 assistant。" />
-        <ApiField name="content" type="string" required description="生成文本。" />
-      </ApiField>
-      <ApiField name="finish_reason" type="string" required description="推理层返回的结束原因。" />
-    </ApiField>
-    <ApiField name="usage" type="object" required description="非流式 token 用量。">
-      <ApiField name="prompt_tokens" type="integer" required description="输入 token 数。" />
-      <ApiField name="completion_tokens" type="integer" required description="输出 token 数。" />
-      <ApiField name="total_tokens" type="integer" required description="输入与输出 token 总数。" />
-    </ApiField>
-  </ApiSchemaSection>
-</ApiReference>
+`think_type` 支持 `none`、`fast`、`free`、`preferChinese`、`en`、`enShort` 和 `enLong`。默认 `fast` 使用简短的闭合思考前缀，`none` 不添加思考前缀；请结合模型选择。
 
-<CallOut type="info">
-当前 OpenAI 风格端点只处理文本形式的 `system`、`developer`、`user` 与 `assistant` 消息，不支持图片、音频、工具调用或结构化输出。`use_prefix_cache` 是自动复用匹配的 prompt 前缀，与显式 `session_id` 的 State 会话不同。
-</CallOut>
+### 原生批量补全
 
-### 流式响应与常见错误
+批量接口接收原始 prompt 数组 `contents`，返回的 `choices[].index` 对应输入位置：
 
-原生 V1、V2、State、FIM 和 big-batch 使用项目自有的轻量 SSE 格式；只有 `/openai/v1/chat/completions` 返回 OpenAI 风格的 ID、role chunk 和结束原因。两种流式响应都以 `data: [DONE]` 结束。
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/batch/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{
+    "contents": [
+      "English: Hello world!\n\nChinese:",
+      "English: Good morning\n\nChinese:"
+    ],
+    "max_tokens": 256,
+    "temperature": 1.0,
+    "top_k": 20,
+    "top_p": 0.3,
+    "stream": false
+  }'
+~~~
 
-| HTTP 状态码 | 常见原因 |
+需要流式结果时，添加 `curl -N` 并设置 `stream: true`，可用 `chunk_size` 调整输出刷新粒度。不同输入行的事件可能交错到达，需要按 `index` 合并结果。
+
+### 批量翻译
+
+单模型模式下，可以直接指定源语言、目标语言与文本列表：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/translate/v1/batch-translate \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{
+    "source_lang": "English",
+    "target_lang": "Chinese",
+    "text_list": ["Hello world!", "Good morning"]
+  }'
+~~~
+
+### 通用生成参数与停止条件
+
+| 字段 | 类型 | 默认值 / 说明 |
+| --- | --- | --- |
+| `max_tokens` | integer | `8192`，每行最多生成的 token 数 |
+| `temperature` | number | `1.0` |
+| `top_k` | integer | `20` |
+| `top_p` | number | `0.3` |
+| `alpha_presence` | number | `2.0`，presence 重复惩罚 |
+| `alpha_frequency` | number | `0.2`，frequency 重复惩罚 |
+| `alpha_decay` | number | `0.996`，重复惩罚衰减 |
+| `stop_tokens` | integer[] | 默认 `[0,261,24281]`，停止 token ID |
+| `stop` | string[] | 文本停止串数组，例如 `["\nUser:"]` |
+| `stream` | boolean | `false` |
+| `chunk_size` | integer | 流式刷新粒度，批量接口默认 `8`；与启动参数 `--chunk-size` 不同 |
+| `state_id` | string | 已上传的初始 state ID |
+| `adapter_id` | string | 已注册的适配器 ID，可配合 `adapter_version` 和 `adapter_scale` |
+
+`stop_tokens` 与 `stop` 互斥，同时传入会返回 HTTP 400，即使其中一个是空数组或 null。token ID 停止不会输出命中的 token；文本停止会保留命中的字符串，并返回 `matched_stop`。`stop: []` 表示不启用配置的停止条件。
+
+### 会话缓存与初始 state
+
+`/state/chat/completions` 使用 `session_id` 复用并更新会话状态，每次只接受一条 `contents` prompt。继续对话时发送同一 ID 和新增的 prompt：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/state/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{
+    "session_id": "conversation-a",
+    "contents": ["User: 请记住我的名字是小明。\n\nAssistant:"],
+    "max_tokens": 128,
+    "stream": false
+  }'
+
+curl -sS -X POST http://127.0.0.1:8000/state/status \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{}'
+
+curl -sS -X POST http://127.0.0.1:8000/state/delete \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{"session_id":"conversation-a"}'
+~~~
+
+训练得到的初始 `.pth` state 可先上传，再将响应中的实际 `state_id` 传给生成接口：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/state/upload \
+  -H 'Authorization: Bearer your-password' \
+  -F 'file=@/path/to/state.pth'
+~~~
+
+`/v1/state/*` 管理上传的初始状态文件，`/state/status` 和 `/state/delete` 管理生成期间保存的会话缓存。上传文件的生命周期和兼容性见 [HTTP API 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/http-api.zh-CN.md)。
+
+## State、MiSS 与 NoRA 微调
+
+项目除了推理，还提供三个独立的监督微调程序。它们共用原生 [BF16 训练 backbone](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/training/README.md)，冻结基模权重，并通过分块重算和跨 chunk 的状态梯度传递训练选定参数。C++ 训练程序无需 Python/PyTorch，`.rwkvq` 量化模型用于推理，训练应使用未量化的 `.pth` 基模。
+
+| 方式 | 训练参数与适用方向 | 程序 | 导出与文档 |
+| --- | --- | --- | --- |
+| State Tuning | 只更新各层初始 `time_state`，适合以初始状态适配任务或回复风格 | `rwkv_state_tune` | `state-final.pth`；[State 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/state_tuning/README.zh-CN.md) |
+| MiSS Tuning | 冻结基模和初始 state，只训练每个目标线性层的 `D[out,rank]`，不存储或训练 A | `rwkv_miss_tune` | `adapter-final.pth`；[MiSS 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/miss/README.zh-CN.md) |
+| NoRA Tuning | 使用随机 NoRA-init，训练低秩 A/B 两组参数，冻结基模和初始 state | `rwkv_nora_tune` | `adapter-final.pth`；[NoRA 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/nora/README.md) |
+
+MiSS 和 NoRA 支持六类目标：`att.receptance.weight`、`att.key.weight`、`att.value.weight`、`att.output.weight`、`ffn.key.weight`、`ffn.value.weight`；`--targets all` 同时选择全部目标，也可以传入逗号分隔的子集。
+
+### 构建训练程序与准备数据
+
+在源码仓库根目录执行。使用前文配置的 CUDA `build` 目录，确保 `RWKV7_STATE_TUNING=ON`，然后构建训练目标：
+
+~~~bash
+cmake -S . -B build -DRWKV7_STATE_TUNING=ON
+cmake --build build -j --target \
+  rwkv_state_tune rwkv_miss_tune rwkv_nora_tune
+~~~
+
+发布包中的程序可直接从解压目录执行，将下文 `./build/程序名` 改为 `./程序名`，词表改为 `./rwkv_vocab_v20230424.txt`；Windows 使用对应 `.exe`。模型、数据和输出路径需要替换为自己的路径。
+
+三个程序读取 JSONL，每行是一个训练样本。`text` 格式训练全部 token：
+
+~~~json
+{"text":"User: 你好\n\nAssistant: 你好！有什么可以帮你？\n\n"}
+~~~
+
+只监督 Assistant 回复时，使用 `segments`：
+
+~~~json
+{"segments":[{"text":"User: 你好\n\nAssistant:","train":false},{"text":" 你好！有什么可以帮你？\n\n","train":true}]}
+~~~
+
+所有片段都会进入上下文，只有 `train:true` 片段中的 token 计入损失。未监督的前缀仍参与梯度回传；片段应在自然 token 边界切分，例如紧跟在 `Assistant:` 后。
+
+| 参数 | 对训练的影响 |
 | --- | --- |
-| `400` | 请求 batch 超过 prefill 上限、缺少 `session_id` / `dialogue_idx`，或 JSON 无效 |
-| `401` | 服务启用了密码，但凭据缺失或错误 |
-| `404` | State 或对话分支不存在 |
-| `422` | FastAPI / Pydantic 字段校验失败 |
-| `499` | 非流式请求完成前客户端已经断开连接 |
-| `500` | 推理或服务内部错误 |
+| `--ctx` | 样本 token 长度上限，离线训练按此截断 |
+| `--chunk` | 激活与反向重算块长，跨块传递 WKV 和 attention/FFN shift 梯度，不截断循环计算图 |
+| `--batch-size` | 每次优化器更新累计的样本数，损失按有效目标 token 数加权 |
+| `--micro-bsz` | 同时计算的 packed 样本数，不加 padding；增大会提高激活显存需求 |
+| `--lr` / `--lr-final` / `--warmup-steps` | 初始学习率、最终学习率与预热更新步数 |
+| `--save-every` | 周期性保存间隔，单位为优化器更新次数 |
 
-客户端断开连接后，服务会取消排队或正在运行的生成。流式请求在 prefill 队列阶段超出 batch 上限时，错误也可能以 SSE `data:` 事件返回。
+训练使用 BF16 权重和激活，主参数、优化器状态和 WKV state 使用 FP32。当前共享 backbone 已始终开启 WKV tape 重放共享，`--wkv_tape` 作为兼容参数接受；具体精度和内存行为以 [BF16 backbone 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/training/README.md)为准。
 
-## 鸣谢
+### State Tuning：训练初始状态
 
-感谢 [Triang-jyed-driung](https://github.com/Triang-jyed-driung) 提供的 [Rapid-Sampling](https://github.com/Triang-jyed-driung/Rapid-Sampling) 内核，它还包含兼容 ROCm 的原生 HIP 内核。
+~~~bash
+./build/rwkv_state_tune \
+  --model /path/to/model.pth \
+  --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl \
+  --output ./state_output \
+  --ctx 2048 --chunk 1024 --batch-size 2 --micro-bsz 1 \
+  --epochs 1 --optimizer adam \
+  --lr 1.0 --lr-final 0.01 --warmup-steps 10 --save-every 500
+~~~
+
+只更新 `blocks.N.att.time_state`，不更新线性层权重。支持 `--optimizer adam` 和 `--optimizer muon`；两者学习率需要分别调整，不能直接互换。上述学习率来自上游 State 示例，实际任务应自行调参。
+
+导出的 `state-step-*.pth` 和 `state-final.pth` 只含 BF16 状态张量，采用 PyTorch `[H,V,K]` 布局。离线 State 导出不包含优化器状态，不能用它恢复 Adam/Muon 进度。训练完成后，通过前文 `/v1/state/upload` 上传 `state-final.pth`，在生成请求中指定返回的 `state_id` 即可使用。
+
+完整示例、掩码格式和优化器说明见 [State Tuning 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/state_tuning/README.zh-CN.md)。
+
+### MiSS Tuning：训练 D 矩阵
+
+~~~bash
+./build/rwkv_miss_tune \
+  --model /path/to/model.pth \
+  --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl \
+  --output ./miss_output \
+  --rank 16 --alpha 16 --targets all \
+  --ctx 4096 --chunk 1024 --batch-size 8 --micro-bsz 1 \
+  --epochs 1 --lr 0.0001 --lr-final 0.00001 \
+  --warmup-steps 10 --save-every 100
+~~~
+
+MiSS 先按输入列索引对 rank 取模，把输入归约到 rank 维，再通过 D 投影得到增量；有效缩放为 `alpha/rank`。训练只更新 D，不生成完整的基模权重梯度。可用 `--state /path/to/state.pth` 指定一个冻结的初始状态。
+
+周期性检查点为 `checkpoint-N/{checkpoint.json,training.pth}`，包含 FP32 主参数、梯度、Adam 动量、训练进度和配置指纹。续训时保持原训练配置，在原命令中增加 `--resume /path/to/checkpoint-N` 并使用新的输出目录。正常完成后生成含 BF16 D 和内嵌元数据的 `adapter-final.pth`。
+
+算法、目标层、检查点与缓存行为见 [MiSS Tuning 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/miss/README.zh-CN.md)。
+
+### NoRA Tuning：训练 A/B 两组参数
+
+~~~bash
+./build/rwkv_nora_tune \
+  --model /path/to/model.pth \
+  --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl \
+  --output ./nora_output \
+  --rank 16 --alpha 16 --targets all \
+  --ctx 4096 --chunk 1024 --batch-size 8 --micro-bsz 1 \
+  --epochs 2 --lr 0.00002 --lr-final 0.000002 \
+  --warmup-steps 10 --save-every 100 --seed 1234
+~~~
+
+这里实现的是 **随机 NoRA-init**：A 从随机值初始化，沿 rank 维对每列做一次 L2 归一化，B 从零初始化；训练中 A/B 都接收梯度，不反复归一化。要求 `alpha=rank`，因此训练与默认推理缩放为 1；传入不同的 alpha 会被拒绝。
+
+NoRA 同样支持六类目标层、掩码 JSONL、梯度累积及 `--resume`。检查点保存 A/B 的 FP32 主参数和 Adam 状态，最终 `adapter-final.pth` 包含 BF16 A/B 和内嵌 NoRA 元数据。MiSS 与 NoRA 的训练检查点不能互相续训。实现细节和验证范围见 [NoRA-init Tuning 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/nora/README.md)。
+
+### 将 MiSS / NoRA 适配器接入推理
+
+两种适配器共用 `/v1/adapters`，加载器按包内 manifest 自动选择算法。以下命令请求前文运行在 8000 端口的推理服务：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/adapters \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{"adapter_id":"task-a","path":"/absolute/path/adapter-final.pth"}'
+
+curl -sS -X POST http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{
+    "messages":[{"role":"user","content":"请介绍你擅长的任务。"}],
+    "adapter_id":"task-a",
+    "max_tokens":256,
+    "stream":false
+  }'
+~~~
+
+`path` 为推理服务器上的路径。跨机器时，也可用 multipart 上传 `adapter_id` 与 `file`。注册后返回内容版本，可在生成请求中传 `adapter_version` 固定版本，或通过 `adapter_scale` 覆盖推理缩放。注册先校验并缓存到 CPU RAM，首次请求再上传 GPU；MiSS 与 NoRA 可以共存于同一注册表。
+
+适配器支持 FP16、W8A16 和 W4A16 基模推理。基模来源必须匹配；量化时生成的 `.rwkvq.source.json` 应与量化模型放在一起，用于校验其未量化来源 PTH 的身份。上传、版本选择、删除和缓存指标见[适配器 HTTP API](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/http-api.zh-CN.md#miss-适配器注册列表与删除)。
+
+#### 加载 State，并与 MiSS / NoRA 一起使用
+
+State Tuning 的 `state-final.pth`、State DP 的导出和在线 RL 发布的 `state.pth`，都可以作为请求的初始 state。适配器通过 `/v1/adapters` 注册，初始 state 通过 `/v1/state/upload` 上传；同一个生成请求可以同时指定两者。
+
+先上传 state，再查询列表取得实际 ID：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/state/upload \
+  -H 'Authorization: Bearer your-password' \
+  -F 'file=@/path/to/state-final.pth'
+
+curl -sS http://127.0.0.1:8000/v1/state/list \
+  -H 'Authorization: Bearer your-password'
+~~~
+
+上传响应包含 `state_id`、`filename` 和 `original_filename` 等信息。`state_id` 为原文件名去扩展名后加 UUID-v7，重复上传同名文件也会生成不同 ID。将下面的 `REPLACE_WITH_RETURNED_STATE_ID` 替换为上传响应的实际 `state_id`，并确保 `task-a` 已按上文注册：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your-password' \
+  --data '{
+    "messages":[{"role":"user","content":"请介绍你擅长的任务。"}],
+    "state_id":"REPLACE_WITH_RETURNED_STATE_ID",
+    "adapter_id":"task-a",
+    "think_type":"none",
+    "max_tokens":256,
+    "stream":false
+  }'
+~~~
+
+只加载 state 时省略 `adapter_id`；需要固定适配器版本时再传注册返回的 `adapter_version`。`state_id` 也可以通过 `X-RWKV-State-Id` 请求头传递；请求头与 JSON 同时出现时，值必须相同，否则返回 400。
+
+| 约定 | 行为 |
+| --- | --- |
+| 文件与精度 | 每次上传单个 `.pth`，上限 512 MiB；有效 `blocks.N.att.time_state` 支持 BF16 / FP32，推理加载时转为配置的 WKV FP16 / FP32 |
+| 布局与结构 | 文件采用 `[H,V,K]`，加载器转置最后两维；生成时校验当前模型的全部层、头数和 head size，shift 等其他初始状态仍由运行时初始化 |
+| 权重对应关系 | 初始 state 不强制绑定训练权重哈希，结构可加载不保证训练来源或效果；应自行保存并核对来源模型。MiSS / NoRA 另有基模指纹校验 |
+| Prompt 模板 | 携带 `state_id` 的聊天请求默认使用不带思考前缀的经典 User/Assistant 模板；显式 `think_type` 会覆盖此行为，示例用 `none` 明确关闭前缀 |
+| 批量生成 | 聊天、批量、翻译和 State 会话接口均支持 `state_id`；batch 的每行从上传 state 的独立副本开始 |
+| 会话续写 | `/state/chat/completions` 中显式 `state_id` 优先于已有 `session_id` 缓存；生成后状态回写缓存。要从已推进的会话继续，后续请求只带同一 `session_id` 和新增 prompt，省略 `state_id` |
+| 缓存身份 | 已生成的会话缓存按模型运行身份、适配器版本/scale、初始 state 身份和 WKV 精度隔离，身份变化时不能直接复用旧缓存 |
+| 生命周期 | 上传记录在进程内，文件在临时目录，服务退出会清理；它与 SQLite 会话缓存分开，重启后需重新上传并取得新 ID |
+
+上传仅校验文件结构，真正生成时才对照当前模型检查维度。同结构的不同 checkpoint 可能通过加载检查；对量化基模也应验证实际效果，不能把初始 state 的结构检查当作适配器的来源指纹校验。
+
+如果文件已在远端节点，可使用 Launcher Agent 的 `/api/v1/runtime/state/import` 导入；通过多后端路由器部署时，应通过路由器上传，让其广播并确认各副本的 state ID。路径、白名单和副本一致性见 [State 上传与权重兼容性](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/state-upload-compatibility.zh-CN.md)。删除初始 state 使用 `/v1/state/delete`，删除生成后的会话使用 `/state/delete`，完整请求见 [HTTP API 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/http-api.zh-CN.md)。
+
+### 多卡 State / MiSS / NoRA Tuning DP
+
+三种离线微调都有独立的 NCCL 数据并行程序，面向 **Linux + CUDA 单机多 GPU**。父进程为每张卡启动一个 worker，各 worker 持有完整的冻结基模、可训练参数、FP32 优化器状态和独立执行器；同一个全局 batch 的不同样本分配到不同 GPU 计算，再同步可训练梯度并执行相同的参数更新。每张卡需要容纳完整基模，DP 增加的是并行处理样本的能力。
+
+| 训练方式 | DP 程序 | 优化器与参数 |
+| --- | --- | --- |
+| State Tuning DP | `rwkv_state_tune_dp` | Adam / Muon，只更新初始 `time_state` |
+| MiSS Tuning DP | `rwkv_miss_tune_dp` | Adam，只更新 D；使用 `--rank`、`--alpha`、`--targets` |
+| NoRA Tuning DP | `rwkv_nora_tune_dp` | Adam，更新 A/B；要求 `alpha=rank` |
+
+安装 NCCL 开发头文件和动态库后，在已有 CUDA 构建目录开启 DP。以下命令沿用该目录原有的 GPU 架构与生成器配置：
+
+~~~bash
+cmake -S . -B build -DRWKV7_STATE_TUNING=ON -DRWKV_NCCL_DP=ON
+cmake --build build -j --target \
+  rwkv_state_tune_dp rwkv_miss_tune_dp rwkv_nora_tune_dp
+~~~
+
+`RWKV_NCCL_DP` 默认 `AUTO`：检测到 NCCL 才构建 DP；`ON` 会在缺少依赖时直接报错，`OFF` 保留单卡训练。非系统位置的 NCCL 可用 `-DNCCL_ROOT=/path/to/nccl` 指定。运行不需要 torchrun、MPI 或 PyTorch。
+
+下面给出四卡示例，显存需求随模型、上下文和 micro-batch 配置变化，使用前按设备调整：
+
+<Tabs items={["State Tuning DP", "MiSS Tuning DP", "NoRA Tuning DP"]}>
+<Tab>
+
+~~~bash
+./build/rwkv_state_tune_dp \
+  --model /path/to/model.pth --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl --output ./state_dp_output \
+  --devices 0,1,2,3 --batch-size 32 --micro-bsz 2 \
+  --ctx 4096 --chunk 512 --epochs 1 \
+  --optimizer adam --lr 1.0 --lr-final 0.01 \
+  --warmup-steps 10 --save-every 100 --gemm-mode bf16
+~~~
+
+State DP 不接受 `--rank`、`--alpha`、`--targets`。使用 Muon 时显式设置 `--optimizer muon` 并重新调整学习率。
+
+</Tab>
+<Tab>
+
+~~~bash
+./build/rwkv_miss_tune_dp \
+  --model /path/to/model.pth --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl --output ./miss_dp_output \
+  --devices 0,1,2,3 --batch-size 32 --micro-bsz 2 \
+  --rank 16 --alpha 16 --targets all \
+  --ctx 4096 --chunk 512 --epochs 1 \
+  --lr 0.0001 --lr-final 0.00001 \
+  --warmup-steps 10 --save-every 100 --gemm-mode bf16
+~~~
+
+</Tab>
+<Tab>
+
+~~~bash
+./build/rwkv_nora_tune_dp \
+  --model /path/to/model.pth --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --data /path/to/train.jsonl --output ./nora_dp_output \
+  --devices 0,1,2,3 --batch-size 32 --micro-bsz 2 \
+  --rank 16 --alpha 16 --targets all \
+  --ctx 4096 --chunk 512 --epochs 2 \
+  --lr 0.00002 --lr-final 0.000002 \
+  --warmup-steps 10 --save-every 100 --gemm-mode bf16
+~~~
+
+</Tab>
+</Tabs>
+
+**batch 和卡数的约定**：`--batch-size 32` 是所有 GPU 合计一次更新使用 32 个样本；`--micro-bsz 2` 是每张卡最多同时计算 2 个 packed 样本。四卡不会把全局 batch 自动乘成 128。`--devices` 使用当前 CUDA 可见设备的编号，设置 `CUDA_VISIBLE_DEVICES` 后应填写映射后的编号。
+
+样本按长度和 packed chunk sweep 的开销分配，每个样本只在一张卡上计算。系统不通过 padding、重复样本或丢弃尾批次来凑齐各卡负载；空闲 rank 以零梯度参加归约。反向以**全局有效目标 token 数**归一化，再对 FP32 可训练梯度做 NCCL 求和，不额外除以卡数，以保持全局 batch 的训练语义。
+
+**保存与恢复**：只有 rank 0 写检查点和最终产物。MiSS / NoRA DP 使用 `--resume /path/to/checkpoint-N` 恢复参数、Adam、global step 和数据位置；续训应保持 world size、实际 micro-bsz、分配策略和 GEMM 模式等检查点配置，配置变化会被拒绝。State DP 沿用 state-only 导出，不提供优化器续训恢复。导出文件按下节的 state / adapter 接口接入推理。
+
+**显存与诊断**：DP 启动时按 `ctx` 预分配边界 state/shift 检查点，并在训练中复用。`micro-bsz × chunk` 影响激活占用，`ceil(ctx/chunk) × micro-bsz` 影响边界检查点占用；显存不足时应结合两部分调整参数。添加 `--dp-profile` 可查看各 rank 的样本数、token 数、计算和归约等待时间。任一 worker 失败或作业被取消时，父进程会终止并回收其余 worker。
+
+构建、续训和负载分析见 [NCCL DP 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/training/NCCL_DP.md)。[2026-10-31 验证记录](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/src/training/NCCL_DP_VALIDATION.md)包含四张 RTX 4090 上三种 DP 的工程验收、真实 2.9B 模型短程运行和性能记录；它与下文单 GPU 在线 RL Server 的执行方式分别说明。
+
+## GRPO / Dr.GRPO 在线强化学习
+
+项目为 State、MiSS 和 NoRA 提供常驻 BF16 在线 RL 服务。每个服务进程加载一份冻结 backbone，复用它进行 rollout 与训练，并维护 Learner、已发布的 Actor 快照和按策略版本隔离的前缀缓存。
+
+| 模式 | Server | 更新参数 | 默认端口 |
+| --- | --- | --- | --- |
+| State | `rwkv_state_tune_server` | 初始 `time_state`，适配器保持冻结 | `8849` |
+| MiSS | `rwkv_miss_tune_server` | MiSS D，初始状态保持冻结 | `8848` |
+| NoRA | `rwkv_nora_tune_server` | NoRA A/B，初始状态保持冻结 | `8850` |
+
+三个服务共用 HTTP API。Python 客户端负责环境交互、奖励与 GRPO / Dr.GRPO 优势值计算，C++ 服务负责合批采样、带正负优势值的训练、策略版本发布及检查点保存。详细接口和多轮工具环境示例见[在线 RL 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl.zh-CN.md)。
+
+### 设计思想：常驻 Server，客户端逐 step 控制训练
+
+这套在线训练框架把**持续驻留的计算与优化器状态**放在 C++ Server，把**每一步如何采样、评价、更新和发布**交给客户端。Server 启动后保留 backbone、可训练参数、Adam 动量与 step、Actor 版本快照和前缀缓存；客户端通过一次次 HTTP 请求编排训练过程，无需为每一步重新加载模型。关闭客户端也不会关闭 Server。
+
+每次 `/v1/train` 对应一次优化器更新，客户端可根据当前 step、奖励分布、评测或训练指标决定下一步参数。学习率必须逐请求显式给出，服务端既没有默认学习率，也不会沿用上一次请求的值；warmup、衰减、分阶段调整都可在客户端实现，同时保留 Server 内已有的 Adam 状态。这种设计将训练循环开放为可以细粒度控制的接口，GRPO / Dr.GRPO 是配套客户端基于这些接口实现的训练策略。
+
+| 控制位置 | 可决定的内容 | 生效范围 |
+| --- | --- | --- |
+| rollout 请求 | `temperature`、`max_tokens`、停止条件、seed、prompt 集合和策略版本 | 每次采样，可逐 step / 逐轮改变；仍受 Server 上限限制 |
+| 环境与奖励函数 | 工具执行、观察、Judge、组大小、奖励与优势值算法、KL 奖励系数 | 客户端计算，提交训练前决定 |
+| train 请求 | 必填 `learning_rate`、采样对应的 `temperature`、样本与 `loss_mask`、signed `advantages` | 每次更新；优势值可细到逐 token，样本可覆盖 temperature |
+| publish 请求 | 发布时机、`save`、`checkpoint` | 每次发布，决定新 Actor 快照与磁盘保存 |
+| Server 启动配置 | 训练模式、基模、rank / targets、`ctx`、`chunk`、`micro-bsz` 和缓存预算 | 进程级配置；当前 API 不支持逐 step 修改这些项 |
+
+例如，可以在客户端先用较高温度探索，后续按训练阶段降低温度；每一步按进度计算学习率，按奖励方差调整采样组大小，或按任务选择奖励函数和逐 token 优势值。训练时的 temperature 必须与对应轨迹的采样 temperature 一致；组大小和完整历史长度也要落在 Server 的 `max-batch`、`ctx` 范围内。
+
+下面是自定义客户端的单步控制骨架：`call` 负责 HTTP GET / POST；`collect_samples` 由任务环境实现，负责按指定版本采样、执行环境、计算 GRPO / Dr.GRPO 优势值，并返回带原始 token IDs、`loss_mask` 和 `advantages` 的样本。
+
+~~~python
+def run_step(call, collect_samples):
+    health = call("/health")
+    if health["step"] != health["published_step"]:
+        raise RuntimeError("先发布已完成的更新，再收集新轨迹")
+    step = health["step"]
+    version = health["policy_version"]
+
+    # 示例调度；实际取值按训练对象与任务调整。
+    learning_rate = 2e-5 * min((step + 1) / 10, 1.0)
+    temperature = 1.0 if step < 100 else 0.8
+    samples = collect_samples(
+        policy_version=version,
+        temperature=temperature,
+        group_size=min(4, health["max_batch"]),
+        max_tokens=512,
+    )
+    result = call("/v1/train", {
+        "policy_version": version,
+        "temperature": temperature,
+        "learning_rate": learning_rate,
+        "samples": samples,
+    })
+    if result["updated"]:
+        return call("/v1/publish", {
+            "expected_step": result["step"],
+            "checkpoint": result["step"] % 10 == 0,
+        })
+    return result
+~~~
+
+示例脚本 `tools/online_rl.py` 的 `--lr` 是一次运行中每个 train 请求发送的固定值；上述按 step 调度、动态组大小或任务级奖励编排，需要在自定义客户端中实现。客户端也可以更换语言，只需遵循 HTTP 协议、token 对齐和策略版本约定。框架接口与现有客户端实现见[在线 RL 文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl.zh-CN.md)。
+
+### 启动在线训练服务
+
+先构建三个 Server，然后选择其中一种模式启动；HTTP 服务目标需要 Drogon：
+
+~~~bash
+cmake --build build -j --target \
+  rwkv_miss_tune_server rwkv_state_tune_server rwkv_nora_tune_server
+~~~
+
+以下为 MiSS 模式的启动示例：
+
+~~~bash
+./build/rwkv_miss_tune_server \
+  --model /path/to/model.pth \
+  --vocab ./assets/rwkv_vocab_v20230424.txt \
+  --rank 16 --alpha 16 --targets all \
+  --host 127.0.0.1 --port 8848 \
+  --chunk 64 --ctx 4096 --max-batch 8 --micro-bsz 1 \
+  --cache-capacity 8 --cache-memory-mb 4096 --keep-versions 2 \
+  --output ./online-rl-output/miss
+~~~
+
+使用 State 模式时，将程序改为 `rwkv_state_tune_server`、端口改为 `8849`，去掉 `--rank`、`--alpha`、`--targets` 并使用独立输出目录。使用 NoRA 模式时，改为 `rwkv_nora_tune_server`、端口 `8850`，保持 `rank=alpha`。
+
+三个服务都支持 `--state` 和 `--adapter` 同时冷启动。不指定适配器时，MiSS 从零 D 开始，NoRA 按 NoRA-init 初始化；不指定 state 时从零初始状态开始。State 模式可加载一个冻结的 MiSS 或 NoRA 适配器。服务端启动不接受 `--lr`，每个训练请求必须显式提交 `learning_rate`。
+
+启动后检查所选服务的状态：
+
+~~~bash
+curl -sS http://127.0.0.1:8848/health
+~~~
+
+`/health` 返回 `mode`、`policy_version`、`step`、`published_step` 和缓存信息。在线服务的 `--ctx` 限制完整历史长度，超长请求会被拒绝；它与离线 CLI 的样本截断行为不同。
+
+### 运行 GRPO / Dr.GRPO 客户端
+
+项目自带 [tools/online_rl.py](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/tools/online_rl.py)，HTTP 使用 Python 标准库，仅额外依赖 `tqdm`。输入仍为前文的 `segments` JSONL，每个 `train:true` 段作为待生成的 Assistant 轮次。使用 uv 可直接运行：
+
+~~~bash
+uv run --with tqdm python tools/online_rl.py \
+  --url http://127.0.0.1:8848 \
+  --data /path/to/train.jsonl \
+  --algorithm grpo \
+  --steps 10 --group-size 4 --max-turns 2 --max-tokens 1024 \
+  --temperature 1.0 --lr 0.00002 --seed 1234 \
+  --save --metrics ./miss-grpo-metrics.jsonl
+~~~
+
+`--group-size` 是每组采样轨迹数，至少为 2，且不能超过 Server 的 `--max-batch`。`--steps` 为本次处理的批数，奖励无方差时会跳过更新，因此不一定等于 Adam 更新次数。`--max-tokens` 是每轮生成的硬上限，命中停止串可提前结束。
+
+| `--algorithm` | 客户端计算的优势值 | 归一化方式 |
+| --- | --- | --- |
+| `grpo` | `(reward - mean) / std` | 服务端按本批有效训练 token 数归一化 |
+| `dr_grpo` | 去掉 std 归一化，并对优势值作补偿缩放 | 等效使用 `group-size × max-tokens × 该行轮数` 的常数分母 |
+
+使用 Dr.GRPO 时，将命令改为 `--algorithm dr_grpo`，并单独调整学习率和指标文件。State 使用 `http://127.0.0.1:8849`，NoRA 使用 `http://127.0.0.1:8850`；学习率也应按训练对象重新设置。
+
+默认 Judge 为生成 token 与参考答案的 unigram F1，仅用于示例。实际任务可通过 `--judge your_module:reward` 指定奖励函数，函数接收生成与参考的 token ID 列表，返回标量奖励。示例客户端回放数据集中的工具观察；真实 Agent RL 需要自行执行工具动作并提供新观察。`--smoke` 会截短上下文并可使用人工优势值，仅用于检查管线连通性。
+
+### 在线 API 与策略版本
+
+完整闭环为：**读取当前版本 → 批量 rollout → 计算奖励与优势值 → 训练一次 → 发布新版本 → 用新版本重新采样**。
+
+| 接口 | 用途与关键字段 |
+| --- | --- |
+| `GET /health` | 获取当前版本及 Learner / Actor 步数 |
+| `POST /v1/tokenize`、`/v1/detokenize` | 文本与 token IDs 转换 |
+| `POST /v1/completions` | 提交 `policy_version` 与 token ID 数组 `prompts`，返回生成 tokens 和逐 token logprobs |
+| `POST /v1/logprobs` | 教师强制打分，可指定参考策略版本 |
+| `POST /v1/train` | 提交当前 `policy_version`、`temperature`、必填 `learning_rate` 及带 `loss_mask`、signed `advantages` 的样本 |
+| `POST /v1/publish` | 用训练返回的 `step` 作为 `expected_step`，发布新的 Actor 快照 |
+
+上下文应始终按原始 token IDs 拼接；prompt 和工具观察的 `loss_mask` 为 0，生成部分为 1。正优势值提高动作概率，负优势值降低动作概率。采样使用完整的 temperature softmax，不提供原生推理 API 的 Top-K、Top-P 或重复惩罚，以使采样与训练分布一致。
+
+当前训练目标为带 signed advantage 的 on-policy REINFORCE。GRPO / Dr.GRPO 的组内归一化由客户端实现；服务端没有内置 PPO clipping、KL 项或重要性采样修正。若需要参考策略 KL 约束，可通过 `/v1/logprobs` 获取参考 logprob，并在客户端加入逐 token 优势值。
+
+每次有效更新后，Actor 仍保持旧快照，必须先发布、再重新采样，才能进行下一次训练；跳过发布继续训练会返回 409。同一个训练请求中提交本轮的全部样本，避免重复使用旧轨迹。在线 Server 按请求串行调度，同一采样请求内合批解码；原生推理服务的跨请求连续批处理与此处调度方式不同。
+
+### 保存、恢复与部署训练结果
+
+`POST /v1/publish` 传 `save:true` 导出 BF16 `state.pth`、有适配器时的 `adapter.pth` 和 `policy.json`；传 `checkpoint:true` 会额外保存 FP32 主参数、Adam 状态及训练步数。将 `expected_step` 替换为实际训练返回的步数，例如：
+
+~~~bash
+curl -sS -X POST http://127.0.0.1:8848/v1/publish \
+  -H 'Content-Type: application/json' \
+  --data '{"expected_step":1,"checkpoint":true}'
+~~~
+
+重启在线服务时，使用 `--resume` 指向发布返回的 `directory`，即可恢复优化器和 step。只用导出的 `state.pth` / `adapter.pth` 冷启动会重置 Adam 和步数。离线 State 的 state-only 导出与在线 State 的完整检查点也应分别使用。
+
+MiSS / NoRA 导出的 `adapter.pth` 可以注册到原生推理服务的 `/v1/adapters`，State 导出的 `state.pth` 可以通过 `/v1/state/upload` 上传。以外部推理服务生成 RL 轨迹时，应评估它与 BF16 训练服务的采样分布差异；项目示例优先使用在线 Server 自身完成 rollout。
+
+连接中断后，先查询 `/health`。如果 `step > published_step`，说明可能已完成更新，应按实际 step 发布；直接重发训练请求可能造成重复操作。更多版本约束、缓存预算和恢复流程见[在线 RL 完整文档](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl.zh-CN.md)，CUDA 实测及验收范围见[在线 RL 验证记录](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/docs/online-rl-validation.zh-CN.md)。
+
+## 从旧版 rwkv_lightning 迁移
+
+| 旧版用法 | rwkv_lightning_cuda 用法 |
+| --- | --- |
+| `python app.py`，依赖 PyTorch / FastAPI | 运行 C++ 服务端 `rwkv_lighting_cuda` 或 Launcher |
+| `--inference-engine fp16/gemlite/cutlass` | 通过 `.pth` / `.rwkvq` 模型格式选择推理路径，量化文件需按新项目格式转换 |
+| `/openai/v1/chat/completions` | `/v1/chat/completions`，客户端 base URL 改为 `/v1` |
+| `/v1/chat/completions` 或 `/v2/chat/completions` 传 `contents` 批量补全 | `/v1/batch/completions` 传 `contents` |
+| `stop_tokens` 传字符串数组 | 文本停止使用 `stop`；`stop_tokens` 改为整数 token ID 数组 |
+| `/big_batch/completions` | 使用原生批量接口及连续批处理调度 |
+| `/multi_state/chat/completions`、`/FIM/v1/batch-FIM` | 新项目不提供这些同名路由，接入前需按新 API 调整业务逻辑 |
+
+更多接口字段、错误响应和单模型 / 动态模式的差异见[完整 API 参考的 rwkv_lightning_cuda 章节](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/rwkv_lightning_api_doc.md#2-rwkv_lightning_cuda)。该参考同时包含归档旧项目，请使用第二部分。
+
+## 多后端推理集群部署
+
+[多后端路由器](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/RWKV_Lightning_CUDA_router/README.zh-CN.md)支持多实例负载均衡、会话亲和与初始 state 文件广播。Launcher 的远程节点与第三方联调见[联调指南](https://github.com/Alic-Li/rwkv_lightning_cuda/blob/main/RWKV_Lightning_CUDA_Launcher/docs/integration-guide.md)。
