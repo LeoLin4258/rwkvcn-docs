@@ -19,7 +19,7 @@ KoboldCpp 使用 `GGUF` 格式的 RWKV 模型。对于 1.5B 及以上模型，�
 
 可以从 [RWKV7-Gxx GGUF 合集](https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf) 或 [RWKV ModelScope 合集](https://modelscope.cn/organization/RWKV?tab=collection) 下载模型。先在合集页面选择需要的模型，进入模型仓库后再下载一个以 `.gguf` 结尾的量化文件：
 
-![rwkv-model-list](./imgs/text-generation-webui-rwkv-model-list.jpg)
+![RWKV 在 ModelScope 的模型合集页面，右侧是 GGUF 模型合集](./imgs/koboldcpp-modelscope-collections.png)
 
 <CallOut type="tips">
 自己微调了一个 RWKV-7 模型，想从 pth 转 gguf 格式？查看 [llama.cpp 文档 - 从 pth 模型转换为 gguf](../llamacpp#get-gguf-models)。
@@ -37,7 +37,7 @@ KoboldCpp 使用 `GGUF` 格式的 RWKV 模型。对于 1.5B 及以上模型，�
 | --- | --- | --- |
 | Windows + NVIDIA GPU | `koboldcpp.exe` | 官方推荐的单文件版本 |
 | Windows，无 NVIDIA GPU 或不使用 CUDA | 文件名包含 `nocuda` 的版本 | AMD GPU 可先在这个版本中选择 Vulkan |
-| 较旧 CPU 或较旧 NVIDIA GPU | 文件名包含 `oldpc` 的版本 | 使用 CUDA 11 和 AVX1，供默认版本无法启动时尝试 |
+| 较旧 CPU 或较旧 NVIDIA GPU | 文件名包含 `oldpc` 的版本 | 供默认版本无法启动时尝试，具体指令集和 CUDA 要求见对应发布说明 |
 | Linux + NVIDIA GPU | `koboldcpp-linux-x64` | 官方推荐的单文件版本 |
 | Linux + AMD GPU | 文件名包含 `nocuda` 的版本 | 优先尝试 Vulkan |
 | Apple Silicon Mac | `koboldcpp-mac-arm64` | 适用于 M 系列芯片 |
@@ -46,7 +46,6 @@ KoboldCpp 使用 `GGUF` 格式的 RWKV 模型。对于 1.5B 及以上模型，�
 
 ## 配置与运行
 
-### 调整 KoboldCpp 配置
 
 下面以 Windows 单文件版本为例。双击下载的 exe 文件，即可打开 KoboldCpp 的启动器 GUI。
 
@@ -66,9 +65,13 @@ chmod +x koboldcpp-mac-arm64
 
 其他安装方式可参考 [KoboldCpp README](https://github.com/LostRuins/koboldcpp#readme)。
 
+安装成功后点击启动即可看到如下界面：
+
+![KoboldCpp 启动器，点击右下角 Launch 启动模型](./imgs/koboldcpp-launch.png)
+
 在启动器的快速启动（Quick Launch）界面，可以**调整 KoboldCpp 和模型的配置**，重点关注以下三个选项：
 
-- **`GGUF Text Model`**：选择一个 `.gguf` 格式的 RWKV 模型文件。
+- **`GGUF Text Model`**：选择一个 `.gguf` 格式的 RWKV 模型文件。点击 `Browse` 可在本地文件夹中选择模型，适合已经下载好模型的用户；点击 `HF Search` ，可从 Hugging Face 搜索并下载模型，模型可参考前面介绍的 RWKV7-Gxx GGUF 合集。
 - **`Backend`**：NVIDIA 显卡选择 `Use CUDA`，AMD 或 Intel 显卡优先尝试 `Use Vulkan`，只使用 CPU 时选择 `Use CPU`。
 - **`GPU Layers`**：控制放到 GPU 中运行的模型层数。通常保留默认值 `-1`，由 AutoFit 自动估算。
 
@@ -85,11 +88,17 @@ chmod +x koboldcpp-mac-arm64
 - **`Context Size`**：设置 KoboldCpp 可处理的最大上下文长度。第一次运行保持默认即可。增大上下文会增加内存或显存占用
 - 其他参数的释义，请参考 [KoboldCpp 文档](https://github.com/LostRuins/koboldcpp/wiki) 
 
-### 运行 KoboldCpp
-
 配置完毕后，点击右下角的 `Launch` 按钮启动 KoboldCpp。
 
-模型加载成功后，终端会显示本地服务地址。启用了 `Launch Browser` 时，浏览器还会自动打开 KoboldCpp WebUI：
+
+
+模型加载成功后，终端会显示本地服务地址。启用了 `Launch Browser` 时，浏览器还会自动打开 KoboldCpp WebUI。
+
+<CallOut type="info">
+**本机访问地址：[http://localhost:5001](http://localhost:5001)**
+
+在运行 KoboldCpp 的这台电脑上，用浏览器打开此地址即可进入聊天界面。地址位于上图终端底部的红框中；如果修改过端口，请以终端实际显示的地址为准。
+</CallOut>
 
 ```text
 Load Text Model OK: True
@@ -103,15 +112,40 @@ Please connect to custom endpoint at http://localhost:5001
 <CallOut type="warning">
 启动器 `Network` 页的 `Host` 留空时，同一局域网中的其他设备也可能访问这个服务。
 
-- **仅在本机使用：**将 `Host` 设为 `127.0.0.1`
-- **允许局域网设备或远程隧道访问：**先设置 `Password`，不要直接暴露未鉴权的服务
+- **仅在本机使用：** 将 `Host` 设为 `127.0.0.1`
+- **允许局域网设备或远程隧道访问：** 先设置 `Password`，不要直接暴露未鉴权的服务。
 </CallOut>
 
 ## KoboldCpp 使用指南
 
+### 开始第一次对话
+
+打开本机地址后，即可在 KoboldCpp 自带的 KoboldAI Lite WebUI 中直接对话，或导入角色卡进行角色扮演。
+
+![KoboldAI Lite 初始界面，红框标出角色卡导入入口，下方是消息输入框](./imgs/koboldcpp-character-card-entry.png)
+
+**直接对话**
+
+在底部输入框填写消息，点击右侧的 `Submit`（部分界面显示为发送箭头）。收到回复后，可以继续输入追问。
+
+**角色扮演**
+
+1. 点击上图红框内的 `load a JSON File or a Character Card here`，选择要导入的角色卡文件。角色卡从哪里下载、如何准备，可参考 [SillyTavern 的角色卡导入教程](./SillyTavern#import-role-card)。
+2. 出现 `Import Tavern Card Mode` 对话框时，点击 `No` 使用 `Chat Mode`。希望用 `Instruct Mode` 导入时，点击 `Yes`。
+
+   ![KoboldAI Lite 导入角色卡时的模式选择，Yes 为 Instruct Mode，No 为 Chat Mode](./imgs/koboldcpp-character-card-mode.png)
+
+3. 导入后，界面会显示角色开场白。在底部输入消息并发送，即可与角色对话。
+
+   ![KoboldAI Lite 导入 Xiao Yue 角色卡后的角色扮演对话](./imgs/koboldcpp-character-card-chat.png)
+
+使用顶部的 `New Session` 可以开始新会话。需要保留当前对话时，先用 `Save / Load` 保存。
+
 ### 更改对话模式
 
 KoboldCpp 支持四种使用模式。在 KoboldCpp 的 WebUI 中打开 `Settings`，在 `General` 页的 `Usage Mode` 中切换模式：
+
+![KoboldCpp Settings 的 General 页：上方为 Usage mode 和 UI style，下方为聊天名称与指令模板设置](./imgs/koboldcpp-general-settings.jpg)
 
 - **`Instruct Mode`**：指令模式，适合带有指令的文本生成
 - **`Story Mode`**：故事模式，适合小说风格的文本生成
@@ -121,16 +155,20 @@ KoboldCpp 支持四种使用模式。在 KoboldCpp 的 WebUI 中打开 `Settings
 一般聊天可以先选择 `Chat Mode`，执行具体任务时可以选择 `Instruct Mode`。`Story Mode` 和 `Adventure Mode` 分别用于故事续写和交互式叙事。
 
 <CallOut type="info">
-**使用 `Chat Mode`：**在 `General` 页将 `Your Name` 设为 `User`、`AI Name(s)` 设为 `Assistant`。
+<p><strong>使用 Chat Mode：</strong>在 <code>General</code> 页将 <code>Your Name</code> 设为 <code>User</code>、<code>AI Name(s)</code> 设为 <code>Assistant</code>。这两个名称分别对应聊天中的用户与模型角色。</p>
 
-**使用 `Instruct Mode`：**还需要按照模型使用的提示词格式设置指令的开始和结束标签，不能只切换使用模式。
+<p><strong>使用 Instruct Mode：</strong>在 <code>Instruct Settings</code> 中检查 <code>Instruct tag preset</code>，并按照模型使用的提示词格式设置用户与助手的标签。具体格式请参考模型说明和下方教程。</p>
 
 其他格式请参考 [RWKV 提示词格式](../../basic/Prompt-Format)。
 </CallOut>
 
+完成调整后，点击设置窗口底部的 `OK` 应用；点击 `Cancel` 放弃本次修改。如果回复中反复出现角色名称、用户标签或助手标签，优先核对这里的角色名称与提示词格式。
+
 ### 更改 WebUI 风格
 
 在 `Settings` 的 `General` 页找到 `UI style`，即可调整 WebUI 风格。当前提供以下四种风格，并非所有风格都适用于全部使用模式：
+
+上面的设置截图中，`UI style` 就在 `Usage mode` 下方。`Messenger Theme` 将用户消息和模型回复以气泡形式分开显示。
 
 - **`Classic Theme`**：简洁界面，适用于所有模式。
 - **`Messenger Theme`**：即时通信风格，适用于聊天模式。
@@ -139,7 +177,17 @@ KoboldCpp 支持四种使用模式。在 KoboldCpp 的 WebUI 中打开 `Settings
 
 想要接近常见在线聊天工具的布局时，可以选择 `Corpo Theme`。
 
+选择风格后点击 `OK`，返回聊天界面查看效果。界面风格主要影响消息布局和显示方式；模型的对话格式由 `Usage Mode` 及对应的提示词设置决定。
+
+![KoboldCpp WebUI 对话界面示例，展示代码块和文本回复](./imgs/koboldcpp-webui-style-example.png)
+
 ### 其他设置项
+
+在 `Settings → General` 中，还可以根据输入习惯调整以下选项：
+
+- **`Token streaming`**：控制回复的流式显示方式。初次使用可保留当前设置，观察模型逐步输出文字。
+- **`Send input when pressing enter`**：控制是否按回车发送。经常输入多行问题或粘贴代码时，可以关闭此项，改用发送按钮提交。
+- **`Allow multiline replies`**：需要模型输出段落、列表或代码时，可保持勾选。
 
 更多设置项的释义，请参考 WebUI 中的注释和 [KoboldCpp 文档](https://github.com/LostRuins/koboldcpp/wiki)。
 

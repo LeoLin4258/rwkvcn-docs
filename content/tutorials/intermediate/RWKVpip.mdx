@@ -5,10 +5,10 @@ keywords: [RWKV pip使用指南, RWKV pip开发应用, RWKV pip API_DEMO_CHAT.py
 ---
 import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
-本文首先介绍面向 RWKV-7 G1 权重的 CUDA Graph 推理，再通过 `API_DEMO_CHAT.py` 解释有状态聊天循环。安装示例使用 `rwkv==0.8.32`：
+本文首先介绍面向 RWKV-7 G1 权重的常规推理与 CUDA Graph 加速，再通过 `API_DEMO_CHAT.py` 解释有状态聊天循环。先在虚拟环境中安装对应的 [PyTorch](https://pytorch.org/get-started/locally/)，再在同一环境安装 RWKV 和用于统计速度的 NumPy：
 
 ```bash
-pip install "rwkv==0.8.32"
+python -m pip install "rwkv==0.8.32" numpy
 ```
 
 RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/ChatRWKV)** 仓库中找到。
@@ -16,6 +16,21 @@ RWKV pip 库的原始代码可以在 **[ChatRWKV](https://github.com/BlinkDL/Cha
 ## 带 CUDA Graph 的加速推理代码
 
 以下是 RWKV 模型的两种推理模式：**常规模式（Slow）** 和 **带 CUDA Graph 的加速模式（Fast/CUDA Graph）**，后者通过消除 Python 调用开销实现极高的 Token 生成速度。
+
+新建一个 Python 文件，例如 `test.py`。根据运行环境，将下面相应的代码块按顺序复制到**同一个文件**：
+
+- **云端 NVIDIA 显卡（如 Colab）**：在已启用 NVIDIA GPU 的环境中，将第 **1–5** 节的代码按顺序复制进去。环境已具备 CUDA 版 PyTorch、CUDA Toolkit（含 `nvcc`）和 C++ 编译器时，只需把第 2 节的 `model=` 改成模型在云端的实际路径，省略末尾的 `.pth`。保留 `strategy='cuda fp16'`、`RWKV_CUDA_ON='1'` 和 GPU 同步语句。本机 NVIDIA 显卡也可以按这套步骤运行。
+- **在自己的电脑上跑（纯 CPU，包括有 AMD 显卡但使用 CPU 推理的情况）**：
+    1. **只复制第 1、2、3 节**，跳过第 4、5 节的 CUDA Graph 代码。
+    2. **改第 1 节**：把 `os.environ["RWKV_CUDA_ON"] = '1'` 改为 `os.environ["RWKV_CUDA_ON"] = '0'`。
+    3. **改第 2 节**：将 `model=` 里的示例路径换成 Windows 本机的实际模型路径，去掉末尾的 `.pth`，并把 `strategy='cuda fp16'` 改为 `strategy='cpu fp32'`。
+    4. **改第 3 节**：删除两行 `torch.cuda.synchronize()`。
+
+运行前，先在运行脚本的 Python 环境中安装对应的 PyTorch，并执行本页开头的 `python -m pip install "rwkv==0.8.32" numpy`。提前将对应的 `.pth` 权重下载到运行脚本的机器上。保存脚本后，在项目目录用同一个 Python 执行 `python test.py`。Windows PowerShell 中也可以直接指定虚拟环境的解释器：
+
+```powershell
+.\.venv\Scripts\python.exe .\test.py
+```
 
 ### 1. 环境设置与依赖导入
 
@@ -36,7 +51,7 @@ from rwkv.utils import PIPELINE
 <CallOut type="warning">
 **模型版本：**`RWKV_V7_ON` 仅适用于 RWKV-7 模型。加载 RWKV-6 或 RWKV-5 模型时，请将其设为 `0` 或删除这一行。
 
-**CUDA 自定义算子：**`RWKV_CUDA_ON='1'` 需要系统能够使用 `nvcc`。如果编译失败，请将它设为 `0`，改用 PyTorch 实现。
+**CUDA 自定义算子：**`RWKV_CUDA_ON='1'` 需要系统能够使用 `nvcc`。如果编译失败，请将它设为 `0` 并先运行第 1–3 段，验证 PyTorch 常规推理。
 </CallOut>
 
 这里设置了运行 RWKV 所需的核心环境变量，并导入了必要的库。
@@ -48,7 +63,7 @@ from rwkv.utils import PIPELINE
 ```python
 # 初始化模型
 # strategy='cuda fp16': 使用 GPU (cuda) 进行计算，精度为 fp16
-model = RWKV(model='/mnt/e/RWKV-Runner/models/rwkv7-g1a-0.1b-20250728-ctx4096', strategy='cuda fp16')
+model = RWKV(model=r"C:\rwkvrunner\models\rwkv7-g1d-0.4b-20260210-ctx8192", strategy='cuda fp16')
 
 # 初始化 Pipeline
 # 用于将文本转换为 token id (encode) 以及将 token id 转换回文本 (decode)
@@ -63,9 +78,19 @@ TOP_P = 0.0             # Top-p 采样：0.0 只保留概率最高的 token
 prompt = "User: simulate SpaceX mars landing using python\n\nAssistant: <think"
 ```
 
-这一部分加载了具体的模型权重文件，并设定了生成任务的“超参数”。
+这一部分加载了具体的模型权重文件，并设定了生成任务的“超参数”。先下载 RWKV-7 G1 的 PyTorch 权重（`.pth`），复制模型文件的本机绝对路径，把它填入 `model=`，并**去掉末尾的 `.pth`**。例如，文件名是 `rwkv7-g1d-0.4b-20260210-ctx8192.pth`，传入的路径只写到 `rwkv7-g1d-0.4b-20260210-ctx8192`，RWKV 会在加载时补回后缀。Windows 路径可使用上例的 `r"..."`，也可把反斜杠写成正斜杠。
 
-RWKV-7 当前仅支持 `cuda` 或 `cpu` 搭配 `fp16`、`fp32`、`bf16`。本例使用 `strategy='cuda fp16'`。如果显存不足，请先换用更小的模型。
+本示例直接读取 `.pth` 权重。手里如果已有 GGUF（`.gguf`）或 SafeTensors（`.safetensors`、`.st`）文件，请使用对应格式的推理工具，或为本示例另行下载 `.pth` 权重。
+
+RWKV-7 示例的 `strategy` 由**设备**和**精度**组成：
+
+| 推理后端 | 可用写法 | 运行条件 |
+| -- | -- | -- |
+| CPU | `cpu fp32`、`cpu bf16`、`cpu fp16` | 首次运行建议选 `cpu fp32`。低精度运算取决于 CPU 和 PyTorch。 |
+| NVIDIA CUDA | `cuda fp16`、`cuda bf16`、`cuda fp32` | 第 1–5 段的 CUDA Graph 示例使用 `cuda fp16`。其他精度先用第 1–3 段测试。 |
+| AMD ROCm | `cuda fp16`、`cuda bf16`、`cuda fp32` | 先确认 ROCm 版 PyTorch 可以在 GPU 上运算，再用 `RWKV_CUDA_ON='0'` 试第 1–3 段，保留两行 GPU 同步。PyTorch 在 [ROCm 上复用 `cuda` 接口](https://docs.pytorch.org/docs/stable/notes/hip.html)。本页 AMD 实测用的是 CPU。 |
+
+RWKV-7 请使用表中的设备与精度写法。如果显存不足，请先换用更小的模型。下文的 DirectML（`dml`）、MPS（`mps`）、量化和分层写法属于 RWKV-4/5/6 的旧版策略。
 
 ### 3. 常规推理 (Slow Inference)
 
@@ -122,9 +147,13 @@ print(f'\n\nToken/s = {round(1/times,2)} (forward), {round(1/all_times,2)} (full
 这是标准的 PyTorch 逐个 Token 生成流程。
 
 <CallOut type="info">
+**如何确认运行成功？** Windows 上用 AMD Radeon 780M 的电脑、PyTorch 2.15.0 CPU 版和 0.4B G1d 权重实测，终端依次显示 `Loading ... (cpu fp32)`、`Slow inference`、生成的文本和 `Token/s`。其中 `forward` 只统计模型前向计算，`full` 还包含采样与输出。若出现 TorchScript 的 `FutureWarning`，可以继续看后面是否有生成结果。
+</CallOut>
+
+<CallOut type="info">
 **为什么叫 Slow？**
 
-在 Python 中，`for` 循环每一次 `model.forward(token, state)` 都会发起一次从 CPU 到 GPU 的内核启动调用。对于小模型或快速 GPU，Python 发起调用的时间开销（Overhead）可能比 GPU 实际计算的时间还要长。
+在 GPU 上运行时，Python 的 `for` 循环每次调用 `model.forward(token, state)` 都要调度 GPU 算子。对于小模型或快速 GPU，Python 发起调用的时间开销（Overhead）可能比 GPU 实际计算的时间还要长。
 </CallOut>
 
 
@@ -476,7 +505,7 @@ while True:
 ## RWKV-4/5/6 的推理精度与显存需求[#RWKV-pip-strategy-and-vram-requirements]
 
 <CallOut type="info">
-下表适用于 RWKV-4/5/6，不适用于 RWKV-7。
+下表适用于 RWKV-4/5/6。这些版本的设备写法包括 `cpu`、`cuda`（可指定卡号）、`mps` 和 `dml`，其中 `dml` 需要 `torch-directml` 并在导入 RWKV 前设置 `RWKV_DML_ON='1'`。RWKV-7 请看上方「2. 模型加载与参数配置」的后端与精度表。
 
 下表中 ，`fp16i8` 指在 fp16 精度基础上进行 int8 量化。
 

@@ -45,35 +45,43 @@ RWKV 教程系列提供 RWKV 从入门（体验在线 demo）到精通（本地�
 
 ## RWKV 中级教程
 
-<CallOut type='info'>
-中级教程包含 RWKV 的各种**本地部署方法和推理教程**。
-</CallOut>
+先查看[本地运行方案选择](/tutorials/intermediate)，根据使用目标选择工具，再进入对应教程。
 
-### RWKV 模型本地部署工具
+![RWKV 本地运行方案选择图](./intermediate/images/rwkv-local-options.png)
 
-<HeroCardContainer>
-<SingleCard className="col-span-1" IconImage={TutorialsButton} title="RWKV Runner 使用教程" description="RWKV 的本地部署软件包，带新手友好的图形化界面" themeColor="indigo" href="/tutorials/intermediate/RWKV-Runner/Introduction" />
-<SingleCard className="col-span-1" IconImage={TutorialsMagicWandSparkle} title="Ai00 使用教程" description="基于 WebGPU（vulkan） 的推理工具，支持大多数 GPU 和集显" themeColor="indigo" href="/tutorials/intermediate/ai00/Introduction" />
-</HeroCardContainer>
+### 日常对话与图形界面
 
-### 其他热门模型推理工具
+希望通过图形界面加载模型、开始聊天，可以从以下工具选择。
 
-<HeroCardContainer>
-<MultiCard 
-    className="col-span-1 lg:col-span-2" 
-    IconImage={TutorialsFlame} 
-    title="热门模型推理工具" 
-    description="RWKV 模型也适配了其他热门的开源模型部署和推理工具，如 llama.cpp、Ollama。" 
-    themeColor="blue" 
-    buttons={[
-        {label: "llama.cpp 推理教程", href: "/tutorials/intermediate/llamacpp"},
-        {label: "Ollama 推理教程", href: "/tutorials/intermediate/RWKV-Inference/Ollama"},
-        {label: "Text Generation WebUI 教程", href: "/tutorials/intermediate/RWKV-Inference/text-generation-webui"},
-    ]}
-/>
-</HeroCardContainer>
+- [RWKV Runner 使用教程](/tutorials/intermediate/RWKV-Runner/Introduction)
+- [Ai00 使用教程](/tutorials/intermediate/ai00/Introduction)
+- [TextGen 推理教程](/tutorials/intermediate/RWKV-Inference/text-generation-webui)
+
+### 写作与角色扮演
+
+先用 KoboldCpp 运行模型，再按需连接 SillyTavern 使用角色卡和聊天功能。
+
+- [KoboldCpp 推理教程](/tutorials/intermediate/RWKV-Inference/KoboldCpp)
+- [SillyTavern 角色扮演教程](/tutorials/intermediate/RWKV-Inference/SillyTavern)
+
+### 命令行与模型服务
+
+需要命令行控制、模型管理或 API 接入时，可以选择 llama.cpp 或 Ollama。
+
+- [llama.cpp 推理教程](/tutorials/intermediate/llamacpp)
+- [Ollama 推理教程](/tutorials/intermediate/RWKV-Inference/Ollama)
+
+### Python 开发与高并发推理
+
+需要在代码中调用模型、进行算子实验或配置高并发服务时，参考以下教程。
+
+- [RWKVpip 指南](/tutorials/intermediate/RWKVpip)
+- [rwkv_lightning_cuda 教程](/tutorials/intermediate/rwkv_lightning)
+- [RWKV-FLA 使用教程](/tutorials/intermediate/RWKV-FLA)
+- [Albatross](https://github.com/BlinkDL/Albatross)
 
 ---
+
 ## RWKV 高级教程
 
 <CallOut type='info'>

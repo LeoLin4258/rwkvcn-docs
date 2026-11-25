@@ -40,9 +40,14 @@ llama.cpp 目前支持 RWKV-6 和 RWKV-7 的 GGUF 模型，RWKV 社区成员 [@M
 
 ## llama.cpp 推理 RWKV 模型
 
-<Steps>
-<Step>
-### 获取 llama.cpp
+<CallOut type="info">
+**先完成第 1 项，再在第 2、3 项中任选一种模型准备方式，最后进入第 4 项。**
+
+- 推荐路线：**1 → 2 → 4**，由命令自动下载并缓存模型。
+- 自定义路线：**1 → 3 → 4**，手动下载或转换模型，再指定本地文件运行。
+</CallOut>
+
+### 1. 获取 llama.cpp
  
 如果只想尽快开始，推荐访问 [llama.app](https://llama.app/)，按照页面提示完成安装。如果需要自行选择运行后端或使用独立的命令行程序，再从 [llama.cpp 的 release 页面](https://github.com/ggml-org/llama.cpp/releases)下载已经编译好的程序。
 
@@ -55,6 +60,8 @@ llama.cpp 目前支持 RWKV-6 和 RWKV-7 的 GGUF 模型，RWKV 社区成员 [@M
 | Intel GPU | SYCL / Vulkan / OpenVINO |
 | Apple Silicon | Metal |
 | 仅使用 CPU | CPU |
+
+**Windows x64 + NVIDIA（CUDA）**：从同一个 Release 选择与 NVIDIA 驱动兼容的 CUDA 构建。例如 [b12001](https://github.com/ggml-org/llama.cpp/releases/tag/b12001) 提供 `llama-b12001-bin-win-cuda-12.4-x64.zip`。如果程序提示缺少 CUDA DLL，从同一发布页下载匹配的 `cudart-llama-bin-win-cuda-12.4-x64.zip`，将其中的 DLL 解压到 `llama-server.exe` 所在目录。
 
 也可以参照 [llama.cpp 官方构建文档](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md)，选择适合的方法本地编译构建。
 
@@ -70,20 +77,35 @@ llama.cpp 目前支持 RWKV-6 和 RWKV-7 的 GGUF 模型，RWKV 社区成员 [@M
 
 使用 release 压缩包时，请先进入解压目录；自行编译时，请进入 `build/bin` 目录。Windows PowerShell 将表中的 `llama` 写成 `.\llama.exe`，例如 `.\llama.exe cli`；Linux 和 macOS 写成 `./llama`，例如 `./llama cli`。
 </CallOut>
-</Step>
-<Step>
-### 获取 gguf 格式模型[#get-gguf-models]
+
+### 2. 由程序自动下载（推荐）[#auto-download]
+
+在 llama.cpp 目录打开 PowerShell。如需使用镜像站，先运行：
+
+```powershell
+$env:MODEL_ENDPOINT = "https://hf-mirror.com"
+```
+
+这行命令将下载地址切换到镜像站。如果可以直接访问 Hugging Face，可以省略。第 4 项中选择自动下载的启动命令。
+
+首次启动任一种界面时，程序都会自动下载并缓存模型。下图展示的是下载进度，请等待完成：
+
+![通过镜像站下载 RWKV7-G1l 1.5B 模型](./images/llamacpp/llama.cpp-rwkv7-g1l-model-download.png)
+
+**设置完成后，直接前往[第 4 项：开始运行模型](#start-running)，无需执行第 3 项。**
+
+### 3. 手动准备 GGUF 模型[#get-gguf-models]
+
+通常用于自定义下载模型的配置，该方法没有前者便捷。
 
 llama.cpp 使用 `.gguf` 格式的模型。运行当前公开模型时，建议直接下载已经转换好的 GGUF；如果需要运行自己的 `.pth` 模型或微调检查点，再手动转换格式。
 
-<Tabs items={[' 直接下载 gguf 模型（推荐）', '从 pth 转换成 gguf']}>
-  <Tab> 
+#### 直接下载 GGUF 模型（推荐）[#download-gguf]
+
 可以从 [RWKV7-Gxx-GGUF 合集](https://huggingface.co/collections/shoumenchougou/rwkv7-gxx-gguf) 下载当前的 RWKV-7 G 系列 GGUF 模型。
 
 <CallOut type="info">
-下文的命令使用 `-hf` 参数，llama.cpp 会自动下载并缓存模型，不需要提前创建 `models` 文件夹。
-
-如果希望手动管理模型文件，请在 llama.cpp 目录下新建 `models` 文件夹，再将下载的 GGUF 模型放入其中。
+将下载或转换好的 GGUF 文件放入 llama.cpp 目录下的 `models` 文件夹，再在本项末尾设置文件路径。如果使用其他文件名或目录，请同步替换路径。
 </CallOut>
 
 <CallOut type="warning">
@@ -93,49 +115,87 @@ llama.cpp 使用 `.gguf` 格式的模型。运行当前公开模型时，建议�
 - 1.5B 及以上：可以先使用 `Q5_K_M`。内存或显存充足时，再选择 `Q6_K`、`Q8_0` 或 FP16
 </CallOut>
 
-</Tab>
-  <Tab id="pth-to-gguf"> 
+#### 从 pth 转换成 GGUF[#pth-to-gguf]
+
 1. 首先，从 [Hugging Face](https://huggingface.co/BlinkDL) 或[魔搭平台](https://modelscope.cn/organization/RWKV?tab=model)（国内可访问）下载一个 `pth` 格式的 RWKV 模型
 2. 从 [MollySophia/rwkv-mobile 仓库](https://github.com/MollySophia/rwkv-mobile/blob/master/converter/convert_rwkv_pth_to_gguf.py) 下载 RWKV 专用的社区转换脚本 `convert_rwkv_pth_to_gguf.py`
 3. 下载 RWKV 分词表[rwkv_vocab_v20230424.txt](https://github.com/MollySophia/rwkv-mobile/blob/master/assets/rwkv_vocab_v20230424.txt)，确保分词器和转换脚本放在同一目录下
-4. 运行 `pip install torch gguf` 命令，安装转换脚本所需的依赖项
+4. 运行 `python -m pip install torch gguf` 命令，安装转换脚本所需的依赖项
 5. 在转换脚本目录下运行以下命令，将 `pth` 格式的模型转换为 `gguf` 格式的模型
 
 ```bash
-python convert_rwkv_pth_to_gguf.py [pth模型文件路径] rwkv_vocab_v20230424.txt
+python convert_rwkv_pth_to_gguf.py "你的模型.pth" "rwkv_vocab_v20230424.txt" --outfile "你的模型-FP16.gguf" --outtype f16
 ```
 
 <CallOut type="warning">
- 请将上述命令中的 `[pth模型文件路径]`改成你的 pth 格式 RWKV 模型路径。
+请将 `你的模型.pth` 改成输入检查点的实际路径，将 `你的模型-FP16.gguf` 改成新的输出路径；路径含空格时保留双引号。生成的 FP16 GGUF 可直接加载，也可按下方步骤进一步量化。
 </CallOut>
-  </Tab>
-</Tabs>
-</Step>
-<Step>
 
-### 运行 RWKV 模型进行对话
+下载或转换完成后，记下模型的实际文件路径，在第 4 项选择本地模型的启动命令。路径中有空格时，请保留两侧的双引号。
 
-在 llama.cpp 目录运行以下命令，可以开启 llama.cpp 的命令行**对话模式**：
+**设置完成后，直接前往[第 4 项：开始运行模型](#start-running)，无需执行第 2 项。**
 
-```bash
-llama cli -hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M
+### 4. 开始运行模型[#start-running]
+
+完成第 2 项或第 3 项后，在 llama.cpp 目录打开 PowerShell，选择一种对话方式，并运行与你的模型来源对应的命令。使用镜像时，需在当前窗口先设置上面的镜像地址。
+
+显存充足用 `-ngl 99`，较少先试 `-ngl 20`；该参数控制 GPU 加载层数。
+
+<Tabs items={['命令行对话', 'Web 网页（推荐）']} label="对话方式（二选一）">
+<Tab value="命令行对话">
+自动下载模型：
+
+```powershell
+llama cli -hf shoumenchougou/RWKV7-G1l-1.5B-GGUF:Q5_K_M
 ```
-这条命令会从 Hugging Face 下载并运行 RWKV7-G1i 1.5B 的 `Q5_K_M` 模型。模型文件已经包含聊天模板，因此运行后会直接进入对话模式。以后再次运行时，llama.cpp 会复用本地缓存中的模型文件，不必重新下载。
 
-![llama.cpp-RWKV-inference-cnv-mode](./images/llamacpp/llama.cpp-RWKV-inference-cnv-mode.png)
+使用本地模型（请替换为实际路径）：
 
-**参数解释：**
+```powershell
+llama cli -m ".\models\rwkv7-g1l-1.5b-Q5_K_M.gguf"
+```
 
-- `llama cli`：启动 llama.cpp 的命令行对话程序
-- `-hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M`：指定 Hugging Face 模型仓库和量化类型，并在缺少模型时自动下载
 
-当前版本会自动选择模型的加载方式。如果需要明确让 llama.cpp 尽可能使用 GPU，可以追加 `-ngl all`。
+如果选择了第 2 项，首次启动会先下载模型，再自动加载。加载后，会显示模型名称、量化类型及可用命令：
 
-<CallOut type="info">
-完整用法可以在 [llama.cpp 的 `llama-cli` 文档](https://github.com/ggml-org/llama.cpp/blob/master/tools/cli/README.md)中查看。
-</CallOut>
-</Step>
-</Steps>
+![RWKV7-G1l 模型加载后的命令行界面](./images/llamacpp/llama.cpp-rwkv7-g1l-cli-ready.png)
+
+在 `>` 提示符后输入问题并按 Enter，即可开始对话。模型生成结束后，可以继续输入下一个问题：
+
+![RWKV7-G1l 在命令行回答“春节的传统习俗有什么？”](./images/llamacpp/llama.cpp-rwkv7-g1l-cli-chat.png)
+
+- `/exit` 或 Ctrl+C：退出程序。
+- `/clear`：清空对话历史。
+- `/regen`：重新生成上一条回复。
+
+完整用法可以在 [llama.cpp 的命令行文档](https://github.com/ggml-org/llama.cpp/blob/master/tools/cli/README.md)中查看。
+
+</Tab>
+<Tab value="Web 网页（推荐）">
+按模型来源选择一条命令，启动带浏览器界面的 Web 服务：
+
+自动下载模型：
+
+```powershell
+llama serve -hf shoumenchougou/RWKV7-G1l-1.5B-GGUF:Q5_K_M --port 8080
+```
+
+使用本地模型（请替换为实际路径）：
+
+```powershell
+llama serve -m ".\models\rwkv7-g1l-1.5b-Q5_K_M.gguf" --port 8080
+```
+
+保持服务终端运行，等待模型加载完成后，打开 `http://127.0.0.1:8080`，即可访问 llama.cpp Web 页面并开始对话。
+
+![llama.cpp Web 对话界面](./images/llamacpp/llama-cpp-web-chat-rwkv7.png)
+
+需要连接其他客户端时，请使用 OpenAI 兼容接口 `http://127.0.0.1:8080/v1/chat/completions`。停止 Web 服务时，在服务终端按 Ctrl+C。
+
+</Tab>
+</Tabs>
+
+
 
 ## 附加功能（可选）
 
@@ -145,33 +205,19 @@ llama cli -hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M
 需要按完整 prompt 原样续写时，请使用 `llama completion`，并添加 `-no-cnv` 关闭聊天模板。否则，带聊天模板的模型会自动进入对话模式。
 </CallOut>
 
-```bash
-llama completion -hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M -p "User: 用中文解释什么是 MBTI。\n\nAssistant: <think" -n 500 -no-cnv
+```powershell
+llama completion -m C:\llamacpp\llama-b12001-bin-win-vulkan-x64\models\rwkv7-g1k-13.3b-Q5_K_M.gguf -p "User: 用中文解释什么是 MBTI。\n\nAssistant: <think" -n 500 -no-cnv
 ```
 
-![RWKV 模型续写推理](./images/llamacpp/llama.cpp-RWKV-inference-single-prompt.png)
+![RWKV7-G1k 13.3B 在 PowerShell 中续写 MBTI 示例](./images/llamacpp/llama-completion-rwkv7-g1l.png)
 
+- `-m`：指定本地 GGUF 模型路径，请替换成实际路径
 - `-p`：将引号中的完整 prompt 原样交给模型续写
 - `llama completion`：启动原始文本续写程序
 - `-no-cnv`：关闭聊天模式，不使用模型内置模板补全 prompt
 - 其他参数：与对话模式相同
 
 示例末尾的 `Assistant: <think` 会让支持该格式的 RWKV 模型从思考模式开始生成。其他写法请参考 [RWKV 的提示词格式](../basic/Prompt-Format)。
-
-### 启动 Web 服务（推荐）
-
-使用以下命令，启动 llama.cpp 的 Web 服务：
-
-```bash
-llama serve -hf shoumenchougou/RWKV7-G1i-1.5B-GGUF:Q5_K_M --port 8080
-```
-
-启动后，打开 `http://127.0.0.1:8080` 即可访问 llama.cpp Web 页面。
-
-需要连接其他客户端时，请使用 OpenAI 兼容接口 `http://127.0.0.1:8080/v1/chat/completions`。
-
-![WebUI](./images/llamacpp/llama.cpp-chatui-new-version.jpg)
-
 
 ### 量化 gguf 模型
 
@@ -189,7 +235,7 @@ llama quantize models/input-FP16.gguf models/output-Q5_K_M.gguf Q5_K_M
 
 使用 `llama quantize --help` 命令，查看当前版本支持的量化类型：
 
-![可选的量化精度](./images/llamacpp/llama.cpp-quantization-type.jpg)
+![可选的量化精度](./images/llamacpp/llama-quantization-types-current.png)
 
 {/*
 ## 搭载 RWKV State 文件[#state-file]
