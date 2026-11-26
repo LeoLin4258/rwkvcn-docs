@@ -26,7 +26,7 @@ import { CallOut } from 'components-docs/call-out/call-out.tsx'
 
 下载完成后，将便携包解压到一个独立文件夹。
 
-**macOS 用户还需要完成以下操作：**首次启动前，在终端运行下面的命令，移除解压文件的隔离属性。请将路径替换成实际的 TextGen 文件夹：
+**macOS 用户还需要完成以下操作：** 首次启动前，在终端运行下面的命令，移除解压文件的隔离属性。请将路径替换成实际的 TextGen 文件夹：
 
 ```bash
 xattr -cr /path/to/textgen-folder
@@ -34,10 +34,12 @@ xattr -cr /path/to/textgen-folder
 
 完成上述准备后，根据系统启动 TextGen：
 
-- **Windows：**双击 `textgen.bat`
-- **Linux 和 macOS：**在解压目录中运行 `./textgen`
+- **Windows：** 双击 `textgen.bat`
+- **Linux 和 macOS：** 在解压目录中运行 `./textgen`
 
 启动成功后，TextGen 会打开桌面界面。
+
+![TextGen 启动后打开的桌面聊天界面](./imgs/textgen-desktop-interface.png)
 
 如果希望改用浏览器界面，请从终端启动并添加 `--no-electron`：
 
@@ -61,7 +63,7 @@ llama.cpp 使用 `gguf` 格式的 RWKV 模型。可以从 [RWKV7-Gxx-GGUF 合集
 </CallOut>
 
 <CallOut type="info">
-同一个 RWKV 模型通常提供多种量化文件。第一次运行 G1i 1.5B 时，可以先选择 `Q5_K_M`。
+同一个 RWKV 模型通常提供多种量化文件。第一次运行 G1l 1.5B 时，可以先选择 `Q5_K_M`。
 
 - 内存或显存不足时，可以改用 `Q4_K_M`
 - 内存或显存充足时，可以选择 `Q6_K`、`Q8_0` 或 FP16
@@ -74,7 +76,7 @@ llama.cpp 使用 `gguf` 格式的 RWKV 模型。可以从 [RWKV7-Gxx-GGUF 合集
 textgen
 └── user_data
     └── models
-        └── rwkv7-g1i-1.5b-Q5_K_M.gguf
+        └── rwkv7-g1l-1.5b-Q5_K_M.gguf
 ```
 
 ## 加载 RWKV 模型
@@ -95,6 +97,8 @@ textgen
 
 成功加载后，状态区域会显示 `Successfully loaded` 和当前模型名称。
 
+![TextGen 加载 RWKV 模型成功，界面显示 Load 按钮和 Successfully loaded 状态](./imgs/textgen-rwkv-model-loaded.png)
+
 ## 开始聊天
 
 模型加载完毕后，按照以下顺序开始对话：
@@ -104,6 +108,48 @@ textgen
 3. 输入消息并点击 `Send`
 
 界面中出现模型回复，即表示模型、加载器和聊天模板均可正常使用。
+
+![TextGen 在 instruct 模式下生成中文回复](./imgs/textgen-instruct-chat-reply.png)
+
+## 角色与对话记录
+
+`Character` 页面用于设置对话角色、管理用户档案，以及导入和导出聊天记录。普通问答可以继续使用 `instruct` 模式；如果希望模型按照角色设定对话，可以按以下步骤操作：
+
+![TextGen Character 页面中的英语老师角色设置和头像](./imgs/textgen-character-settings.png)
+
+![TextGen Chat 页面中的英语老师对话及 chat 和 chat-instruct 模式选项](./imgs/textgen-character-chat.png)
+
+1. 打开左侧 `Character` 页面，在顶部的 `Character` 标签中选择已有角色，或填写新的角色设定
+2. 在 `Character's name` 中填写角色名称，在 `Context` 中描述角色的背景、回答方式等要求
+3. 如需开场白，在 `Greeting` 中填写内容；新建对话时会显示这条消息
+4. 点击角色下拉菜单旁的 💾 按钮，按照提示保存角色；右侧还可以上传角色头像和用户头像
+5. 回到 `Chat` 页面，将 `Mode` 设为 `chat` 或 `chat-instruct`，然后开始对话
+
+例如，可以将角色名称设为“英语老师”，在 `Context` 中填写“请用中文讲解英语语法，并提供例句”。角色设定会作为提示内容影响回复，实际效果取决于模型。
+
+角色下拉菜单旁的刷新按钮可更新角色列表，`Restore character` 可恢复到上次保存的角色设定，🗑️ 按钮可删除选中的角色。
+
+页面顶部还有以下标签：
+
+| 标签 | 用途和操作 |
+|------|------------|
+| `User` | 设置用户名称和可选的个人描述；点击 💾 保存用户档案，也可以通过下拉菜单切换档案。 |
+| `Chat history` | 点击 `Save history` 导出当前聊天记录；在 `Upload History JSON` 处导入记录时，会创建一条新对话。 |
+| `Upload character` | 导入 YAML 或 JSON 格式的角色资料，或通过 `TavernAI PNG` 导入角色卡，选择文件后点击 `Submit`。 |
+
+## 会话与程序设置
+
+`Session` 页面用于调整 TextGen 的界面、扩展和启动选项。初次运行 RWKV 模型时，可以先保持默认设置。
+
+![TextGen Session 页面，显示程序设置、扩展和启动选项](./imgs/textgen-session-settings.png)
+
+- **Settings**：在桌面版中通过 `Models directory` 和 `Browse` 选择模型文件夹；也可以切换明暗主题、调整 Notebook 布局，以及设置聊天附件和拼写检查。
+- **Updates**：点击 `Check for updates` 检查是否有新版本，并按页面提示访问下载地址。
+- **Extensions & flags**：在 `Available extensions` 中选择扩展，在 `Boolean command-line flags` 中选择布尔启动选项。部分扩展可能需要额外安装依赖。
+
+选择扩展后，可以点击 `Save extensions settings to .../settings.yaml` 保存扩展等界面设置，再点击 `Apply flags/extensions and restart` 重新加载界面并应用当前扩展和启动选项。
+
+例如，`api` 用于启用 API，方便其他程序连接；`listen` 允许局域网访问界面，`share` 会创建公开访问链接。需要连接其他设备或分享服务时，再按实际需求配置这些选项。
 
 ## 其他参数说明
 
